@@ -22,19 +22,23 @@ import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import io.netty.buffer.ByteBuf;
-import java.net.InetSocketAddress;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 
+import java.net.InetSocketAddress;
+
+@Getter
+@Setter
+@ToString
+@AllArgsConstructor
 public class TransferPacket implements MinecraftPacket {
   private String host;
   private int port;
 
   public TransferPacket() {
-  }
-
-  public TransferPacket(final String host, final int port) {
-    this.host = host;
-    this.port = port;
   }
 
   @Nullable

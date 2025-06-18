@@ -22,10 +22,18 @@ import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import io.netty.buffer.ByteBuf;
-import java.util.Objects;
-
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import java.util.Objects;
+
+@Getter
+@Setter
+@ToString
+@AllArgsConstructor
 public class ClientSettingsPacket implements MinecraftPacket {
   private @Nullable String locale;
   private byte viewDistance;
@@ -37,9 +45,6 @@ public class ClientSettingsPacket implements MinecraftPacket {
   private boolean textFilteringEnabled; // Added in 1.17
   private boolean clientListingAllowed; // Added in 1.18, overwrites server-list "anonymous" mode
   private int particleStatus; // Added in 1.21.2
-
-  public ClientSettingsPacket() {
-  }
 
   public ClientSettingsPacket(String locale, byte viewDistance, int chatVisibility, boolean chatColors,
                               short skinParts, int mainHand, boolean textFilteringEnabled, boolean clientListingAllowed,
@@ -55,87 +60,14 @@ public class ClientSettingsPacket implements MinecraftPacket {
     this.particleStatus = particleStatus;
   }
 
+  public ClientSettingsPacket() {
+  }
+
   public String getLocale() {
     if (locale == null) {
       throw new IllegalStateException("No locale specified");
     }
     return locale;
-  }
-
-  public void setLocale(String locale) {
-    this.locale = locale;
-  }
-
-  public byte getViewDistance() {
-    return viewDistance;
-  }
-
-  public void setViewDistance(byte viewDistance) {
-    this.viewDistance = viewDistance;
-  }
-
-  public int getChatVisibility() {
-    return chatVisibility;
-  }
-
-  public void setChatVisibility(int chatVisibility) {
-    this.chatVisibility = chatVisibility;
-  }
-
-  public boolean isChatColors() {
-    return chatColors;
-  }
-
-  public void setChatColors(boolean chatColors) {
-    this.chatColors = chatColors;
-  }
-
-  public short getSkinParts() {
-    return skinParts;
-  }
-
-  public void setSkinParts(short skinParts) {
-    this.skinParts = skinParts;
-  }
-
-  public int getMainHand() {
-    return mainHand;
-  }
-
-  public void setMainHand(int mainHand) {
-    this.mainHand = mainHand;
-  }
-
-  public boolean isTextFilteringEnabled() {
-    return textFilteringEnabled;
-  }
-
-  public void setTextFilteringEnabled(boolean textFilteringEnabled) {
-    this.textFilteringEnabled = textFilteringEnabled;
-  }
-
-  public boolean isClientListingAllowed() {
-    return clientListingAllowed;
-  }
-
-  public void setClientListingAllowed(boolean clientListingAllowed) {
-    this.clientListingAllowed = clientListingAllowed;
-  }
-
-  public int getParticleStatus() {
-    return particleStatus;
-  }
-
-  public void setParticleStatus(int particleStatus) {
-    this.particleStatus = particleStatus;
-  }
-
-  @Override
-  public String toString() {
-    return "ClientSettings{" + "locale='" + locale + '\'' + ", viewDistance=" + viewDistance +
-        ", chatVisibility=" + chatVisibility + ", chatColors=" + chatColors + ", skinParts=" +
-        skinParts + ", mainHand=" + mainHand + ", chatFilteringEnabled=" + textFilteringEnabled +
-        ", clientListingAllowed=" + clientListingAllowed +  ", particleStatus=" + particleStatus + '}';
   }
 
   @Override

@@ -24,8 +24,14 @@ import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.packet.chat.ComponentHolder;
 import io.netty.buffer.ByteBuf;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import net.kyori.adventure.text.Component;
 
+@Getter
+@Setter
+@ToString
 public class HeaderAndFooterPacket implements MinecraftPacket {
 
   private final ComponentHolder header;
@@ -38,14 +44,6 @@ public class HeaderAndFooterPacket implements MinecraftPacket {
   public HeaderAndFooterPacket(ComponentHolder header, ComponentHolder footer) {
     this.header = Preconditions.checkNotNull(header, "header");
     this.footer = Preconditions.checkNotNull(footer, "footer");
-  }
-
-  public ComponentHolder getHeader() {
-    return header;
-  }
-
-  public ComponentHolder getFooter() {
-    return footer;
   }
 
   @Override

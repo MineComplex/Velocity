@@ -17,10 +17,6 @@
 
 package com.velocitypowered.proxy.connection.backend;
 
-import static com.velocitypowered.proxy.connection.forge.legacy.LegacyForgeConstants.HANDSHAKE_HOSTNAME_TOKEN;
-import static com.velocitypowered.proxy.network.Connections.HANDLER;
-import static java.util.Objects.requireNonNull;
-
 import com.google.common.base.Preconditions;
 import com.velocitypowered.api.network.HandshakeIntent;
 import com.velocitypowered.api.network.ProtocolVersion;
@@ -31,11 +27,7 @@ import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.config.PlayerInfoForwarding;
-import com.velocitypowered.proxy.connection.ConnectionTypes;
-import com.velocitypowered.proxy.connection.MinecraftConnection;
-import com.velocitypowered.proxy.connection.MinecraftConnectionAssociation;
-import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
-import com.velocitypowered.proxy.connection.PlayerDataForwarding;
+import com.velocitypowered.proxy.connection.*;
 import com.velocitypowered.proxy.connection.client.ConnectedPlayer;
 import com.velocitypowered.proxy.connection.forge.modern.ModernForgeConnectionType;
 import com.velocitypowered.proxy.connection.util.ConnectionRequestResults.Impl;
@@ -49,12 +41,17 @@ import com.velocitypowered.proxy.server.VelocityRegisteredServer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import org.checkerframework.checker.nullness.qual.Nullable;
-import org.jetbrains.annotations.NotNull;
+
+import static com.velocitypowered.proxy.connection.forge.legacy.LegacyForgeConstants.HANDSHAKE_HOSTNAME_TOKEN;
+import static com.velocitypowered.proxy.network.Connections.HANDLER;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Handles a connection from the proxy to some backend server.
@@ -67,7 +64,7 @@ public class VelocityServerConnection implements MinecraftConnectionAssociation,
   private final VelocityServer server;
   private @Nullable MinecraftConnection connection;
   private boolean hasCompletedJoin = false;
-  private boolean gracefulDisconnect = false;
+  public boolean gracefulDisconnect = false;
   private BackendConnectionPhase connectionPhase = BackendConnectionPhases.UNKNOWN;
   private final Map<Long, Long> pendingPings = new HashMap<>();
 

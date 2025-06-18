@@ -1,6 +1,9 @@
 import com.github.jengelman.gradle.plugins.shadow.transformers.Log4j2PluginsCacheFileTransformer
 
 plugins {
+    `java-library`
+    `maven-publish`
+    id("velocity-publish")
     application
     id("velocity-init-manifest")
     alias(libs.plugins.shadow)
@@ -109,6 +112,7 @@ tasks {
 }
 
 dependencies {
+    compileOnly("org.projectlombok:lombok:1.18.36")
     implementation(project(":velocity-api"))
     implementation(project(":velocity-native"))
     implementation(project(":velocity-proxy-log4j2-plugin"))
@@ -148,4 +152,5 @@ dependencies {
     testImplementation(libs.mockito)
 
     annotationProcessor(libs.auto.service)
+    annotationProcessor("org.projectlombok:lombok:1.18.36")
 }

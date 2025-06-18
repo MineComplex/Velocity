@@ -26,9 +26,16 @@ import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.ProtocolUtils.Direction;
 import com.velocitypowered.proxy.util.except.QuietDecoderException;
 import io.netty.buffer.ByteBuf;
-import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import java.util.UUID;
+
+@Getter
+@Setter
+@ToString
 public class ServerLoginPacket implements MinecraftPacket {
 
   private static final QuietDecoderException EMPTY_USERNAME = new QuietDecoderException(
@@ -57,27 +64,6 @@ public class ServerLoginPacket implements MinecraftPacket {
       throw new IllegalStateException("No username found!");
     }
     return username;
-  }
-
-  public @Nullable IdentifiedKey getPlayerKey() {
-    return this.playerKey;
-  }
-
-  public void setPlayerKey(IdentifiedKey playerKey) {
-    this.playerKey = playerKey;
-  }
-
-  public @Nullable UUID getHolderUuid() {
-    return holderUuid;
-  }
-
-  @Override
-  public String toString() {
-    return "ServerLogin{"
-            + "username='" + username + '\''
-            + "playerKey='" + playerKey + '\''
-            + "holderUUID='" + holderUuid + '\''
-            + '}';
   }
 
   @Override

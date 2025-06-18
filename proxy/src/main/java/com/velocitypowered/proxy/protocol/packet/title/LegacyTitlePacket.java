@@ -22,8 +22,14 @@ import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.packet.chat.ComponentHolder;
 import io.netty.buffer.ByteBuf;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+@Getter
+@Setter
+@ToString
 public class LegacyTitlePacket extends GenericTitlePacket {
 
   private @Nullable ComponentHolder component;
@@ -65,57 +71,6 @@ public class LegacyTitlePacket extends GenericTitlePacket {
   @Override
   public void setAction(ActionType action) {
     super.setAction(action);
-  }
-
-  @Override
-  public @Nullable ComponentHolder getComponent() {
-    return component;
-  }
-
-  @Override
-  public void setComponent(@Nullable ComponentHolder component) {
-    this.component = component;
-  }
-
-  @Override
-  public int getFadeIn() {
-    return fadeIn;
-  }
-
-  @Override
-  public void setFadeIn(int fadeIn) {
-    this.fadeIn = fadeIn;
-  }
-
-  @Override
-  public int getStay() {
-    return stay;
-  }
-
-  @Override
-  public void setStay(int stay) {
-    this.stay = stay;
-  }
-
-  @Override
-  public int getFadeOut() {
-    return fadeOut;
-  }
-
-  @Override
-  public void setFadeOut(int fadeOut) {
-    this.fadeOut = fadeOut;
-  }
-
-  @Override
-  public String toString() {
-    return "GenericTitlePacket{"
-        + "action=" + getAction()
-        + ", component='" + component + '\''
-        + ", fadeIn=" + fadeIn
-        + ", stay=" + stay
-        + ", fadeOut=" + fadeOut
-        + '}';
   }
 
   @Override

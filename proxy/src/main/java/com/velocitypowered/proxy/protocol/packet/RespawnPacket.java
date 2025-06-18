@@ -24,10 +24,16 @@ import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.Pair;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import net.kyori.adventure.nbt.BinaryTagIO;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+@Getter
+@Setter
+@ToString
 public class RespawnPacket implements MinecraftPacket {
 
   private int dimension;
@@ -71,104 +77,6 @@ public class RespawnPacket implements MinecraftPacket {
         (byte) 0, joinGame.getDimensionInfo(), joinGame.getPreviousGamemode(),
         joinGame.getCurrentDimensionData(), joinGame.getLastDeathPosition(),
         joinGame.getPortalCooldown(), joinGame.getSeaLevel());
-  }
-
-  public int getDimension() {
-    return dimension;
-  }
-
-  public void setDimension(int dimension) {
-    this.dimension = dimension;
-  }
-
-  public long getPartialHashedSeed() {
-    return partialHashedSeed;
-  }
-
-  public void setPartialHashedSeed(long partialHashedSeed) {
-    this.partialHashedSeed = partialHashedSeed;
-  }
-
-  public short getDifficulty() {
-    return difficulty;
-  }
-
-  public void setDifficulty(short difficulty) {
-    this.difficulty = difficulty;
-  }
-
-  public short getGamemode() {
-    return gamemode;
-  }
-
-  public void setGamemode(short gamemode) {
-    this.gamemode = gamemode;
-  }
-
-  public String getLevelType() {
-    return levelType;
-  }
-
-  public void setLevelType(String levelType) {
-    this.levelType = levelType;
-  }
-
-  public byte getDataToKeep() {
-    return dataToKeep;
-  }
-
-  public void setDataToKeep(byte dataToKeep) {
-    this.dataToKeep = dataToKeep;
-  }
-
-  public short getPreviousGamemode() {
-    return previousGamemode;
-  }
-
-  public void setPreviousGamemode(short previousGamemode) {
-    this.previousGamemode = previousGamemode;
-  }
-
-  public Pair<String, Long> getLastDeathPosition() {
-    return lastDeathPosition;
-  }
-
-  public void setLastDeathPosition(Pair<String, Long> lastDeathPosition) {
-    this.lastDeathPosition = lastDeathPosition;
-  }
-
-  public int getPortalCooldown() {
-    return portalCooldown;
-  }
-
-  public void setPortalCooldown(int portalCooldown) {
-    this.portalCooldown = portalCooldown;
-  }
-
-  public int getSeaLevel() {
-    return seaLevel;
-  }
-
-  public void setSeaLevel(int seaLevel) {
-    this.seaLevel = seaLevel;
-  }
-
-  @Override
-  public String toString() {
-    return "Respawn{"
-        + "dimension=" + dimension
-        + ", partialHashedSeed=" + partialHashedSeed
-        + ", difficulty=" + difficulty
-        + ", gamemode=" + gamemode
-        + ", levelType='" + levelType + '\''
-        + ", dataToKeep=" + dataToKeep
-        + ", dimensionRegistryName='" + dimensionInfo.toString() + '\''
-        + ", dimensionInfo=" + dimensionInfo
-        + ", previousGamemode=" + previousGamemode
-        + ", dimensionData=" + currentDimensionData
-        + ", portalCooldown=" + portalCooldown
-        + ", seaLevel=" + seaLevel
-        + '}';
   }
 
   @Override

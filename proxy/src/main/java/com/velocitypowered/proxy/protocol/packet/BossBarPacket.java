@@ -24,11 +24,18 @@ import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.packet.chat.ComponentHolder;
 import com.velocitypowered.proxy.util.collect.Enum2IntMap;
 import io.netty.buffer.ByteBuf;
-import java.util.Set;
-import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import net.kyori.adventure.bossbar.BossBar;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import java.util.Set;
+import java.util.UUID;
+
+@Getter
+@Setter
+@ToString
 public class BossBarPacket implements MinecraftPacket {
 
   private static final Enum2IntMap<BossBar.Color> COLORS_TO_PROTOCOL =
@@ -135,71 +142,6 @@ public class BossBarPacket implements MinecraftPacket {
       throw new IllegalStateException("No boss bar UUID specified");
     }
     return uuid;
-  }
-
-  public void setUuid(UUID uuid) {
-    this.uuid = uuid;
-  }
-
-  public int getAction() {
-    return action;
-  }
-
-  public void setAction(int action) {
-    this.action = action;
-  }
-
-  public @Nullable ComponentHolder getName() {
-    return name;
-  }
-
-  public void setName(ComponentHolder name) {
-    this.name = name;
-  }
-
-  public float getPercent() {
-    return percent;
-  }
-
-  public void setPercent(float percent) {
-    this.percent = percent;
-  }
-
-  public int getColor() {
-    return color;
-  }
-
-  public void setColor(int color) {
-    this.color = color;
-  }
-
-  public int getOverlay() {
-    return overlay;
-  }
-
-  public void setOverlay(int overlay) {
-    this.overlay = overlay;
-  }
-
-  public short getFlags() {
-    return flags;
-  }
-
-  public void setFlags(short flags) {
-    this.flags = flags;
-  }
-
-  @Override
-  public String toString() {
-    return "BossBar{"
-        + "uuid=" + uuid
-        + ", action=" + action
-        + ", name='" + name + '\''
-        + ", percent=" + percent
-        + ", color=" + color
-        + ", overlay=" + overlay
-        + ", flags=" + flags
-        + '}';
   }
 
   @Override

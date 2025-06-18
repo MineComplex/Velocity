@@ -41,7 +41,7 @@ public class InitialConnectSessionHandler implements MinecraftSessionHandler {
 
   private final VelocityServer server;
 
-  InitialConnectSessionHandler(ConnectedPlayer player, VelocityServer server) {
+  public InitialConnectSessionHandler(ConnectedPlayer player, VelocityServer server) {
     this.player = player;
     this.server = server;
   }

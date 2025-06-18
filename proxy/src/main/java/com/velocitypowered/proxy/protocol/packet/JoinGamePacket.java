@@ -21,13 +21,20 @@ import com.google.common.collect.ImmutableSet;
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.connection.registry.DimensionInfo;
-import com.velocitypowered.proxy.protocol.*;
+import com.velocitypowered.proxy.protocol.MinecraftPacket;
+import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.Pair;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import net.kyori.adventure.nbt.BinaryTagIO;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+@Getter
+@Setter
+@ToString
 public class JoinGamePacket implements MinecraftPacket {
 
   private static final BinaryTagIO.Reader JOINGAME_READER = BinaryTagIO.reader(4 * 1024 * 1024);
@@ -36,6 +43,7 @@ public class JoinGamePacket implements MinecraftPacket {
   private int dimension;
   private long partialHashedSeed; // 1.15+
   private short difficulty;
+  @Setter
   private boolean isHardcore;
   private int maxPlayers;
   private @Nullable String levelType;
@@ -54,167 +62,8 @@ public class JoinGamePacket implements MinecraftPacket {
   private int seaLevel; // 1.21.2+
   private boolean enforcesSecureChat; // 1.20.5+
 
-  public int getEntityId() {
-    return entityId;
-  }
-
-  public void setEntityId(int entityId) {
-    this.entityId = entityId;
-  }
-
-  public short getGamemode() {
-    return gamemode;
-  }
-
-  public void setGamemode(short gamemode) {
-    this.gamemode = gamemode;
-  }
-
-  public int getDimension() {
-    return dimension;
-  }
-
-  public void setDimension(int dimension) {
-    this.dimension = dimension;
-  }
-
-  public long getPartialHashedSeed() {
-    return partialHashedSeed;
-  }
-
-  public short getDifficulty() {
-    return difficulty;
-  }
-
-  public void setDifficulty(short difficulty) {
-    this.difficulty = difficulty;
-  }
-
-  public int getMaxPlayers() {
-    return maxPlayers;
-  }
-
-  public void setMaxPlayers(int maxPlayers) {
-    this.maxPlayers = maxPlayers;
-  }
-
-  public @Nullable String getLevelType() {
-    return levelType;
-  }
-
-  public void setLevelType(@Nullable String levelType) {
-    this.levelType = levelType;
-  }
-
-  public int getViewDistance() {
-    return viewDistance;
-  }
-
-  public void setViewDistance(int viewDistance) {
-    this.viewDistance = viewDistance;
-  }
-
-  public boolean isReducedDebugInfo() {
-    return reducedDebugInfo;
-  }
-
-  public void setReducedDebugInfo(boolean reducedDebugInfo) {
-    this.reducedDebugInfo = reducedDebugInfo;
-  }
-
-  public DimensionInfo getDimensionInfo() {
-    return dimensionInfo;
-  }
-
-  public void setDimensionInfo(DimensionInfo dimensionInfo) {
-    this.dimensionInfo = dimensionInfo;
-  }
-
-  public short getPreviousGamemode() {
-    return previousGamemode;
-  }
-
-  public void setPreviousGamemode(short previousGamemode) {
-    this.previousGamemode = previousGamemode;
-  }
-
-  public boolean getIsHardcore() {
-    return isHardcore;
-  }
-
   public void setIsHardcore(boolean isHardcore) {
     this.isHardcore = isHardcore;
-  }
-
-  public boolean getDoLimitedCrafting() {
-    return doLimitedCrafting;
-  }
-
-  public void setDoLimitedCrafting(boolean doLimitedCrafting) {
-    this.doLimitedCrafting = doLimitedCrafting;
-  }
-
-  public CompoundBinaryTag getCurrentDimensionData() {
-    return currentDimensionData;
-  }
-
-  public int getSimulationDistance() {
-    return simulationDistance;
-  }
-
-  public void setSimulationDistance(int simulationDistance) {
-    this.simulationDistance = simulationDistance;
-  }
-
-  public Pair<String, Long> getLastDeathPosition() {
-    return lastDeathPosition;
-  }
-
-  public void setLastDeathPosition(Pair<String, Long> lastDeathPosition) {
-    this.lastDeathPosition = lastDeathPosition;
-  }
-
-  public int getPortalCooldown() {
-    return portalCooldown;
-  }
-
-  public void setPortalCooldown(int portalCooldown) {
-    this.portalCooldown = portalCooldown;
-  }
-
-  public int getSeaLevel() {
-    return seaLevel;
-  }
-
-  public void setSeaLevel(int seaLevel) {
-    this.seaLevel = seaLevel;
-  }
-
-  public boolean getEnforcesSecureChat() {
-    return this.enforcesSecureChat;
-  }
-
-  public void setEnforcesSecureChat(final boolean enforcesSecureChat) {
-    this.enforcesSecureChat = enforcesSecureChat;
-  }
-
-  public CompoundBinaryTag getRegistry() {
-    return registry;
-  }
-
-  @Override
-  public String toString() {
-    return "JoinGame{" + "entityId=" + entityId + ", gamemode=" + gamemode + ", dimension=" +
-        dimension + ", partialHashedSeed=" + partialHashedSeed + ", difficulty=" + difficulty +
-        ", isHardcore=" + isHardcore + ", maxPlayers=" + maxPlayers + ", levelType='" + levelType +
-        '\'' + ", viewDistance=" + viewDistance + ", reducedDebugInfo=" + reducedDebugInfo +
-        ", showRespawnScreen=" + showRespawnScreen + ", doLimitedCrafting=" + doLimitedCrafting +
-        ", levelNames=" + levelNames + ", registry='" + registry + '\'' + ", dimensionInfo='" +
-        dimensionInfo + '\'' + ", currentDimensionData='" + currentDimensionData + '\'' +
-        ", previousGamemode=" + previousGamemode + ", simulationDistance=" + simulationDistance +
-        ", lastDeathPosition='" + lastDeathPosition + '\'' + ", portalCooldown=" + portalCooldown +
-        ", seaLevel=" + seaLevel +
-        '}';
   }
 
   @Override

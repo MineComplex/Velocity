@@ -24,8 +24,14 @@ import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.util.DeferredByteBufHolder;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+@Getter
+@Setter
+@ToString
 public class LoginPluginMessagePacket extends DeferredByteBufHolder implements MinecraftPacket {
 
   private int id;
@@ -41,24 +47,11 @@ public class LoginPluginMessagePacket extends DeferredByteBufHolder implements M
     this.channel = channel;
   }
 
-  public int getId() {
-    return id;
-  }
-
   public String getChannel() {
     if (channel == null) {
       throw new IllegalStateException("Channel is not specified!");
     }
     return channel;
-  }
-
-  @Override
-  public String toString() {
-    return "LoginPluginMessage{"
-        + "id=" + id
-        + ", channel='" + channel + '\''
-        + ", data=" + super.toString()
-        + '}';
   }
 
   @Override

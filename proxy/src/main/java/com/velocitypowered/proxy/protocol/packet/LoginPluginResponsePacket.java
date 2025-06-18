@@ -24,8 +24,14 @@ import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.util.DeferredByteBufHolder;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
+@Getter
+@Setter
+@ToString
 public class LoginPluginResponsePacket extends DeferredByteBufHolder implements MinecraftPacket {
 
   private int id;
@@ -39,31 +45,6 @@ public class LoginPluginResponsePacket extends DeferredByteBufHolder implements 
     super(buf);
     this.id = id;
     this.success = success;
-  }
-
-  public int getId() {
-    return id;
-  }
-
-  public void setId(int id) {
-    this.id = id;
-  }
-
-  public boolean isSuccess() {
-    return success;
-  }
-
-  public void setSuccess(boolean success) {
-    this.success = success;
-  }
-
-  @Override
-  public String toString() {
-    return "LoginPluginResponse{"
-        + "id=" + id
-        + ", success=" + success
-        + ", data=" + super.toString()
-        + '}';
   }
 
   @Override

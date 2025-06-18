@@ -22,25 +22,16 @@ import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import io.netty.buffer.ByteBuf;
+import lombok.*;
 
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class KeepAlivePacket implements MinecraftPacket {
 
   private long randomId;
-
-  public long getRandomId() {
-    return randomId;
-  }
-
-  public void setRandomId(long randomId) {
-    this.randomId = randomId;
-  }
-
-  @Override
-  public String toString() {
-    return "KeepAlive{"
-        + "randomId=" + randomId
-        + '}';
-  }
 
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {

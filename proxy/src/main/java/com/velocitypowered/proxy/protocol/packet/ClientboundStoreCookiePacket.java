@@ -23,27 +23,22 @@ import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.ProtocolUtils.Direction;
 import io.netty.buffer.ByteBuf;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import net.kyori.adventure.key.Key;
 
+@Getter
+@Setter
+@ToString
+@AllArgsConstructor
 public class ClientboundStoreCookiePacket implements MinecraftPacket {
 
   private Key key;
   private byte[] payload;
 
-  public Key getKey() {
-    return key;
-  }
-
-  public byte[] getPayload() {
-    return payload;
-  }
-
   public ClientboundStoreCookiePacket() {
-  }
-
-  public ClientboundStoreCookiePacket(final Key key, final byte[] payload) {
-    this.key = key;
-    this.payload = payload;
   }
 
   @Override

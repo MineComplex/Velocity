@@ -7,12 +7,8 @@ extensions.configure<PublishingExtension> {
     repositories {
         maven {
             credentials(PasswordCredentials::class.java)
-
-            name = "paper"
-            val base = "https://repo.papermc.io/repository/maven"
-            val releasesRepoUrl = "$base-releases/"
-            val snapshotsRepoUrl = "$base-snapshots/"
-            setUrl(if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl)
+            name = "mc"
+            setUrl("https://repo.minecomplex.net/private/")
         }
     }
     publications {

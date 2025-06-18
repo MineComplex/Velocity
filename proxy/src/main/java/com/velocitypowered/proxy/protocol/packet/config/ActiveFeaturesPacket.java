@@ -22,26 +22,22 @@ import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import io.netty.buffer.ByteBuf;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import net.kyori.adventure.key.Key;
 
+@Getter
+@Setter
+@ToString
+@AllArgsConstructor
 public class ActiveFeaturesPacket implements MinecraftPacket {
 
   private Key[] activeFeatures;
 
-  public ActiveFeaturesPacket(Key[] activeFeatures) {
-    this.activeFeatures = activeFeatures;
-  }
-
   public ActiveFeaturesPacket() {
     this.activeFeatures = new Key[0];
-  }
-
-  public void setActiveFeatures(Key[] activeFeatures) {
-    this.activeFeatures = activeFeatures;
-  }
-
-  public Key[] getActiveFeatures() {
-    return activeFeatures;
   }
 
   @Override

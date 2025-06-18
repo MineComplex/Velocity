@@ -17,17 +17,23 @@
 
 package com.velocitypowered.proxy.protocol.packet;
 
-import static com.velocitypowered.proxy.protocol.util.PluginMessageUtil.transformLegacyToModernChannel;
-
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.util.DeferredByteBufHolder;
 import io.netty.buffer.ByteBuf;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import static com.velocitypowered.proxy.protocol.util.PluginMessageUtil.transformLegacyToModernChannel;
+
+@Getter
+@Setter
+@ToString
 public class PluginMessagePacket extends DeferredByteBufHolder implements MinecraftPacket {
 
   private @Nullable String channel;
@@ -47,18 +53,6 @@ public class PluginMessagePacket extends DeferredByteBufHolder implements Minecr
       throw new IllegalStateException("Channel is not specified.");
     }
     return channel;
-  }
-
-  public void setChannel(String channel) {
-    this.channel = channel;
-  }
-
-  @Override
-  public String toString() {
-    return "PluginMessage{"
-        + "channel='" + channel + '\''
-        + ", data=" + super.toString()
-        + '}';
   }
 
   @Override

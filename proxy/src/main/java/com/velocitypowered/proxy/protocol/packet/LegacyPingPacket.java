@@ -23,9 +23,14 @@ import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.packet.legacyping.LegacyMinecraftPingVersion;
 import io.netty.buffer.ByteBuf;
-import java.net.InetSocketAddress;
+import lombok.Getter;
+import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import java.net.InetSocketAddress;
+
+@Getter
+@ToString
 public class LegacyPingPacket implements MinecraftPacket {
 
   private final LegacyMinecraftPingVersion version;
@@ -39,14 +44,6 @@ public class LegacyPingPacket implements MinecraftPacket {
   public LegacyPingPacket(LegacyMinecraftPingVersion version, InetSocketAddress vhost) {
     this.version = version;
     this.vhost = vhost;
-  }
-
-  public LegacyMinecraftPingVersion getVersion() {
-    return version;
-  }
-
-  public @Nullable InetSocketAddress getVhost() {
-    return vhost;
   }
 
   @Override

@@ -23,8 +23,15 @@ import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.ProtocolUtils.Direction;
 import io.netty.buffer.ByteBuf;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
 import java.util.UUID;
 
+@Getter
+@Setter
+@ToString
 public class RemoveResourcePackPacket implements MinecraftPacket {
 
   private UUID id;
@@ -34,10 +41,6 @@ public class RemoveResourcePackPacket implements MinecraftPacket {
 
   public RemoveResourcePackPacket(UUID id) {
     this.id = id;
-  }
-
-  public UUID getId() {
-    return id;
   }
 
   @Override

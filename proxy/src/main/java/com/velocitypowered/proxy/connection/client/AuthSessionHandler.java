@@ -17,8 +17,6 @@
 
 package com.velocitypowered.proxy.connection.client;
 
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_8;
-
 import com.google.common.base.Preconditions;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.LoginEvent;
@@ -45,15 +43,18 @@ import com.velocitypowered.proxy.protocol.packet.ServerLoginSuccessPacket;
 import com.velocitypowered.proxy.protocol.packet.ServerboundCookieResponsePacket;
 import com.velocitypowered.proxy.protocol.packet.SetCompressionPacket;
 import io.netty.buffer.ByteBuf;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_8;
 
 /**
  * A session handler that is activated to complete the login phase.
@@ -63,7 +64,7 @@ public class AuthSessionHandler implements MinecraftSessionHandler {
   private static final Logger logger = LogManager.getLogger(AuthSessionHandler.class);
 
   private final VelocityServer server;
-  private final MinecraftConnection mcConnection;
+  public MinecraftConnection mcConnection;
   private final LoginInboundConnection inbound;
   private GameProfile profile;
   private @MonotonicNonNull ConnectedPlayer connectedPlayer;
@@ -254,7 +255,7 @@ public class AuthSessionHandler implements MinecraftSessionHandler {
     });
   }
 
-  private CompletableFuture<Void> connectToInitialServer(ConnectedPlayer player) {
+  public CompletableFuture<Void> connectToInitialServer(ConnectedPlayer player) {
     Optional<RegisteredServer> initialFromConfig = player.getNextServerToTry();
     PlayerChooseInitialServerEvent event =
         new PlayerChooseInitialServerEvent(player, initialFromConfig.orElse(null));

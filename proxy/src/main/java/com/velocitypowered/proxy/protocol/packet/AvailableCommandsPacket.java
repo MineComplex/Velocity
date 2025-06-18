@@ -44,14 +44,12 @@ import com.velocitypowered.proxy.util.collect.IdentityHashStrategy;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenCustomHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import java.util.ArrayDeque;
-import java.util.Arrays;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.Queue;
-import java.util.concurrent.CompletableFuture;
+import lombok.Setter;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public class AvailableCommandsPacket implements MinecraftPacket {
 
@@ -66,6 +64,7 @@ public class AvailableCommandsPacket implements MinecraftPacket {
   private static final byte FLAG_IS_REDIRECT = 0x08;
   private static final byte FLAG_HAS_SUGGESTIONS = 0x10;
 
+  @Setter
   private @MonotonicNonNull RootCommandNode<CommandSource> rootNode;
 
   /**
@@ -117,7 +116,7 @@ public class AvailableCommandsPacket implements MinecraftPacket {
     // Assign all the children an index.
     Deque<CommandNode<CommandSource>> childrenQueue = new ArrayDeque<>(ImmutableList.of(rootNode));
     Object2IntMap<CommandNode<CommandSource>> idMappings = new Object2IntLinkedOpenCustomHashMap<>(
-        IdentityHashStrategy.instance());
+            IdentityHashStrategy.instance());
     while (!childrenQueue.isEmpty()) {
       CommandNode<CommandSource> child = childrenQueue.poll();
       if (!idMappings.containsKey(child)) {
@@ -138,7 +137,7 @@ public class AvailableCommandsPacket implements MinecraftPacket {
   }
 
   private static void serializeNode(CommandNode<CommandSource> node, ByteBuf buf,
-      Object2IntMap<CommandNode<CommandSource>> idMappings, ProtocolVersion protocolVersion) {
+                                    Object2IntMap<CommandNode<CommandSource>> idMappings, ProtocolVersion protocolVersion) {
     byte flags = 0;
     if (node.getRedirect() != null) {
       flags |= FLAG_IS_REDIRECT;
@@ -170,11 +169,11 @@ public class AvailableCommandsPacket implements MinecraftPacket {
     if (node instanceof ArgumentCommandNode<?, ?>) {
       ProtocolUtils.writeString(buf, node.getName());
       ArgumentPropertyRegistry.serialize(buf,
-          ((ArgumentCommandNode<CommandSource, ?>) node).getType(), protocolVersion);
+              ((ArgumentCommandNode<CommandSource, ?>) node).getType(), protocolVersion);
 
       if (((ArgumentCommandNode<CommandSource, ?>) node).getCustomSuggestions() != null) {
         SuggestionProvider<CommandSource> provider = ((ArgumentCommandNode<CommandSource, ?>) node)
-            .getCustomSuggestions();
+                .getCustomSuggestions();
         String name = "minecraft:ask_server";
         if (provider instanceof ProtocolSuggestionProvider) {
           name = ((ProtocolSuggestionProvider) provider).name;
@@ -204,13 +203,13 @@ public class AvailableCommandsPacket implements MinecraftPacket {
         return new WireNode(idx, flags, children, redirectTo, null);
       case NODE_TYPE_LITERAL:
         return new WireNode(idx, flags, children, redirectTo, LiteralArgumentBuilder
-            .literal(ProtocolUtils.readString(buf)));
+                .literal(ProtocolUtils.readString(buf)));
       case NODE_TYPE_ARGUMENT:
         String name = ProtocolUtils.readString(buf);
         ArgumentType<?> argumentType = ArgumentPropertyRegistry.deserialize(buf, version);
 
         RequiredArgumentBuilder<CommandSource, ?> argumentBuilder = RequiredArgumentBuilder
-            .argument(name, argumentType);
+                .argument(name, argumentType);
         if ((flags & FLAG_HAS_SUGGESTIONS) != 0) {
           argumentBuilder.suggests(new ProtocolSuggestionProvider(ProtocolUtils.readString(buf)));
         }
@@ -231,7 +230,7 @@ public class AvailableCommandsPacket implements MinecraftPacket {
     private boolean validated;
 
     private WireNode(int idx, byte flags, int[] children, int redirectTo,
-        @Nullable ArgumentBuilder<CommandSource, ?> args) {
+                     @Nullable ArgumentBuilder<CommandSource, ?> args) {
       this.idx = idx;
       this.flags = flags;
       this.children = children;
@@ -252,7 +251,7 @@ public class AvailableCommandsPacket implements MinecraftPacket {
       if (redirectTo != -1) {
         if (redirectTo < 0 || redirectTo >= wireNodes.length) {
           throw new IllegalStateException("Redirect node points to non-existent index "
-              + redirectTo);
+                  + redirectTo);
         }
       }
 
@@ -314,18 +313,18 @@ public class AvailableCommandsPacket implements MinecraftPacket {
     @Override
     public String toString() {
       MoreObjects.ToStringHelper helper = MoreObjects.toStringHelper(this)
-          .add("idx", idx)
-          .add("flags", flags)
-          .add("children", children)
-          .add("redirectTo", redirectTo);
+              .add("idx", idx)
+              .add("flags", flags)
+              .add("children", children)
+              .add("redirectTo", redirectTo);
 
       if (args != null) {
         if (args instanceof LiteralArgumentBuilder) {
           helper.add("argsLabel",
-              ((LiteralArgumentBuilder<CommandSource>) args).getLiteral());
+                  ((LiteralArgumentBuilder<CommandSource>) args).getLiteral());
         } else if (args instanceof RequiredArgumentBuilder) {
           helper.add("argsName",
-              ((RequiredArgumentBuilder<CommandSource, ?>) args).getName());
+                  ((RequiredArgumentBuilder<CommandSource, ?>) args).getName());
         }
       }
 
@@ -347,7 +346,7 @@ public class AvailableCommandsPacket implements MinecraftPacket {
 
     @Override
     public CompletableFuture<Suggestions> getSuggestions(CommandContext<CommandSource> context,
-        SuggestionsBuilder builder) throws CommandSyntaxException {
+                                                         SuggestionsBuilder builder) throws CommandSyntaxException {
       return builder.buildFuture();
     }
   }

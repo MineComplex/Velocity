@@ -25,9 +25,15 @@ import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.StateRegistry;
 import com.velocitypowered.proxy.protocol.packet.chat.ComponentHolder;
 import io.netty.buffer.ByteBuf;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import net.kyori.adventure.text.Component;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+@Getter
+@Setter
+@ToString
 public class DisconnectPacket implements MinecraftPacket {
 
   private @Nullable ComponentHolder reason;
@@ -47,17 +53,6 @@ public class DisconnectPacket implements MinecraftPacket {
       throw new IllegalStateException("No reason specified");
     }
     return reason;
-  }
-
-  public void setReason(@Nullable ComponentHolder reason) {
-    this.reason = reason;
-  }
-
-  @Override
-  public String toString() {
-    return "Disconnect{"
-        + "reason='" + reason + '\''
-        + '}';
   }
 
   @Override

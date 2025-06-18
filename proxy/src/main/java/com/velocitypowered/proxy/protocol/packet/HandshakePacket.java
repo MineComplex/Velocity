@@ -17,15 +17,21 @@
 
 package com.velocitypowered.proxy.protocol.packet;
 
-import static com.velocitypowered.proxy.connection.forge.legacy.LegacyForgeConstants.HANDSHAKE_HOSTNAME_TOKEN;
-
 import com.velocitypowered.api.network.HandshakeIntent;
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import io.netty.buffer.ByteBuf;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
+import static com.velocitypowered.proxy.connection.forge.legacy.LegacyForgeConstants.HANDSHAKE_HOSTNAME_TOKEN;
+
+@Getter
+@Setter
+@ToString
 public class HandshakePacket implements MinecraftPacket {
 
   // This size was chosen to ensure Forge clients can still connect even with very long hostnames.
@@ -37,51 +43,9 @@ public class HandshakePacket implements MinecraftPacket {
   private HandshakeIntent intent;
   private int nextStatus;
 
-  public ProtocolVersion getProtocolVersion() {
-    return protocolVersion;
-  }
-
-  public void setProtocolVersion(ProtocolVersion protocolVersion) {
-    this.protocolVersion = protocolVersion;
-  }
-
-  public String getServerAddress() {
-    return serverAddress;
-  }
-
-  public void setServerAddress(String serverAddress) {
-    this.serverAddress = serverAddress;
-  }
-
-  public int getPort() {
-    return port;
-  }
-
-  public void setPort(int port) {
-    this.port = port;
-  }
-
-  public int getNextStatus() {
-    return this.nextStatus;
-  }
-
   public void setIntent(HandshakeIntent intent) {
     this.intent = intent;
     this.nextStatus = intent.id();
-  }
-
-  public HandshakeIntent getIntent() {
-    return this.intent;
-  }
-
-  @Override
-  public String toString() {
-    return "Handshake{"
-        + "protocolVersion=" + protocolVersion
-        + ", serverAddress='" + serverAddress + '\''
-        + ", port=" + port
-        + ", nextStatus=" + nextStatus
-        + '}';
   }
 
   @Override

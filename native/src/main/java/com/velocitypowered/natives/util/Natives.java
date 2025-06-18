@@ -25,6 +25,7 @@ import com.velocitypowered.natives.compression.VelocityCompressorFactory;
 import com.velocitypowered.natives.encryption.JavaVelocityCipher;
 import com.velocitypowered.natives.encryption.NativeVelocityCipher;
 import com.velocitypowered.natives.encryption.VelocityCipherFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -43,7 +44,7 @@ public class Natives {
   private static Runnable copyAndLoadNative(String path) {
     return () -> {
       try {
-        InputStream nativeLib = Natives.class.getResourceAsStream(path);
+        InputStream nativeLib = Natives.class.getClassLoader().getResourceAsStream(path);
         if (nativeLib == null) {
           throw new IllegalStateException("Native library " + path + " not found.");
         }

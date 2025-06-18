@@ -25,10 +25,17 @@ import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.util.VelocityProperties;
 import io.netty.buffer.ByteBuf;
-import java.util.List;
-import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import java.util.List;
+import java.util.UUID;
+
+@Getter
+@Setter
+@ToString
 public class ServerLoginSuccessPacket implements MinecraftPacket {
 
   private @Nullable UUID uuid;
@@ -36,45 +43,6 @@ public class ServerLoginSuccessPacket implements MinecraftPacket {
   private @Nullable List<GameProfile.Property> properties;
   private static final boolean strictErrorHandling = VelocityProperties
           .readBoolean("velocity.strictErrorHandling", true);
-
-  public UUID getUuid() {
-    if (uuid == null) {
-      throw new IllegalStateException("No UUID specified!");
-    }
-    return uuid;
-  }
-
-  public void setUuid(UUID uuid) {
-    this.uuid = uuid;
-  }
-
-  public String getUsername() {
-    if (username == null) {
-      throw new IllegalStateException("No username specified!");
-    }
-    return username;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
-  }
-
-  public List<GameProfile.Property> getProperties() {
-    return properties;
-  }
-
-  public void setProperties(List<GameProfile.Property> properties) {
-    this.properties = properties;
-  }
-
-  @Override
-  public String toString() {
-    return "ServerLoginSuccess{"
-        + "uuid=" + uuid
-        + ", username='" + username + '\''
-        + ", properties='" + properties + '\''
-        + '}';
-  }
 
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {

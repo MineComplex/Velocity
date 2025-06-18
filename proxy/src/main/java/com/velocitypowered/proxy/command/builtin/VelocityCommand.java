@@ -35,6 +35,17 @@ import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.util.ProxyVersion;
 import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.util.InformationUtils;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
@@ -54,16 +65,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.TranslatableComponent;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * Implements the {@code /velocity} command and friends.
@@ -81,10 +82,6 @@ public final class VelocityCommand {
         .requires(source -> source.getPermissionValue("velocity.command.heap") == Tristate.TRUE)
         .executes(new Heap())
         .build();
-    final LiteralCommandNode<CommandSource> info = BrigadierCommand.literalArgumentBuilder("info")
-        .requires(source -> source.getPermissionValue("velocity.command.info") == Tristate.TRUE)
-        .executes(new Info(server))
-        .build();
     final LiteralCommandNode<CommandSource> plugins = BrigadierCommand
         .literalArgumentBuilder("plugins")
         .requires(source -> source.getPermissionValue("velocity.command.plugins") == Tristate.TRUE)
@@ -97,7 +94,7 @@ public final class VelocityCommand {
         .build();
 
     final List<LiteralCommandNode<CommandSource>> commands = List
-            .of(dump, heap, info, plugins, reload);
+            .of(dump, heap, plugins, reload);
     return new BrigadierCommand(
       commands.stream()
         .reduce(

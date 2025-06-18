@@ -26,13 +26,18 @@ import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import io.netty.buffer.ByteBuf;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import lombok.Getter;
+import lombok.ToString;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+@Getter
+@ToString
 public class LegacyPlayerListItemPacket implements MinecraftPacket {
 
   public static final int ADD_PLAYER = 0;
@@ -49,14 +54,6 @@ public class LegacyPlayerListItemPacket implements MinecraftPacket {
   }
 
   public LegacyPlayerListItemPacket() {
-  }
-
-  public int getAction() {
-    return action;
-  }
-
-  public List<Item> getItems() {
-    return items;
   }
 
   @Override
@@ -187,6 +184,7 @@ public class LegacyPlayerListItemPacket implements MinecraftPacket {
     }
   }
 
+  @Getter
   public static class Item {
 
     private final UUID uuid;
@@ -219,17 +217,9 @@ public class LegacyPlayerListItemPacket implements MinecraftPacket {
       return uuid;
     }
 
-    public String getName() {
-      return name;
-    }
-
     public Item setName(String name) {
       this.name = name;
       return this;
-    }
-
-    public List<GameProfile.Property> getProperties() {
-      return properties;
     }
 
     public Item setProperties(List<GameProfile.Property> properties) {
@@ -237,26 +227,14 @@ public class LegacyPlayerListItemPacket implements MinecraftPacket {
       return this;
     }
 
-    public int getGameMode() {
-      return gameMode;
-    }
-
     public Item setGameMode(int gameMode) {
       this.gameMode = gameMode;
       return this;
     }
 
-    public int getLatency() {
-      return latency;
-    }
-
     public Item setLatency(int latency) {
       this.latency = latency;
       return this;
-    }
-
-    public @Nullable Component getDisplayName() {
-      return displayName;
     }
 
     public Item setDisplayName(@Nullable Component displayName) {
@@ -269,8 +247,5 @@ public class LegacyPlayerListItemPacket implements MinecraftPacket {
       return this;
     }
 
-    public IdentifiedKey getPlayerKey() {
-      return playerKey;
-    }
   }
 }

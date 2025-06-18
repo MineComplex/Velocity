@@ -23,28 +23,23 @@ import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.ProtocolUtils.Direction;
 import io.netty.buffer.ByteBuf;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import net.kyori.adventure.key.Key;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+@Getter
+@Setter
+@ToString
+@AllArgsConstructor
 public class ServerboundCookieResponsePacket implements MinecraftPacket {
 
   private Key key;
   private byte @Nullable [] payload;
 
-  public Key getKey() {
-    return key;
-  }
-
-  public byte @Nullable [] getPayload() {
-    return payload;
-  }
-
   public ServerboundCookieResponsePacket() {
-  }
-
-  public ServerboundCookieResponsePacket(final Key key, final byte @Nullable [] payload) {
-    this.key = key;
-    this.payload = payload;
   }
 
   @Override

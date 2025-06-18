@@ -1,0 +1,73 @@
+package com.velocitypowered.proxy.protocol.data.chunk.section;
+
+import com.google.common.base.Preconditions;
+import com.velocitypowered.proxy.protocol.data.chunk.Chunk;
+import com.velocitypowered.proxy.protocol.data.storage.NibbleArray3D;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+public class LightSection {
+
+    private static final NibbleArray3D NO_LIGHT = new NibbleArray3D(Chunk.MAX_BLOCKS_PER_SECTION);
+    private static final NibbleArray3D ALL_LIGHT = new NibbleArray3D(Chunk.MAX_BLOCKS_PER_SECTION, 15);
+
+    private NibbleArray3D blockLight;
+    private NibbleArray3D skyLight;
+    private long lastUpdate;
+
+    public LightSection() {
+        this(NO_LIGHT, ALL_LIGHT, System.nanoTime());
+    }
+
+    public void setBlockLight(int posX, int posY, int posZ, byte light) {
+        this.checkIndexes(posX, posY, posZ);
+        Preconditions.checkArgument(light >= 0 && light <= 15, "light should be between 0 and 15");
+
+        if (this.blockLight == NO_LIGHT && light != 0) {
+            this.blockLight = new NibbleArray3D(Chunk.MAX_BLOCKS_PER_SECTION);
+        }
+
+        this.blockLight.set(posX, posY, posZ, light);
+        this.lastUpdate = System.nanoTime();
+    }
+
+    public byte getBlockLight(int posX, int posY, int posZ) {
+        this.checkIndexes(posX, posY, posZ);
+        return (byte) this.blockLight.get(posX, posY, posZ);
+    }
+
+    public void setSkyLight(int posX, int posY, int posZ, byte light) {
+        this.checkIndexes(posX, posY, posZ);
+        Preconditions.checkArgument(light >= 0 && light <= 15, "light should be between 0 and 15");
+
+        if (this.skyLight == ALL_LIGHT && light != 15) {
+            this.skyLight = new NibbleArray3D(Chunk.MAX_BLOCKS_PER_SECTION);
+        }
+
+        this.skyLight.set(posX, posY, posZ, light);
+        this.lastUpdate = System.nanoTime();
+    }
+
+    public byte getSkyLight(int posX, int posY, int posZ) {
+        this.checkIndexes(posX, posY, posZ);
+        return (byte) this.skyLight.get(posX, posY, posZ);
+    }
+
+    private void checkIndexes(int posX, int posY, int posZ) {
+        Preconditions.checkArgument(this.checkIndex(posX), "x should be between 0 and 15");
+        Preconditions.checkArgument(this.checkIndex(posY), "y should be between 0 and 15");
+        Preconditions.checkArgument(this.checkIndex(posZ), "z should be between 0 and 15");
+    }
+
+    private boolean checkIndex(int pos) {
+        return pos >= 0 && pos <= 15;
+    }
+
+    public LightSection copy() {
+        NibbleArray3D skyLight = this.skyLight == ALL_LIGHT ? ALL_LIGHT : this.skyLight.copy();
+        NibbleArray3D blockLight = this.blockLight == NO_LIGHT ? NO_LIGHT : this.blockLight.copy();
+        return new LightSection(blockLight, skyLight, this.lastUpdate);
+    }
+}

@@ -22,31 +22,20 @@ import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import io.netty.buffer.ByteBuf;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
+@Getter
+@Setter
+@ToString
+@AllArgsConstructor
 public class SetCompressionPacket implements MinecraftPacket {
 
   private int threshold;
 
   public SetCompressionPacket() {
-  }
-
-  public SetCompressionPacket(int threshold) {
-    this.threshold = threshold;
-  }
-
-  public int getThreshold() {
-    return threshold;
-  }
-
-  public void setThreshold(int threshold) {
-    this.threshold = threshold;
-  }
-
-  @Override
-  public String toString() {
-    return "SetCompression{"
-        + "threshold=" + threshold
-        + '}';
   }
 
   @Override

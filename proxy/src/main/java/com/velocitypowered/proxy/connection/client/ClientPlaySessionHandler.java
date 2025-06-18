@@ -17,8 +17,6 @@
 
 package com.velocitypowered.proxy.connection.client;
 
-import static com.velocitypowered.proxy.protocol.util.PluginMessageUtil.constructChannelsPacket;
-
 import com.google.common.collect.ImmutableList;
 import com.mojang.brigadier.suggestion.Suggestion;
 import com.velocitypowered.api.command.VelocityBrigadierMessage;
@@ -41,22 +39,9 @@ import com.velocitypowered.proxy.connection.forge.legacy.LegacyForgeConstants;
 import com.velocitypowered.proxy.connection.player.resourcepack.ResourcePackResponseBundle;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.StateRegistry;
-import com.velocitypowered.proxy.protocol.packet.BossBarPacket;
-import com.velocitypowered.proxy.protocol.packet.ClientSettingsPacket;
-import com.velocitypowered.proxy.protocol.packet.JoinGamePacket;
-import com.velocitypowered.proxy.protocol.packet.KeepAlivePacket;
-import com.velocitypowered.proxy.protocol.packet.PluginMessagePacket;
-import com.velocitypowered.proxy.protocol.packet.ResourcePackResponsePacket;
-import com.velocitypowered.proxy.protocol.packet.RespawnPacket;
-import com.velocitypowered.proxy.protocol.packet.ServerboundCookieResponsePacket;
-import com.velocitypowered.proxy.protocol.packet.TabCompleteRequestPacket;
-import com.velocitypowered.proxy.protocol.packet.TabCompleteResponsePacket;
+import com.velocitypowered.proxy.protocol.packet.*;
 import com.velocitypowered.proxy.protocol.packet.TabCompleteResponsePacket.Offer;
-import com.velocitypowered.proxy.protocol.packet.chat.ChatAcknowledgementPacket;
-import com.velocitypowered.proxy.protocol.packet.chat.ChatHandler;
-import com.velocitypowered.proxy.protocol.packet.chat.ChatTimeKeeper;
-import com.velocitypowered.proxy.protocol.packet.chat.CommandHandler;
-import com.velocitypowered.proxy.protocol.packet.chat.ComponentHolder;
+import com.velocitypowered.proxy.protocol.packet.chat.*;
 import com.velocitypowered.proxy.protocol.packet.chat.keyed.KeyedChatHandler;
 import com.velocitypowered.proxy.protocol.packet.chat.keyed.KeyedCommandHandler;
 import com.velocitypowered.proxy.protocol.packet.chat.keyed.KeyedPlayerChatPacket;
@@ -77,20 +62,19 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.util.ReferenceCountUtil;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Queue;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.checkerframework.checker.nullness.qual.Nullable;
+
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+import static com.velocitypowered.proxy.protocol.util.PluginMessageUtil.constructChannelsPacket;
 
 /**
  * Handles communication with the connected Minecraft client. This is effectively the primary nerve
@@ -101,7 +85,7 @@ public class ClientPlaySessionHandler implements MinecraftSessionHandler {
   private static final Logger logger = LogManager.getLogger(ClientPlaySessionHandler.class);
 
   private final ConnectedPlayer player;
-  private boolean spawned = false;
+  public boolean spawned = false;
   private final List<UUID> serverBossBars = new ArrayList<>();
   private final Queue<PluginMessagePacket> loginPluginMessages = new ConcurrentLinkedQueue<>();
   private final VelocityServer server;

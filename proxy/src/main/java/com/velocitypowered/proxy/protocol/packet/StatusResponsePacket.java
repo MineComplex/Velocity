@@ -22,8 +22,16 @@ import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import io.netty.buffer.ByteBuf;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+@Getter
+@Setter
+@ToString
+@AllArgsConstructor
 public class StatusResponsePacket implements MinecraftPacket {
 
   private @Nullable CharSequence status;
@@ -31,22 +39,11 @@ public class StatusResponsePacket implements MinecraftPacket {
   public StatusResponsePacket() {
   }
 
-  public StatusResponsePacket(CharSequence status) {
-    this.status = status;
-  }
-
   public String getStatus() {
     if (status == null) {
       throw new IllegalStateException("Status is not specified");
     }
     return status.toString();
-  }
-
-  @Override
-  public String toString() {
-    return "StatusResponse{"
-        + "status='" + status + '\''
-        + '}';
   }
 
   @Override

@@ -24,10 +24,18 @@ import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.ProtocolUtils.Direction;
 import io.netty.buffer.ByteBuf;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 import java.util.UUID;
 
+@Getter
+@Setter
+@ToString
+@AllArgsConstructor
 public class ResourcePackResponsePacket implements MinecraftPacket {
 
   private UUID id;
@@ -37,25 +45,11 @@ public class ResourcePackResponsePacket implements MinecraftPacket {
   public ResourcePackResponsePacket() {
   }
 
-  public ResourcePackResponsePacket(UUID id, String hash, @MonotonicNonNull Status status) {
-    this.id = id;
-    this.hash = hash;
-    this.status = status;
-  }
-
   public Status getStatus() {
     if (status == null) {
       throw new IllegalStateException("Packet not yet deserialized");
     }
     return status;
-  }
-
-  public String getHash() {
-    return hash;
-  }
-
-  public UUID getId() {
-    return id;
   }
 
   @Override
@@ -85,12 +79,4 @@ public class ResourcePackResponsePacket implements MinecraftPacket {
     return handler.handle(this);
   }
 
-  @Override
-  public String toString() {
-    return "ResourcePackResponsePacket{" +
-            "id=" + id +
-            ", hash='" + hash + '\'' +
-            ", status=" + status +
-            '}';
-  }
 }

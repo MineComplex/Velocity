@@ -24,10 +24,19 @@ import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.packet.chat.ComponentHolder;
 import io.netty.buffer.ByteBuf;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+@Getter
+@Setter
+@ToString
+@AllArgsConstructor
 public class ServerDataPacket implements MinecraftPacket {
 
   private @Nullable ComponentHolder description;
@@ -35,13 +44,6 @@ public class ServerDataPacket implements MinecraftPacket {
   private boolean secureChatEnforced; // Added in 1.19.1 - Removed in 1.20.5
 
   public ServerDataPacket() {
-  }
-
-  public ServerDataPacket(@Nullable ComponentHolder description, @Nullable Favicon favicon,
-                          boolean secureChatEnforced) {
-    this.description = description;
-    this.favicon = favicon;
-    this.secureChatEnforced = secureChatEnforced;
   }
 
   @Override
@@ -106,19 +108,4 @@ public class ServerDataPacket implements MinecraftPacket {
     return handler.handle(this);
   }
 
-  public @Nullable ComponentHolder getDescription() {
-    return description;
-  }
-
-  public @Nullable Favicon getFavicon() {
-    return favicon;
-  }
-
-  public boolean isSecureChatEnforced() {
-    return secureChatEnforced;
-  }
-
-  public void setSecureChatEnforced(boolean secureChatEnforced) {
-    this.secureChatEnforced = secureChatEnforced;
-  }
 }

@@ -27,23 +27,23 @@ public interface CommandSource extends Audience, PermissionSubject {
    *      for more information on the format.
    **/
   default void sendRichMessage(final @NotNull String message) {
-    this.sendMessage(MiniMessage.miniMessage().deserialize(message, this));
+    this.sendMessage(MiniMessage.miniMessage().deserialize(message));
   }
 
   /**
-  * Sends a message with the MiniMessage format to this source.
-  *
-  * @param message MiniMessage content
-  * @param resolvers resolvers to use
-  * @see <a href="https://docs.advntr.dev/minimessage/">MiniMessage docs</a>
-  *     and <a href="https://docs.advntr.dev/minimessage/dynamic-replacements">MiniMessage Placeholders docs</a>
-  *     for more information on the format.
-  **/
+   * Sends a message with the MiniMessage format to this source.
+   *
+   * @param message MiniMessage content
+   * @param resolvers resolvers to use
+   * @see <a href="https://docs.advntr.dev/minimessage/">MiniMessage docs</a>
+   *     and <a href="https://docs.advntr.dev/minimessage/dynamic-replacements">MiniMessage Placeholders docs</a>
+   *     for more information on the format.
+   **/
   default void sendRichMessage(
           final @NotNull String message,
           final @NotNull TagResolver @NotNull... resolvers
   ) {
-    this.sendMessage(MiniMessage.miniMessage().deserialize(message, this, resolvers));
+    this.sendMessage(MiniMessage.miniMessage().deserialize(message, resolvers));
   }
 
   /**

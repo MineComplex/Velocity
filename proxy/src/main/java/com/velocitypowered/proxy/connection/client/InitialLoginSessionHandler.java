@@ -17,19 +17,15 @@
 
 package com.velocitypowered.proxy.connection.client;
 
-import static com.google.common.net.UrlEscapers.urlFormParameterEscaper;
-import static com.velocitypowered.proxy.VelocityServer.GENERAL_GSON;
-import static com.velocitypowered.proxy.connection.VelocityConstants.EMPTY_BYTE_ARRAY;
-import static com.velocitypowered.proxy.crypto.EncryptionUtils.decryptRsa;
-import static com.velocitypowered.proxy.crypto.EncryptionUtils.generateServerId;
-
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Longs;
 import com.velocitypowered.api.event.connection.PreLoginEvent;
 import com.velocitypowered.api.event.connection.PreLoginEvent.PreLoginComponentResult;
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.api.proxy.crypto.IdentifiedKey;
 import com.velocitypowered.api.util.GameProfile;
+import com.velocitypowered.api.util.UuidUtils;
 import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.connection.MinecraftConnection;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
@@ -42,6 +38,12 @@ import com.velocitypowered.proxy.protocol.packet.LoginPluginResponsePacket;
 import com.velocitypowered.proxy.protocol.packet.ServerLoginPacket;
 import com.velocitypowered.proxy.util.VelocityProperties;
 import io.netty.buffer.ByteBuf;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -53,11 +55,12 @@ import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+
+import static com.google.common.net.UrlEscapers.urlFormParameterEscaper;
+import static com.velocitypowered.proxy.VelocityServer.GENERAL_GSON;
+import static com.velocitypowered.proxy.connection.VelocityConstants.EMPTY_BYTE_ARRAY;
+import static com.velocitypowered.proxy.crypto.EncryptionUtils.decryptRsa;
+import static com.velocitypowered.proxy.crypto.EncryptionUtils.generateServerId;
 
 /**
  * Handles authenticating the player to Mojang's servers.
@@ -71,7 +74,7 @@ public class InitialLoginSessionHandler implements MinecraftSessionHandler {
           .concat("?username=%s&serverId=%s");
 
   private final VelocityServer server;
-  private final MinecraftConnection mcConnection;
+  public MinecraftConnection mcConnection;
   private final LoginInboundConnection inbound;
   private @MonotonicNonNull ServerLoginPacket login;
   private byte[] verify = EMPTY_BYTE_ARRAY;
@@ -150,9 +153,14 @@ public class InitialLoginSessionHandler implements MinecraftSessionHandler {
             mcConnection.write(request);
             this.currentState = LoginState.ENCRYPTION_REQUEST_SENT;
           } else {
+            // Vortex start - Ability to change player's UUID for connecting username
+            GameProfile profile = new GameProfile(
+                    event.getUniqueId() != null ? event.getUniqueId() : UuidUtils.generateOfflinePlayerUuid(login.getUsername()),
+                    login.getUsername(),
+                    ImmutableList.of());
+            // Vortex end
             mcConnection.setActiveSessionHandler(StateRegistry.LOGIN,
-                new AuthSessionHandler(server, inbound,
-                    GameProfile.forOfflinePlayer(login.getUsername()), false));
+                    new AuthSessionHandler(server, inbound, profile, false));
           }
         });
       });

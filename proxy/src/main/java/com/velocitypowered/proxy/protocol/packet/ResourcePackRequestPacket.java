@@ -28,11 +28,18 @@ import com.velocitypowered.proxy.protocol.ProtocolUtils.Direction;
 import com.velocitypowered.proxy.protocol.packet.chat.ComponentHolder;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
-import java.util.UUID;
-import java.util.regex.Pattern;
+import lombok.*;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import java.util.UUID;
+import java.util.regex.Pattern;
+
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class ResourcePackRequestPacket implements MinecraftPacket {
 
   private @MonotonicNonNull UUID id; // 1.20.3+
@@ -42,46 +49,6 @@ public class ResourcePackRequestPacket implements MinecraftPacket {
   private @Nullable ComponentHolder prompt; // 1.17+
 
   private static final Pattern PLAUSIBLE_SHA1_HASH = Pattern.compile("^[a-z0-9]{40}$"); // 1.20.2+
-
-  public @Nullable UUID getId() {
-    return id;
-  }
-
-  public void setId(UUID id) {
-    this.id = id;
-  }
-
-  public @Nullable String getUrl() {
-    return url;
-  }
-
-  public void setUrl(String url) {
-    this.url = url;
-  }
-
-  public boolean isRequired() {
-    return isRequired;
-  }
-
-  public @Nullable String getHash() {
-    return hash;
-  }
-
-  public void setHash(String hash) {
-    this.hash = hash;
-  }
-
-  public void setRequired(boolean required) {
-    isRequired = required;
-  }
-
-  public @Nullable ComponentHolder getPrompt() {
-    return prompt;
-  }
-
-  public void setPrompt(@Nullable ComponentHolder prompt) {
-    this.prompt = prompt;
-  }
 
   @Override
   public void decode(ByteBuf buf, Direction direction, ProtocolVersion protocolVersion) {
@@ -143,14 +110,4 @@ public class ResourcePackRequestPacket implements MinecraftPacket {
     return handler.handle(this);
   }
 
-  @Override
-  public String toString() {
-    return "ResourcePackRequestPacket{" +
-            "id=" + id +
-            ", url='" + url + '\'' +
-            ", hash='" + hash + '\'' +
-            ", isRequired=" + isRequired +
-            ", prompt=" + prompt +
-            '}';
-  }
 }

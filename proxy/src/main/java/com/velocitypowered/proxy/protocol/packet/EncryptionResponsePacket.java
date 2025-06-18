@@ -17,8 +17,6 @@
 
 package com.velocitypowered.proxy.protocol.packet;
 
-import static com.velocitypowered.proxy.connection.VelocityConstants.EMPTY_BYTE_ARRAY;
-
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
@@ -26,10 +24,16 @@ import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.ProtocolUtils.Direction;
 import com.velocitypowered.proxy.util.except.QuietDecoderException;
 import io.netty.buffer.ByteBuf;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.util.Arrays;
+import static com.velocitypowered.proxy.connection.VelocityConstants.EMPTY_BYTE_ARRAY;
 
+@Getter
+@Setter
+@ToString
 public class EncryptionResponsePacket implements MinecraftPacket {
 
   private static final QuietDecoderException NO_SALT = new QuietDecoderException(
@@ -39,27 +43,11 @@ public class EncryptionResponsePacket implements MinecraftPacket {
   private byte[] verifyToken = EMPTY_BYTE_ARRAY;
   private @Nullable Long salt;
 
-  public byte[] getSharedSecret() {
-    return sharedSecret.clone();
-  }
-
-  public byte[] getVerifyToken() {
-    return verifyToken.clone();
-  }
-
   public long getSalt() {
     if (salt == null) {
       throw NO_SALT;
     }
     return salt;
-  }
-
-  @Override
-  public String toString() {
-    return "EncryptionResponse{"
-        + "sharedSecret=" + Arrays.toString(sharedSecret)
-        + ", verifyToken=" + Arrays.toString(verifyToken)
-        + '}';
   }
 
   @Override

@@ -25,15 +25,15 @@ import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.packet.chat.ComponentHolder;
 import com.velocitypowered.proxy.protocol.packet.chat.RemoteChatSession;
 import io.netty.buffer.ByteBuf;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.UUID;
+import lombok.*;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.*;
+
+@Getter
+@Setter
+@ToString
+@AllArgsConstructor
 public class UpsertPlayerInfoPacket implements MinecraftPacket {
 
   private final EnumSet<Action> actions;
@@ -47,19 +47,6 @@ public class UpsertPlayerInfoPacket implements MinecraftPacket {
   public UpsertPlayerInfoPacket(Action action) {
     this.actions = EnumSet.of(action);
     this.entries = new ArrayList<>();
-  }
-
-  public UpsertPlayerInfoPacket(EnumSet<Action> actions, List<Entry> entries) {
-    this.actions = actions;
-    this.entries = entries;
-  }
-
-  public List<Entry> getEntries() {
-    return entries;
-  }
-
-  public EnumSet<Action> getActions() {
-    return actions;
   }
 
   public boolean containsAction(Action action) {
@@ -219,6 +206,10 @@ public class UpsertPlayerInfoPacket implements MinecraftPacket {
     }
   }
 
+  @Getter
+  @Setter
+  @ToString
+  @RequiredArgsConstructor
   public static class Entry {
 
     private final UUID profileId;
@@ -233,92 +224,5 @@ public class UpsertPlayerInfoPacket implements MinecraftPacket {
     @Nullable
     private RemoteChatSession chatSession;
 
-    public Entry(UUID uuid) {
-      this.profileId = uuid;
-    }
-
-    public UUID getProfileId() {
-      return profileId;
-    }
-
-    public GameProfile getProfile() {
-      return profile;
-    }
-
-    public boolean isListed() {
-      return listed;
-    }
-
-    public int getLatency() {
-      return latency;
-    }
-
-    public int getGameMode() {
-      return gameMode;
-    }
-
-    @Nullable
-    public ComponentHolder getDisplayName() {
-      return displayName;
-    }
-
-    public boolean isShowHat() {
-      return showHat;
-    }
-
-    public int getListOrder() {
-      return listOrder;
-    }
-
-    @Nullable
-    public RemoteChatSession getChatSession() {
-      return chatSession;
-    }
-
-    public void setProfile(GameProfile profile) {
-      this.profile = profile;
-    }
-
-    public void setListed(boolean listed) {
-      this.listed = listed;
-    }
-
-    public void setLatency(int latency) {
-      this.latency = latency;
-    }
-
-    public void setGameMode(int gameMode) {
-      this.gameMode = gameMode;
-    }
-
-    public void setDisplayName(@Nullable ComponentHolder displayName) {
-      this.displayName = displayName;
-    }
-
-    public void setShowHat(boolean showHat) {
-      this.showHat = showHat;
-    }
-
-    public void setListOrder(int listOrder) {
-      this.listOrder = listOrder;
-    }
-
-    public void setChatSession(@Nullable RemoteChatSession chatSession) {
-      this.chatSession = chatSession;
-    }
-
-    @Override
-    public String toString() {
-      return "Entry{" +
-          "profileId=" + profileId +
-          ", profile=" + profile +
-          ", listed=" + listed +
-          ", latency=" + latency +
-          ", gameMode=" + gameMode +
-          ", displayName=" + displayName +
-          ", listOrder=" + listOrder +
-          ", chatSession=" + chatSession +
-          '}';
-    }
   }
 }

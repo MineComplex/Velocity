@@ -30,14 +30,15 @@ import com.velocitypowered.proxy.protocol.packet.LoginPluginResponsePacket;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import net.kyori.adventure.text.Component;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import space.vectrix.flare.fastutil.Int2ObjectSyncMap;
+
 import java.net.InetSocketAddress;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
-import net.kyori.adventure.text.Component;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import space.vectrix.flare.fastutil.Int2ObjectSyncMap;
 
 /**
  * Handles the actual login stage of a player logging in.
@@ -47,7 +48,7 @@ public class LoginInboundConnection implements LoginPhaseConnection, KeyIdentifi
   private static final AtomicIntegerFieldUpdater<LoginInboundConnection> SEQUENCE_UPDATER =
       AtomicIntegerFieldUpdater.newUpdater(LoginInboundConnection.class, "sequenceCounter");
 
-  private final InitialInboundConnection delegate;
+  public InitialInboundConnection delegate;
   private final Int2ObjectMap<MessageConsumer> outstandingResponses;
   private volatile int sequenceCounter;
   private final Queue<LoginPluginMessagePacket> loginMessagesToSend;

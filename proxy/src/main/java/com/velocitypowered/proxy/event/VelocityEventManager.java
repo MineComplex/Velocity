@@ -17,20 +17,13 @@
 
 package com.velocitypowered.proxy.event;
 
-import static java.util.Objects.requireNonNull;
-
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.google.common.base.VerifyException;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.reflect.TypeToken;
-import com.velocitypowered.api.event.Continuation;
-import com.velocitypowered.api.event.EventHandler;
-import com.velocitypowered.api.event.EventManager;
-import com.velocitypowered.api.event.EventTask;
-import com.velocitypowered.api.event.PostOrder;
-import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.*;
 import com.velocitypowered.api.plugin.PluginContainer;
 import com.velocitypowered.api.plugin.PluginDescription;
 import com.velocitypowered.api.plugin.PluginManager;
@@ -38,22 +31,18 @@ import com.velocitypowered.proxy.event.UntargetedEventHandler.EventTaskHandler;
 import com.velocitypowered.proxy.event.UntargetedEventHandler.VoidHandler;
 import com.velocitypowered.proxy.event.UntargetedEventHandler.WithContinuationHandler;
 import com.velocitypowered.proxy.util.collect.Enum2IntMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.lanternpowered.lmbda.LambdaFactory;
+import org.lanternpowered.lmbda.LambdaType;
+
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -62,11 +51,8 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.checkerframework.checker.nullness.qual.Nullable;
-import org.lanternpowered.lmbda.LambdaFactory;
-import org.lanternpowered.lmbda.LambdaType;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Implements the Velocity event handler.
@@ -96,7 +82,7 @@ public class VelocityEventManager implements EventManager {
 
   private final PluginManager pluginManager;
 
-  private final ListMultimap<Class<?>, HandlerRegistration> handlersByType =
+  public final ListMultimap<Class<?>, HandlerRegistration> handlersByType =
       ArrayListMultimap.create();
   private final LoadingCache<Class<?>, HandlersCache> handlersCache =
       Caffeine.newBuilder().build(this::bakeHandlers);
@@ -135,9 +121,9 @@ public class VelocityEventManager implements EventManager {
   /**
    * Represents the registration of a single {@link EventHandler}.
    */
-  static final class HandlerRegistration {
+  public static final class HandlerRegistration {
 
-    final PluginContainer plugin;
+    public final PluginContainer plugin;
     final short order;
     final Class<?> eventType;
     final EventHandler<Object> handler;
@@ -563,12 +549,12 @@ public class VelocityEventManager implements EventManager {
     }
   }
 
-  final class ContinuationTask<E> implements Continuation, Runnable {
+  public static class ContinuationTask<E> implements Continuation, Runnable {
 
     private final EventTask task;
     private final int index;
     private final HandlerRegistration[] registrations;
-    private final @Nullable CompletableFuture<E> future;
+    public final @Nullable CompletableFuture<E> future;
     private final boolean currentlyAsync;
     private final E event;
     private final Thread firedOnThread;
@@ -581,7 +567,7 @@ public class VelocityEventManager implements EventManager {
     @SuppressWarnings({"UnusedVariable", "FieldMayBeFinal"})
     private volatile boolean resumed = false;
 
-    private ContinuationTask(
+    public ContinuationTask(
         final EventTask task,
         final HandlerRegistration[] registrations,
         final @Nullable CompletableFuture<E> future,
@@ -669,7 +655,7 @@ public class VelocityEventManager implements EventManager {
     }
   }
 
-  private <E> void fire(final @Nullable CompletableFuture<E> future, final E event,
+  public static  <E> void fire(final @Nullable CompletableFuture<E> future, final E event,
       final int offset, final boolean currentlyAsync, final HandlerRegistration[] registrations) {
     for (int i = offset; i < registrations.length; i++) {
       final HandlerRegistration registration = registrations[i];
