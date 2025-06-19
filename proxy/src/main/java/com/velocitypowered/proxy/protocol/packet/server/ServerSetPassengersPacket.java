@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Sonar Contributors
+ * Copyright (C) 2025 Velocity Contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,31 +33,31 @@ import lombok.ToString;
 @AllArgsConstructor
 public class ServerSetPassengersPacket implements MinecraftPacket {
 
-    private int entityId, passengerId;
+  private int entityId, passengerId;
 
-    @Override
-    public void encode(ByteBuf byteBuf, ProtocolUtils.Direction direction, ProtocolVersion protocolVersion) {
-        // You can find this in the EntityAttach packet,
-        // which was later replaced by SetPassengers in 1.9+
-        if (protocolVersion.noGreaterThan(ProtocolVersion.MINECRAFT_1_8)) {
-            byteBuf.writeInt(passengerId);
-            byteBuf.writeInt(entityId);
-            byteBuf.writeByte(0); // leash
-            return;
-        }
-
-        ProtocolUtils.writeVarInt(byteBuf, entityId);
-        ProtocolUtils.writeVarInt(byteBuf, 1); // passenger count
-        ProtocolUtils.writeVarInt(byteBuf, passengerId);
+  @Override
+  public void encode(ByteBuf byteBuf, ProtocolUtils.Direction direction, ProtocolVersion protocolVersion) {
+    // You can find this in the EntityAttach packet,
+    // which was later replaced by SetPassengers in 1.9+
+    if (protocolVersion.noGreaterThan(ProtocolVersion.MINECRAFT_1_8)) {
+      byteBuf.writeInt(passengerId);
+      byteBuf.writeInt(entityId);
+      byteBuf.writeByte(0); // leash
+      return;
     }
 
-    @Override
-    public void decode(ByteBuf byteBuf, ProtocolUtils.Direction direction, ProtocolVersion protocolVersion) {
-        throw new UnsupportedOperationException();
-    }
+    ProtocolUtils.writeVarInt(byteBuf, entityId);
+    ProtocolUtils.writeVarInt(byteBuf, 1); // passenger count
+    ProtocolUtils.writeVarInt(byteBuf, passengerId);
+  }
 
-    @Override
-    public boolean handle(MinecraftSessionHandler handler) {
-        return true;
-    }
+  @Override
+  public void decode(ByteBuf byteBuf, ProtocolUtils.Direction direction, ProtocolVersion protocolVersion) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean handle(MinecraftSessionHandler handler) {
+    return true;
+  }
 }

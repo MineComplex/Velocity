@@ -24,11 +24,12 @@ import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.connection.client.ConnectedPlayer;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.packet.chat.ChatQueue;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 import net.kyori.adventure.text.Component;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 public class KeyedChatHandler implements
     com.velocitypowered.proxy.protocol.packet.chat.ChatHandler<KeyedPlayerChatPacket> {
@@ -41,11 +42,6 @@ public class KeyedChatHandler implements
   public KeyedChatHandler(VelocityServer server, ConnectedPlayer player) {
     this.server = server;
     this.player = player;
-  }
-
-  @Override
-  public Class<KeyedPlayerChatPacket> packetClass() {
-    return KeyedPlayerChatPacket.class;
   }
 
   public static void invalidCancel(Logger logger, ConnectedPlayer player) {
@@ -62,6 +58,11 @@ public class KeyedChatHandler implements
         + "Disconnecting player " + player.getUsername());
     player.disconnect(Component.text("A proxy plugin caused an illegal protocol state. "
         + "Contact your network administrator."));
+  }
+
+  @Override
+  public Class<KeyedPlayerChatPacket> packetClass() {
+    return KeyedPlayerChatPacket.class;
   }
 
   @Override

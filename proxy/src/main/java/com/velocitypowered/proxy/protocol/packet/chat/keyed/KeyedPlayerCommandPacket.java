@@ -17,9 +17,6 @@
 
 package com.velocitypowered.proxy.protocol.packet.chat.keyed;
 
-import static com.velocitypowered.proxy.protocol.packet.chat.keyed.KeyedPlayerChatPacket.INVALID_PREVIOUS_MESSAGES;
-import static com.velocitypowered.proxy.protocol.packet.chat.keyed.KeyedPlayerChatPacket.MAXIMUM_PREVIOUS_MESSAGE_COUNT;
-
 import com.google.common.collect.ImmutableMap;
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
@@ -29,11 +26,15 @@ import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.util.except.QuietDecoderException;
 import io.netty.buffer.ByteBuf;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import org.checkerframework.checker.nullness.qual.Nullable;
+
+import static com.velocitypowered.proxy.protocol.packet.chat.keyed.KeyedPlayerChatPacket.INVALID_PREVIOUS_MESSAGES;
+import static com.velocitypowered.proxy.protocol.packet.chat.keyed.KeyedPlayerChatPacket.MAXIMUM_PREVIOUS_MESSAGE_COUNT;
 
 public class KeyedPlayerCommandPacket implements MinecraftPacket {
 
@@ -50,18 +51,6 @@ public class KeyedPlayerCommandPacket implements MinecraftPacket {
   private SignaturePair[] previousMessages = new SignaturePair[0];
   private @Nullable SignaturePair lastMessage;
   private Map<String, byte[]> arguments = ImmutableMap.of();
-
-  public Instant getTimestamp() {
-    return timestamp;
-  }
-
-  public boolean isUnsigned() {
-    return unsigned;
-  }
-
-  public String getCommand() {
-    return command;
-  }
 
   public KeyedPlayerCommandPacket() {
   }
@@ -84,9 +73,21 @@ public class KeyedPlayerCommandPacket implements MinecraftPacket {
     this.salt = 0L;
   }
 
+  public Instant getTimestamp() {
+    return timestamp;
+  }
+
+  public boolean isUnsigned() {
+    return unsigned;
+  }
+
+  public String getCommand() {
+    return command;
+  }
+
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction,
-      ProtocolVersion protocolVersion) {
+                     ProtocolVersion protocolVersion) {
     command = ProtocolUtils.readString(buf, 256);
     timestamp = Instant.ofEpochMilli(buf.readLong());
 
@@ -136,7 +137,7 @@ public class KeyedPlayerCommandPacket implements MinecraftPacket {
 
   @Override
   public void encode(ByteBuf buf, ProtocolUtils.Direction direction,
-      ProtocolVersion protocolVersion) {
+                     ProtocolVersion protocolVersion) {
     ProtocolUtils.writeString(buf, command);
     buf.writeLong(timestamp.toEpochMilli());
 

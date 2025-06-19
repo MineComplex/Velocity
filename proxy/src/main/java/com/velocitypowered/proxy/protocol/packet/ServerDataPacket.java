@@ -48,7 +48,7 @@ public class ServerDataPacket implements MinecraftPacket {
 
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction,
-      ProtocolVersion protocolVersion) {
+                     ProtocolVersion protocolVersion) {
     if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_19_4) || buf.readBoolean()) {
       this.description = ComponentHolder.read(buf, protocolVersion);
     }
@@ -66,14 +66,14 @@ public class ServerDataPacket implements MinecraftPacket {
       buf.readBoolean();
     }
     if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_19_1)
-            && protocolVersion.lessThan(ProtocolVersion.MINECRAFT_1_20_5)) {
+        && protocolVersion.lessThan(ProtocolVersion.MINECRAFT_1_20_5)) {
       this.secureChatEnforced = buf.readBoolean();
     }
   }
 
   @Override
   public void encode(ByteBuf buf, ProtocolUtils.Direction direction,
-      ProtocolVersion protocolVersion) {
+                     ProtocolVersion protocolVersion) {
     boolean hasDescription = this.description != null;
     if (protocolVersion.lessThan(ProtocolVersion.MINECRAFT_1_19_4)) {
       buf.writeBoolean(hasDescription);
@@ -98,7 +98,7 @@ public class ServerDataPacket implements MinecraftPacket {
       buf.writeBoolean(false);
     }
     if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_19_1)
-            && protocolVersion.lessThan(ProtocolVersion.MINECRAFT_1_20_5)) {
+        && protocolVersion.lessThan(ProtocolVersion.MINECRAFT_1_20_5)) {
       buf.writeBoolean(this.secureChatEnforced);
     }
   }

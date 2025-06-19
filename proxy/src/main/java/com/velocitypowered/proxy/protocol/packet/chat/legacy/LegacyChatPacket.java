@@ -22,8 +22,9 @@ import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import io.netty.buffer.ByteBuf;
-import java.util.UUID;
 import org.checkerframework.checker.nullness.qual.Nullable;
+
+import java.util.UUID;
 
 public class LegacyChatPacket implements MinecraftPacket {
 

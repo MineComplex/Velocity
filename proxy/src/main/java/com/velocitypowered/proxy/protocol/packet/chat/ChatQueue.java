@@ -22,6 +22,7 @@ import com.velocitypowered.proxy.connection.client.ConnectedPlayer;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import io.netty.channel.ChannelFuture;
 import org.checkerframework.checker.nullness.qual.Nullable;
+
 import java.time.Instant;
 import java.util.BitSet;
 import java.util.concurrent.CompletableFuture;
@@ -79,7 +80,8 @@ public class ChatQueue implements AutoCloseable {
    * @param timestamp        the new {@link Instant} timestamp of this packet to update the internal chat state.
    * @param lastSeenMessages the new {@link LastSeenMessages} last seen messages to update the internal chat state.
    */
-  public void queuePacket(Function<LastSeenMessages, CompletableFuture<MinecraftPacket>> nextPacket, @Nullable Instant timestamp, @Nullable LastSeenMessages lastSeenMessages) {
+  public void queuePacket(Function<LastSeenMessages, CompletableFuture<MinecraftPacket>> nextPacket, @Nullable Instant timestamp,
+                          @Nullable LastSeenMessages lastSeenMessages) {
     queueTask((chatState, smc) -> {
       LastSeenMessages newLastSeenMessages = chatState.updateFromMessage(timestamp, lastSeenMessages);
       return nextPacket.apply(newLastSeenMessages).thenCompose(packet -> writePacket(packet, smc));
@@ -145,17 +147,16 @@ public class ChatQueue implements AutoCloseable {
    *     <li>To address this, we know that if the client has moved its 'last seen' window far enough, we can fill in the
    *     gap with dummy 'last seen', and it will never be checked.</li>
    * </ul>
-   *
+   * <p>
    * Note that this is effectively unused for 1.20.5+ clients, as commands without any signature do not send 'last seen'
    * updates.
    */
   public static class ChatState {
     private static final int MINIMUM_DELAYED_ACK_COUNT = LastSeenMessages.WINDOW_SIZE;
     private static final BitSet DUMMY_LAST_SEEN_MESSAGES = new BitSet();
-
+    private final AtomicInteger delayedAckCount = new AtomicInteger();
     public volatile Instant lastTimestamp = Instant.EPOCH;
     private volatile BitSet lastSeenMessages = new BitSet();
-    private final AtomicInteger delayedAckCount = new AtomicInteger();
 
     private ChatState() {
     }

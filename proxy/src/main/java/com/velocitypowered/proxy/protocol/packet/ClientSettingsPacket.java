@@ -169,7 +169,7 @@ public class ClientSettingsPacket implements MinecraftPacket {
         difficulty,
         skinParts,
         mainHand,
-            textFilteringEnabled,
+        textFilteringEnabled,
         clientListingAllowed,
         particleStatus);
   }

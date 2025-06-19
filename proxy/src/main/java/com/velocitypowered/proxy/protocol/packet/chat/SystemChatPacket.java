@@ -25,16 +25,15 @@ import io.netty.buffer.ByteBuf;
 
 public class SystemChatPacket implements MinecraftPacket {
 
+  private ComponentHolder component;
+  private ChatType type;
+
   public SystemChatPacket() {
   }
-
   public SystemChatPacket(ComponentHolder component, ChatType type) {
     this.component = component;
     this.type = type;
   }
-
-  private ComponentHolder component;
-  private ChatType type;
 
   public ChatType getType() {
     return type;
@@ -47,7 +46,7 @@ public class SystemChatPacket implements MinecraftPacket {
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
     component = ComponentHolder.read(buf, version);
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_19_1)){
+    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_19_1)) {
       type = buf.readBoolean() ? ChatType.GAME_INFO : ChatType.SYSTEM;
     } else {
       type = ChatType.values()[ProtocolUtils.readVarInt(buf)];

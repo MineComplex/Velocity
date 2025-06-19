@@ -26,11 +26,15 @@ import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.util.except.QuietDecoderException;
 import io.netty.buffer.ByteBuf;
-import java.time.Instant;
 import org.checkerframework.checker.nullness.qual.Nullable;
+
+import java.time.Instant;
 
 public class KeyedPlayerChatPacket implements MinecraftPacket {
 
+  public static final int MAXIMUM_PREVIOUS_MESSAGE_COUNT = 5;
+  public static final QuietDecoderException INVALID_PREVIOUS_MESSAGES =
+      new QuietDecoderException("Invalid previous messages");
   private String message;
   private boolean signedPreview;
   private boolean unsigned = false;
@@ -40,11 +44,6 @@ public class KeyedPlayerChatPacket implements MinecraftPacket {
   private SignaturePair[] previousMessages = new SignaturePair[0];
   private @Nullable SignaturePair lastMessage;
 
-  public static final int MAXIMUM_PREVIOUS_MESSAGE_COUNT = 5;
-
-  public static final QuietDecoderException INVALID_PREVIOUS_MESSAGES =
-      new QuietDecoderException("Invalid previous messages");
-
   public KeyedPlayerChatPacket() {
   }
 
@@ -53,12 +52,12 @@ public class KeyedPlayerChatPacket implements MinecraftPacket {
     this.unsigned = true;
   }
 
-  public void setExpiry(@Nullable Instant expiry) {
-    this.expiry = expiry;
-  }
-
   public Instant getExpiry() {
     return expiry;
+  }
+
+  public void setExpiry(@Nullable Instant expiry) {
+    this.expiry = expiry;
   }
 
   public boolean isUnsigned() {
@@ -75,7 +74,7 @@ public class KeyedPlayerChatPacket implements MinecraftPacket {
 
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction,
-      ProtocolVersion protocolVersion) {
+                     ProtocolVersion protocolVersion) {
     message = ProtocolUtils.readString(buf, 256);
 
     long expiresAt = buf.readLong();
@@ -120,7 +119,7 @@ public class KeyedPlayerChatPacket implements MinecraftPacket {
 
   @Override
   public void encode(ByteBuf buf, ProtocolUtils.Direction direction,
-      ProtocolVersion protocolVersion) {
+                     ProtocolVersion protocolVersion) {
     ProtocolUtils.writeString(buf, message);
 
     buf.writeLong(unsigned ? Instant.now().toEpochMilli() : expiry.toEpochMilli());

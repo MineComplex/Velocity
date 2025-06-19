@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2025 Velocity Contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package com.velocitypowered.proxy.tablist.rewriting;
 
 import com.velocitypowered.api.proxy.ProxyServer;
@@ -10,27 +27,27 @@ import java.util.UUID;
 
 public class RewritingVelocityTabListLegacy extends VelocityTabListLegacy implements RewritingTabList {
 
-    public RewritingVelocityTabListLegacy(ConnectedPlayer player, ProxyServer proxyServer) {
-        super(player, proxyServer);
-    }
+  public RewritingVelocityTabListLegacy(ConnectedPlayer player, ProxyServer proxyServer) {
+    super(player, proxyServer);
+  }
 
-    @Override
-    public void addEntry(TabListEntry entry) {
-        super.addEntry(this.rewriteEntry(entry));
-    }
+  @Override
+  public void addEntry(TabListEntry entry) {
+    super.addEntry(this.rewriteEntry(entry));
+  }
 
-    @Override
-    public Optional<TabListEntry> getEntry(UUID uuid) {
-        return super.getEntry(this.rewriteUuid(uuid));
-    }
+  @Override
+  public Optional<TabListEntry> getEntry(UUID uuid) {
+    return super.getEntry(this.rewriteUuid(uuid));
+  }
 
-    @Override
-    public boolean containsEntry(UUID uuid) {
-        return super.containsEntry(this.rewriteUuid(uuid));
-    }
+  @Override
+  public boolean containsEntry(UUID uuid) {
+    return super.containsEntry(this.rewriteUuid(uuid));
+  }
 
-    @Override
-    public Optional<TabListEntry> removeEntry(UUID uuid) {
-        return super.removeEntry(this.rewriteUuid(uuid));
-    }
+  @Override
+  public Optional<TabListEntry> removeEntry(UUID uuid) {
+    return super.removeEntry(this.rewriteUuid(uuid));
+  }
 }

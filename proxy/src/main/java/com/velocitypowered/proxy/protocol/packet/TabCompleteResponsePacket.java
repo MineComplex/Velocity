@@ -39,10 +39,10 @@ import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_13;
 @ToString
 public class TabCompleteResponsePacket implements MinecraftPacket {
 
+  private final List<Offer> offers = new ArrayList<>();
   private int transactionId;
   private int start;
   private int length;
-  private final List<Offer> offers = new ArrayList<>();
 
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {

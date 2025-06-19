@@ -38,11 +38,11 @@ import java.util.UUID;
 @ToString
 public class ServerLoginSuccessPacket implements MinecraftPacket {
 
+  private static final boolean strictErrorHandling = VelocityProperties
+      .readBoolean("velocity.strictErrorHandling", true);
   private @Nullable UUID uuid;
   private @Nullable String username;
   private @Nullable List<GameProfile.Property> properties;
-  private static final boolean strictErrorHandling = VelocityProperties
-          .readBoolean("velocity.strictErrorHandling", true);
 
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {

@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2025 Velocity Contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package com.velocitypowered.proxy.protocol.packet.server;
 
 import com.velocitypowered.api.network.ProtocolVersion;
@@ -12,26 +29,26 @@ import lombok.ToString;
 @AllArgsConstructor
 public class ServerViewPositionPacket implements MinecraftPacket {
 
-    private final int posX;
-    private final int posZ;
+  private final int posX;
+  private final int posZ;
 
-    public ServerViewPositionPacket() {
-        throw new IllegalStateException();
-    }
+  public ServerViewPositionPacket() {
+    throw new IllegalStateException();
+  }
 
-    @Override
-    public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion protocolVersion) {
-        throw new IllegalStateException();
-    }
+  @Override
+  public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion protocolVersion) {
+    throw new IllegalStateException();
+  }
 
-    @Override
-    public void encode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion protocolVersion) {
-        ProtocolUtils.writeVarInt(buf, posX);
-        ProtocolUtils.writeVarInt(buf, posZ);
-    }
+  @Override
+  public void encode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion protocolVersion) {
+    ProtocolUtils.writeVarInt(buf, posX);
+    ProtocolUtils.writeVarInt(buf, posZ);
+  }
 
-    @Override
-    public boolean handle(MinecraftSessionHandler handler) {
-        return true;
-    }
+  @Override
+  public boolean handle(MinecraftSessionHandler handler) {
+    return true;
+  }
 }

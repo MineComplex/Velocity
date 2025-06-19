@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2025 Velocity Contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package com.velocitypowered.proxy.protocol.packet.server;
 
 import com.velocitypowered.api.network.ProtocolVersion;
@@ -15,59 +32,59 @@ import org.jetbrains.annotations.NotNull;
 @AllArgsConstructor
 public class ServerMapDataPacket implements MinecraftPacket {
 
-    private int mapId;
-    private byte[] buffer;
-    private int x, y;
-    private int scaling;
-    private boolean locked;
+  private int mapId;
+  private byte[] buffer;
+  private int x, y;
+  private int scaling;
+  private boolean locked;
 
-    @Override
-    public void encode(@NotNull ByteBuf byteBuf, @NotNull ProtocolUtils.Direction direction, @NotNull ProtocolVersion protocolVersion) {
-        ProtocolUtils.writeVarInt(byteBuf, mapId); // item damage
+  @Override
+  public void encode(@NotNull ByteBuf byteBuf, @NotNull ProtocolUtils.Direction direction, @NotNull ProtocolVersion protocolVersion) {
+    ProtocolUtils.writeVarInt(byteBuf, mapId); // item damage
 
-        if (protocolVersion.lessThan(ProtocolVersion.MINECRAFT_1_8)) {
-            byteBuf.writeShort(buffer.length + 3);
-            byteBuf.writeByte(0);
-            byteBuf.writeByte(x);
-            byteBuf.writeByte(y);
-            byteBuf.writeBytes(buffer);
-            return;
-        }
-
-        byteBuf.writeByte(scaling);
-
-        if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_9)
-                && protocolVersion.lessThan(ProtocolVersion.MINECRAFT_1_17)) {
-            byteBuf.writeBoolean(false); // no icon
-        }
-
-        if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_14)) {
-            byteBuf.writeBoolean(locked);
-        }
-
-        if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_17)) {
-            byteBuf.writeBoolean(false); // no icon
-        } else {
-            ProtocolUtils.writeVarInt(byteBuf, 0); // no icon
-        }
-
-        byteBuf.writeByte(128); // rows
-        byteBuf.writeByte(128); // columns
-        byteBuf.writeByte(x);
-        byteBuf.writeByte(y);
-
-        ProtocolUtils.writeVarInt(byteBuf, buffer.length);
-        byteBuf.writeBytes(buffer);
+    if (protocolVersion.lessThan(ProtocolVersion.MINECRAFT_1_8)) {
+      byteBuf.writeShort(buffer.length + 3);
+      byteBuf.writeByte(0);
+      byteBuf.writeByte(x);
+      byteBuf.writeByte(y);
+      byteBuf.writeBytes(buffer);
+      return;
     }
 
-    @Override
-    public void decode(ByteBuf byteBuf, @NotNull ProtocolUtils.Direction direction,ProtocolVersion protocolVersion) {
-        throw new UnsupportedOperationException();
+    byteBuf.writeByte(scaling);
+
+    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_9)
+        && protocolVersion.lessThan(ProtocolVersion.MINECRAFT_1_17)) {
+      byteBuf.writeBoolean(false); // no icon
     }
 
-    @Override
-    public boolean handle(MinecraftSessionHandler handler) {
-        return true;
+    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_14)) {
+      byteBuf.writeBoolean(locked);
     }
+
+    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_17)) {
+      byteBuf.writeBoolean(false); // no icon
+    } else {
+      ProtocolUtils.writeVarInt(byteBuf, 0); // no icon
+    }
+
+    byteBuf.writeByte(128); // rows
+    byteBuf.writeByte(128); // columns
+    byteBuf.writeByte(x);
+    byteBuf.writeByte(y);
+
+    ProtocolUtils.writeVarInt(byteBuf, buffer.length);
+    byteBuf.writeBytes(buffer);
+  }
+
+  @Override
+  public void decode(ByteBuf byteBuf, @NotNull ProtocolUtils.Direction direction, ProtocolVersion protocolVersion) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean handle(MinecraftSessionHandler handler) {
+    return true;
+  }
 
 }

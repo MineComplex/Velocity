@@ -45,8 +45,8 @@ public class LegacyPlayerListItemPacket implements MinecraftPacket {
   public static final int UPDATE_LATENCY = 2;
   public static final int UPDATE_DISPLAY_NAME = 3;
   public static final int REMOVE_PLAYER = 4;
-  private int action;
   private final List<Item> items = new ArrayList<>();
+  private int action;
 
   public LegacyPlayerListItemPacket(int action, List<Item> items) {
     this.action = action;
@@ -54,6 +54,14 @@ public class LegacyPlayerListItemPacket implements MinecraftPacket {
   }
 
   public LegacyPlayerListItemPacket() {
+  }
+
+  private static @Nullable Component readOptionalComponent(ByteBuf buf, ProtocolVersion version) {
+    if (buf.readBoolean()) {
+      return ProtocolUtils.getJsonChatSerializer(version)
+          .deserialize(ProtocolUtils.readString(buf));
+    }
+    return null;
   }
 
   @Override
@@ -102,14 +110,6 @@ public class LegacyPlayerListItemPacket implements MinecraftPacket {
       item.setLatency(buf.readShort());
       items.add(item);
     }
-  }
-
-  private static @Nullable Component readOptionalComponent(ByteBuf buf, ProtocolVersion version) {
-    if (buf.readBoolean()) {
-      return ProtocolUtils.getJsonChatSerializer(version)
-          .deserialize(ProtocolUtils.readString(buf));
-    }
-    return null;
   }
 
   @Override
@@ -176,7 +176,7 @@ public class LegacyPlayerListItemPacket implements MinecraftPacket {
   }
 
   private void writeDisplayName(ByteBuf buf, @Nullable Component displayName,
-      ProtocolVersion version) {
+                                ProtocolVersion version) {
     buf.writeBoolean(displayName != null);
     if (displayName != null) {
       ProtocolUtils.writeString(buf, ProtocolUtils.getJsonChatSerializer(version)

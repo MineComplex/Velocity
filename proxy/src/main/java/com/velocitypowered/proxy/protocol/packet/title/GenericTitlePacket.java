@@ -25,35 +25,39 @@ import io.netty.buffer.ByteBuf;
 
 public abstract class GenericTitlePacket implements MinecraftPacket {
 
-  public enum ActionType {
-    SET_TITLE(0),
-    SET_SUBTITLE(1),
-    SET_ACTION_BAR(2),
-    SET_TIMES(3),
-    HIDE(4),
-    RESET(5);
-
-    private final int action;
-
-    ActionType(int action) {
-      this.action = action;
-    }
-
-    public int getAction(ProtocolVersion version) {
-      return version.lessThan(ProtocolVersion.MINECRAFT_1_11)
-          ? action > 2 ? action - 1 : action : action;
-    }
-  }
-
-
   private ActionType action;
 
-  protected void setAction(ActionType action) {
-    this.action = action;
+  /**
+   * Creates a version and type dependent TitlePacket.
+   *
+   * @param type    Action the packet should invoke
+   * @param version Protocol version of the target player
+   * @return GenericTitlePacket instance that follows the invoker type/version
+   */
+  public static GenericTitlePacket constructTitlePacket(ActionType type, ProtocolVersion version) {
+    GenericTitlePacket packet = null;
+    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_17)) {
+      packet = switch (type) {
+        case SET_ACTION_BAR -> new TitleActionbarPacket();
+        case SET_SUBTITLE -> new TitleSubtitlePacket();
+        case SET_TIMES -> new TitleTimesPacket();
+        case SET_TITLE -> new TitleTextPacket();
+        case HIDE, RESET -> new TitleClearPacket();
+        default -> throw new IllegalArgumentException("Invalid ActionType");
+      };
+    } else {
+      packet = new LegacyTitlePacket();
+    }
+    packet.setAction(type);
+    return packet;
   }
 
   public final ActionType getAction() {
     return action;
+  }
+
+  protected void setAction(ActionType action) {
+    this.action = action;
   }
 
   public ComponentHolder getComponent() {
@@ -91,33 +95,28 @@ public abstract class GenericTitlePacket implements MinecraftPacket {
 
   @Override
   public final void decode(ByteBuf buf, ProtocolUtils.Direction direction,
-      ProtocolVersion version) {
+                           ProtocolVersion version) {
     throw new UnsupportedOperationException(); // encode only
   }
 
-  /**
-   * Creates a version and type dependent TitlePacket.
-   *
-   * @param type    Action the packet should invoke
-   * @param version Protocol version of the target player
-   * @return GenericTitlePacket instance that follows the invoker type/version
-   */
-  public static GenericTitlePacket constructTitlePacket(ActionType type, ProtocolVersion version) {
-    GenericTitlePacket packet = null;
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_17)) {
-        packet = switch (type) {
-            case SET_ACTION_BAR -> new TitleActionbarPacket();
-            case SET_SUBTITLE -> new TitleSubtitlePacket();
-            case SET_TIMES -> new TitleTimesPacket();
-            case SET_TITLE -> new TitleTextPacket();
-            case HIDE, RESET -> new TitleClearPacket();
-            default -> throw new IllegalArgumentException("Invalid ActionType");
-        };
-    } else {
-      packet = new LegacyTitlePacket();
+  public enum ActionType {
+    SET_TITLE(0),
+    SET_SUBTITLE(1),
+    SET_ACTION_BAR(2),
+    SET_TIMES(3),
+    HIDE(4),
+    RESET(5);
+
+    private final int action;
+
+    ActionType(int action) {
+      this.action = action;
     }
-    packet.setAction(type);
-    return packet;
+
+    public int getAction(ProtocolVersion version) {
+      return version.lessThan(ProtocolVersion.MINECRAFT_1_11)
+          ? action > 2 ? action - 1 : action : action;
+    }
   }
 
 }

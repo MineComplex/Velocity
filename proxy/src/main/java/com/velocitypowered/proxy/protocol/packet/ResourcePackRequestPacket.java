@@ -28,7 +28,11 @@ import com.velocitypowered.proxy.protocol.ProtocolUtils.Direction;
 import com.velocitypowered.proxy.protocol.packet.chat.ComponentHolder;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -42,13 +46,12 @@ import java.util.regex.Pattern;
 @AllArgsConstructor
 public class ResourcePackRequestPacket implements MinecraftPacket {
 
+  private static final Pattern PLAUSIBLE_SHA1_HASH = Pattern.compile("^[a-z0-9]{40}$"); // 1.20.2+
   private @MonotonicNonNull UUID id; // 1.20.3+
   private @MonotonicNonNull String url;
   private @MonotonicNonNull String hash;
   private boolean isRequired; // 1.17+
   private @Nullable ComponentHolder prompt; // 1.17+
-
-  private static final Pattern PLAUSIBLE_SHA1_HASH = Pattern.compile("^[a-z0-9]{40}$"); // 1.20.2+
 
   @Override
   public void decode(ByteBuf buf, Direction direction, ProtocolVersion protocolVersion) {

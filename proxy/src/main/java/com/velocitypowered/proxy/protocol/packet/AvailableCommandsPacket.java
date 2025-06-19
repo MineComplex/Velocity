@@ -44,18 +44,22 @@ import com.velocitypowered.proxy.util.collect.IdentityHashStrategy;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenCustomHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import lombok.Setter;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import java.util.function.Predicate;
 
 public class AvailableCommandsPacket implements MinecraftPacket {
 
   private static final Command<CommandSource> PLACEHOLDER_COMMAND = source -> 0;
+  private static final Predicate<CommandSource> PLACEHOLDER_REQUIREMENT = source -> true;
 
   private static final byte NODE_TYPE_ROOT = 0x00;
   private static final byte NODE_TYPE_LITERAL = 0x01;
@@ -65,8 +69,91 @@ public class AvailableCommandsPacket implements MinecraftPacket {
   private static final byte FLAG_EXECUTABLE = 0x04;
   private static final byte FLAG_IS_REDIRECT = 0x08;
   private static final byte FLAG_HAS_SUGGESTIONS = 0x10;
+  private static final byte FLAG_IS_RESTRICTED = 0x20;
 
+  @Setter
   private @MonotonicNonNull RootCommandNode<CommandSource> rootNode;
+
+  private static void serializeNode(CommandNode<CommandSource> node, ByteBuf buf,
+                                    Object2IntMap<CommandNode<CommandSource>> idMappings, ProtocolVersion protocolVersion) {
+    byte flags = 0;
+    if (node.getRedirect() != null) {
+      flags |= FLAG_IS_REDIRECT;
+    }
+    if (node.getCommand() != null) {
+      flags |= FLAG_EXECUTABLE;
+    }
+    if (node.getRequirement() == PLACEHOLDER_REQUIREMENT) {
+      flags |= FLAG_IS_RESTRICTED;
+    }
+
+    if (node instanceof LiteralCommandNode<?>) {
+      flags |= NODE_TYPE_LITERAL;
+    } else if (node instanceof ArgumentCommandNode<?, ?>) {
+      flags |= NODE_TYPE_ARGUMENT;
+      if (((ArgumentCommandNode<CommandSource, ?>) node).getCustomSuggestions() != null) {
+        flags |= FLAG_HAS_SUGGESTIONS;
+      }
+    } else if (!(node instanceof RootCommandNode<?>)) {
+      throw new IllegalArgumentException("Unknown node type " + node.getClass().getName());
+    }
+
+    buf.writeByte(flags);
+    ProtocolUtils.writeVarInt(buf, node.getChildren().size());
+    for (CommandNode<CommandSource> child : node.getChildren()) {
+      ProtocolUtils.writeVarInt(buf, idMappings.getInt(child));
+    }
+    if (node.getRedirect() != null) {
+      ProtocolUtils.writeVarInt(buf, idMappings.getInt(node.getRedirect()));
+    }
+
+    if (node instanceof ArgumentCommandNode<?, ?>) {
+      ProtocolUtils.writeString(buf, node.getName());
+      ArgumentPropertyRegistry.serialize(buf,
+          ((ArgumentCommandNode<CommandSource, ?>) node).getType(), protocolVersion);
+
+      if (((ArgumentCommandNode<CommandSource, ?>) node).getCustomSuggestions() != null) {
+        SuggestionProvider<CommandSource> provider = ((ArgumentCommandNode<CommandSource, ?>) node)
+            .getCustomSuggestions();
+        String name = "minecraft:ask_server";
+        if (provider instanceof ProtocolSuggestionProvider) {
+          name = ((ProtocolSuggestionProvider) provider).name;
+        }
+        ProtocolUtils.writeString(buf, name);
+      }
+    } else if (node instanceof LiteralCommandNode<?>) {
+      ProtocolUtils.writeString(buf, node.getName());
+    }
+  }
+
+  private static WireNode deserializeNode(ByteBuf buf, int idx, ProtocolVersion version) {
+    byte flags = buf.readByte();
+    int[] children = ProtocolUtils.readIntegerArray(buf);
+    int redirectTo = -1;
+    if ((flags & FLAG_IS_REDIRECT) > 0) {
+      redirectTo = ProtocolUtils.readVarInt(buf);
+    }
+
+    switch (flags & FLAG_NODE_TYPE) {
+      case NODE_TYPE_ROOT:
+        return new WireNode(idx, flags, children, redirectTo, null);
+      case NODE_TYPE_LITERAL:
+        return new WireNode(idx, flags, children, redirectTo, LiteralArgumentBuilder
+            .literal(ProtocolUtils.readString(buf)));
+      case NODE_TYPE_ARGUMENT:
+        String name = ProtocolUtils.readString(buf);
+        ArgumentType<?> argumentType = ArgumentPropertyRegistry.deserialize(buf, version);
+
+        RequiredArgumentBuilder<CommandSource, ?> argumentBuilder = RequiredArgumentBuilder
+            .argument(name, argumentType);
+        if ((flags & FLAG_HAS_SUGGESTIONS) != 0) {
+          argumentBuilder.suggests(new ProtocolSuggestionProvider(ProtocolUtils.readString(buf)));
+        }
+        return new WireNode(idx, flags, children, redirectTo, argumentBuilder);
+      default:
+        throw new IllegalArgumentException("Unknown node type " + (flags & FLAG_NODE_TYPE));
+    }
+  }
 
   /**
    * Returns the root node.
@@ -137,87 +224,9 @@ public class AvailableCommandsPacket implements MinecraftPacket {
     ProtocolUtils.writeVarInt(buf, idMappings.getInt(rootNode));
   }
 
-  private static void serializeNode(CommandNode<CommandSource> node, ByteBuf buf,
-      Object2IntMap<CommandNode<CommandSource>> idMappings, ProtocolVersion protocolVersion) {
-    byte flags = 0;
-    if (node.getRedirect() != null) {
-      flags |= FLAG_IS_REDIRECT;
-    }
-    if (node.getCommand() != null) {
-      flags |= FLAG_EXECUTABLE;
-    }
-
-    if (node instanceof LiteralCommandNode<?>) {
-      flags |= NODE_TYPE_LITERAL;
-    } else if (node instanceof ArgumentCommandNode<?, ?>) {
-      flags |= NODE_TYPE_ARGUMENT;
-      if (((ArgumentCommandNode<CommandSource, ?>) node).getCustomSuggestions() != null) {
-        flags |= FLAG_HAS_SUGGESTIONS;
-      }
-    } else if (!(node instanceof RootCommandNode<?>)) {
-      throw new IllegalArgumentException("Unknown node type " + node.getClass().getName());
-    }
-
-    buf.writeByte(flags);
-    ProtocolUtils.writeVarInt(buf, node.getChildren().size());
-    for (CommandNode<CommandSource> child : node.getChildren()) {
-      ProtocolUtils.writeVarInt(buf, idMappings.getInt(child));
-    }
-    if (node.getRedirect() != null) {
-      ProtocolUtils.writeVarInt(buf, idMappings.getInt(node.getRedirect()));
-    }
-
-    if (node instanceof ArgumentCommandNode<?, ?>) {
-      ProtocolUtils.writeString(buf, node.getName());
-      ArgumentPropertyRegistry.serialize(buf,
-          ((ArgumentCommandNode<CommandSource, ?>) node).getType(), protocolVersion);
-
-      if (((ArgumentCommandNode<CommandSource, ?>) node).getCustomSuggestions() != null) {
-        SuggestionProvider<CommandSource> provider = ((ArgumentCommandNode<CommandSource, ?>) node)
-            .getCustomSuggestions();
-        String name = "minecraft:ask_server";
-        if (provider instanceof ProtocolSuggestionProvider) {
-          name = ((ProtocolSuggestionProvider) provider).name;
-        }
-        ProtocolUtils.writeString(buf, name);
-      }
-    } else if (node instanceof LiteralCommandNode<?>) {
-      ProtocolUtils.writeString(buf, node.getName());
-    }
-  }
-
   @Override
   public boolean handle(MinecraftSessionHandler handler) {
     return handler.handle(this);
-  }
-
-  private static WireNode deserializeNode(ByteBuf buf, int idx, ProtocolVersion version) {
-    byte flags = buf.readByte();
-    int[] children = ProtocolUtils.readIntegerArray(buf);
-    int redirectTo = -1;
-    if ((flags & FLAG_IS_REDIRECT) > 0) {
-      redirectTo = ProtocolUtils.readVarInt(buf);
-    }
-
-    switch (flags & FLAG_NODE_TYPE) {
-      case NODE_TYPE_ROOT:
-        return new WireNode(idx, flags, children, redirectTo, null);
-      case NODE_TYPE_LITERAL:
-        return new WireNode(idx, flags, children, redirectTo, LiteralArgumentBuilder
-            .literal(ProtocolUtils.readString(buf)));
-      case NODE_TYPE_ARGUMENT:
-        String name = ProtocolUtils.readString(buf);
-        ArgumentType<?> argumentType = ArgumentPropertyRegistry.deserialize(buf, version);
-
-        RequiredArgumentBuilder<CommandSource, ?> argumentBuilder = RequiredArgumentBuilder
-            .argument(name, argumentType);
-        if ((flags & FLAG_HAS_SUGGESTIONS) != 0) {
-          argumentBuilder.suggests(new ProtocolSuggestionProvider(ProtocolUtils.readString(buf)));
-        }
-        return new WireNode(idx, flags, children, redirectTo, argumentBuilder);
-      default:
-        throw new IllegalArgumentException("Unknown node type " + (flags & FLAG_NODE_TYPE));
-    }
   }
 
   private static class WireNode {
@@ -231,7 +240,7 @@ public class AvailableCommandsPacket implements MinecraftPacket {
     private boolean validated;
 
     private WireNode(int idx, byte flags, int[] children, int redirectTo,
-        @Nullable ArgumentBuilder<CommandSource, ?> args) {
+                     @Nullable ArgumentBuilder<CommandSource, ?> args) {
       this.idx = idx;
       this.flags = flags;
       this.children = children;
@@ -287,6 +296,11 @@ public class AvailableCommandsPacket implements MinecraftPacket {
           // If executable, add an empty command
           if ((flags & FLAG_EXECUTABLE) != 0) {
             args.executes(PLACEHOLDER_COMMAND);
+          }
+
+          // If restricted, add empty requirement
+          if ((flags & FLAG_IS_RESTRICTED) != 0) {
+            args.requires(PLACEHOLDER_REQUIREMENT);
           }
 
           this.built = args.build();
@@ -347,7 +361,7 @@ public class AvailableCommandsPacket implements MinecraftPacket {
 
     @Override
     public CompletableFuture<Suggestions> getSuggestions(CommandContext<CommandSource> context,
-        SuggestionsBuilder builder) throws CommandSyntaxException {
+                                                         SuggestionsBuilder builder) throws CommandSyntaxException {
       return builder.buildFuture();
     }
   }

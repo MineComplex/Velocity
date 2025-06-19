@@ -32,6 +32,17 @@ class IntegerArgumentPropertySerializer implements ArgumentPropertySerializer<In
 
   }
 
+  static byte getFlags(boolean hasMinimum, boolean hasMaximum) {
+    byte flags = 0;
+    if (hasMinimum) {
+      flags |= HAS_MINIMUM;
+    }
+    if (hasMaximum) {
+      flags |= HAS_MAXIMUM;
+    }
+    return flags;
+  }
+
   @Override
   public IntegerArgumentType deserialize(ByteBuf buf, ProtocolVersion protocolVersion) {
     byte flags = buf.readByte();
@@ -53,16 +64,5 @@ class IntegerArgumentPropertySerializer implements ArgumentPropertySerializer<In
     if (hasMaximum) {
       buf.writeInt(object.getMaximum());
     }
-  }
-
-  static byte getFlags(boolean hasMinimum, boolean hasMaximum) {
-    byte flags = 0;
-    if (hasMinimum) {
-      flags |= HAS_MINIMUM;
-    }
-    if (hasMaximum) {
-      flags |= HAS_MAXIMUM;
-    }
-    return flags;
   }
 }

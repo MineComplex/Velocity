@@ -25,10 +25,20 @@ import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.packet.chat.ComponentHolder;
 import com.velocitypowered.proxy.protocol.packet.chat.RemoteChatSession;
 import io.netty.buffer.ByteBuf;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -71,7 +81,7 @@ public class UpsertPlayerInfoPacket implements MinecraftPacket {
 
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction,
-      ProtocolVersion protocolVersion) {
+                     ProtocolVersion protocolVersion) {
     Action[] actions = Action.class.getEnumConstants();
     byte[] bytes = new byte[-Math.floorDiv(-actions.length, 8)];
     buf.readBytes(bytes);
@@ -95,7 +105,7 @@ public class UpsertPlayerInfoPacket implements MinecraftPacket {
 
   @Override
   public void encode(ByteBuf buf, ProtocolUtils.Direction direction,
-      ProtocolVersion protocolVersion) {
+                     ProtocolVersion protocolVersion) {
     Action[] actions = Action.class.getEnumConstants();
     BitSet set = new BitSet(actions.length);
     for (int idx = 0; idx < actions.length; idx++) {

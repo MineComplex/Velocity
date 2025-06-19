@@ -38,6 +38,12 @@ import java.util.UUID;
 @ToString
 public class BossBarPacket implements MinecraftPacket {
 
+  public static final int ADD = 0;
+  public static final int REMOVE = 1;
+  public static final int UPDATE_PERCENT = 2;
+  public static final int UPDATE_NAME = 3;
+  public static final int UPDATE_STYLE = 4;
+  public static final int UPDATE_PROPERTIES = 5;
   private static final Enum2IntMap<BossBar.Color> COLORS_TO_PROTOCOL =
       new Enum2IntMap.Builder<>(BossBar.Color.class)
           .put(BossBar.Color.PINK, 0)
@@ -62,13 +68,6 @@ public class BossBarPacket implements MinecraftPacket {
           .put(BossBar.Flag.PLAY_BOSS_MUSIC, 0x2)
           .put(BossBar.Flag.CREATE_WORLD_FOG, 0x4)
           .build();
-
-  public static final int ADD = 0;
-  public static final int REMOVE = 1;
-  public static final int UPDATE_PERCENT = 2;
-  public static final int UPDATE_NAME = 3;
-  public static final int UPDATE_STYLE = 4;
-  public static final int UPDATE_PROPERTIES = 5;
   private @Nullable UUID uuid;
   private int action;
   private @Nullable ComponentHolder name;
@@ -135,6 +134,14 @@ public class BossBarPacket implements MinecraftPacket {
     packet.setAction(UPDATE_PROPERTIES);
     packet.setFlags(serializeFlags(bar.flags()));
     return packet;
+  }
+
+  private static byte serializeFlags(Set<BossBar.Flag> flags) {
+    byte val = 0x0;
+    for (BossBar.Flag flag : flags) {
+      val |= FLAG_BITS_TO_PROTOCOL.get(flag);
+    }
+    return val;
   }
 
   public UUID getUuid() {
@@ -215,14 +222,6 @@ public class BossBarPacket implements MinecraftPacket {
       default:
         throw new UnsupportedOperationException("Unknown action " + action);
     }
-  }
-
-  private static byte serializeFlags(Set<BossBar.Flag> flags) {
-    byte val = 0x0;
-    for (BossBar.Flag flag : flags) {
-      val |= FLAG_BITS_TO_PROTOCOL.get(flag);
-    }
-    return val;
   }
 
   @Override

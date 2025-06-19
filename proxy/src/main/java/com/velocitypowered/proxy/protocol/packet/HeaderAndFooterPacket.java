@@ -46,6 +46,17 @@ public class HeaderAndFooterPacket implements MinecraftPacket {
     this.footer = Preconditions.checkNotNull(footer, "footer");
   }
 
+  public static HeaderAndFooterPacket create(Component header,
+                                             Component footer, ProtocolVersion protocolVersion) {
+    return new HeaderAndFooterPacket(new ComponentHolder(protocolVersion, header),
+        new ComponentHolder(protocolVersion, footer));
+  }
+
+  public static HeaderAndFooterPacket reset(ProtocolVersion version) {
+    ComponentHolder empty = new ComponentHolder(version, Component.empty());
+    return new HeaderAndFooterPacket(empty, empty);
+  }
+
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
     throw new UnsupportedOperationException("Decode is not implemented");
@@ -60,16 +71,5 @@ public class HeaderAndFooterPacket implements MinecraftPacket {
   @Override
   public boolean handle(MinecraftSessionHandler handler) {
     return handler.handle(this);
-  }
-
-  public static HeaderAndFooterPacket create(Component header,
-                                             Component footer, ProtocolVersion protocolVersion) {
-    return new HeaderAndFooterPacket(new ComponentHolder(protocolVersion, header),
-      new ComponentHolder(protocolVersion, footer));
-  }
-
-  public static HeaderAndFooterPacket reset(ProtocolVersion version) {
-    ComponentHolder empty = new ComponentHolder(version, Component.empty());
-    return new HeaderAndFooterPacket(empty, empty);
   }
 }

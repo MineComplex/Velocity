@@ -26,53 +26,53 @@ import io.netty.buffer.ByteBuf;
 
 public class KnownPacksPacket implements MinecraftPacket {
 
-    private static final int MAX_LENGTH_PACKS = Integer.getInteger("velocity.max-known-packs", 64);
-    private static final QuietDecoderException TOO_MANY_PACKS =
-        new QuietDecoderException("too many known packs");
+  private static final int MAX_LENGTH_PACKS = Integer.getInteger("velocity.max-known-packs", 64);
+  private static final QuietDecoderException TOO_MANY_PACKS =
+      new QuietDecoderException("too many known packs");
 
-    private KnownPack[] packs;
+  private KnownPack[] packs;
 
-    @Override
-    public void decode(ByteBuf buf, ProtocolUtils.Direction direction,
-                       ProtocolVersion protocolVersion) {
-        final int packCount = ProtocolUtils.readVarInt(buf);
-        if (direction == ProtocolUtils.Direction.SERVERBOUND && packCount > MAX_LENGTH_PACKS) {
-          throw TOO_MANY_PACKS;
-        }
-
-        final KnownPack[] packs = new KnownPack[packCount];
-
-        for (int i = 0; i < packCount; i++) {
-            packs[i] = KnownPack.read(buf);
-        }
-
-        this.packs = packs;
+  @Override
+  public void decode(ByteBuf buf, ProtocolUtils.Direction direction,
+                     ProtocolVersion protocolVersion) {
+    final int packCount = ProtocolUtils.readVarInt(buf);
+    if (direction == ProtocolUtils.Direction.SERVERBOUND && packCount > MAX_LENGTH_PACKS) {
+      throw TOO_MANY_PACKS;
     }
 
-    @Override
-    public void encode(ByteBuf buf, ProtocolUtils.Direction direction,
-                       ProtocolVersion protocolVersion) {
-        ProtocolUtils.writeVarInt(buf, packs.length);
+    final KnownPack[] packs = new KnownPack[packCount];
 
-        for (KnownPack pack : packs) {
-            pack.write(buf);
-        }
+    for (int i = 0; i < packCount; i++) {
+      packs[i] = KnownPack.read(buf);
     }
 
-    @Override
-    public boolean handle(MinecraftSessionHandler handler) {
-        return handler.handle(this);
+    this.packs = packs;
+  }
+
+  @Override
+  public void encode(ByteBuf buf, ProtocolUtils.Direction direction,
+                     ProtocolVersion protocolVersion) {
+    ProtocolUtils.writeVarInt(buf, packs.length);
+
+    for (KnownPack pack : packs) {
+      pack.write(buf);
+    }
+  }
+
+  @Override
+  public boolean handle(MinecraftSessionHandler handler) {
+    return handler.handle(this);
+  }
+
+  public record KnownPack(String namespace, String id, String version) {
+    private static KnownPack read(ByteBuf buf) {
+      return new KnownPack(ProtocolUtils.readString(buf), ProtocolUtils.readString(buf), ProtocolUtils.readString(buf));
     }
 
-    public record KnownPack(String namespace, String id, String version) {
-        private static KnownPack read(ByteBuf buf) {
-            return new KnownPack(ProtocolUtils.readString(buf), ProtocolUtils.readString(buf), ProtocolUtils.readString(buf));
-        }
-
-        private void write(ByteBuf buf) {
-            ProtocolUtils.writeString(buf, namespace);
-            ProtocolUtils.writeString(buf, id);
-            ProtocolUtils.writeString(buf, version);
-        }
+    private void write(ByteBuf buf) {
+      ProtocolUtils.writeString(buf, namespace);
+      ProtocolUtils.writeString(buf, id);
+      ProtocolUtils.writeString(buf, version);
     }
+  }
 }

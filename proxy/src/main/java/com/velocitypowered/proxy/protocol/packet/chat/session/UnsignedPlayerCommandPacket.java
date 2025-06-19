@@ -53,7 +53,7 @@ public class UnsignedPlayerCommandPacket extends SessionPlayerCommandPacket {
   @Override
   public String toString() {
     return "UnsignedPlayerCommandPacket{" +
-            "command='" + command + '\'' +
-            '}';
+        "command='" + command + '\'' +
+        '}';
   }
 }

@@ -21,9 +21,10 @@ import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.packet.chat.builder.ChatBuilderV2;
-import java.util.UUID;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
+
+import java.util.UUID;
 
 public class LegacyChatBuilder extends ChatBuilderV2 {
 

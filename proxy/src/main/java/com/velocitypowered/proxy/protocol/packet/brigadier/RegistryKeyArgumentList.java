@@ -23,6 +23,9 @@ import io.netty.buffer.ByteBuf;
 
 public final class RegistryKeyArgumentList {
 
+  RegistryKeyArgumentList() {
+  }
+
   public static class ResourceOrTag extends RegistryKeyArgument {
 
     public ResourceOrTag(String identifier) {
@@ -109,8 +112,5 @@ public final class RegistryKeyArgumentList {
         ProtocolUtils.writeString(buf, object.getIdentifier());
       }
     }
-  }
-
-  RegistryKeyArgumentList() {
   }
 }

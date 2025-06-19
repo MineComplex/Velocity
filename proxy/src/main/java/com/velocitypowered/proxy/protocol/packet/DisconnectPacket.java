@@ -36,8 +36,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 @ToString
 public class DisconnectPacket implements MinecraftPacket {
 
-  private @Nullable ComponentHolder reason;
   private final StateRegistry state;
+  private @Nullable ComponentHolder reason;
 
   public DisconnectPacket(StateRegistry state) {
     this.state = state;
@@ -46,6 +46,12 @@ public class DisconnectPacket implements MinecraftPacket {
   private DisconnectPacket(StateRegistry state, ComponentHolder reason) {
     this.state = state;
     this.reason = Preconditions.checkNotNull(reason, "reason");
+  }
+
+  public static DisconnectPacket create(Component component, ProtocolVersion version, StateRegistry state) {
+    Preconditions.checkNotNull(component, "component");
+    return new DisconnectPacket(state, new ComponentHolder(state == StateRegistry.LOGIN
+        ? ProtocolVersion.MINECRAFT_1_20_2 : version, component));
   }
 
   public ComponentHolder getReason() {
@@ -57,8 +63,8 @@ public class DisconnectPacket implements MinecraftPacket {
 
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
-	  reason = ComponentHolder.read(buf, state == StateRegistry.LOGIN
-              ? ProtocolVersion.MINECRAFT_1_20_2 : version);
+    reason = ComponentHolder.read(buf, state == StateRegistry.LOGIN
+        ? ProtocolVersion.MINECRAFT_1_20_2 : version);
   }
 
   @Override
@@ -69,11 +75,5 @@ public class DisconnectPacket implements MinecraftPacket {
   @Override
   public boolean handle(MinecraftSessionHandler handler) {
     return handler.handle(this);
-  }
-
-  public static DisconnectPacket create(Component component, ProtocolVersion version, StateRegistry state) {
-    Preconditions.checkNotNull(component, "component");
-    return new DisconnectPacket(state, new ComponentHolder(state == StateRegistry.LOGIN
-            ? ProtocolVersion.MINECRAFT_1_20_2 : version, component));
   }
 }

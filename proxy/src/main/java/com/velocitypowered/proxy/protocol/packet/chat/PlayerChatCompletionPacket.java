@@ -40,12 +40,12 @@ public class PlayerChatCompletionPacket implements MinecraftPacket {
     return completions;
   }
 
-  public Action getAction() {
-    return action;
-  }
-
   public void setCompletions(String[] completions) {
     this.completions = completions;
+  }
+
+  public Action getAction() {
+    return action;
   }
 
   public void setAction(Action action) {
@@ -54,14 +54,14 @@ public class PlayerChatCompletionPacket implements MinecraftPacket {
 
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction,
-      ProtocolVersion protocolVersion) {
+                     ProtocolVersion protocolVersion) {
     action = Action.values()[ProtocolUtils.readVarInt(buf)];
     completions = ProtocolUtils.readStringArray(buf);
   }
 
   @Override
   public void encode(ByteBuf buf, ProtocolUtils.Direction direction,
-      ProtocolVersion protocolVersion) {
+                     ProtocolVersion protocolVersion) {
     ProtocolUtils.writeVarInt(buf, action.ordinal());
     ProtocolUtils.writeStringArray(buf, completions);
   }

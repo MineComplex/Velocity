@@ -23,6 +23,7 @@ import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.packet.chat.LastSeenMessages;
 import io.netty.buffer.ByteBuf;
+
 import java.time.Instant;
 
 public class SessionPlayerChatPacket implements MinecraftPacket {
@@ -35,6 +36,12 @@ public class SessionPlayerChatPacket implements MinecraftPacket {
   protected LastSeenMessages lastSeenMessages;
 
   public SessionPlayerChatPacket() {
+  }
+
+  protected static byte[] readMessageSignature(ByteBuf buf) {
+    byte[] signature = new byte[256];
+    buf.readBytes(signature);
+    return signature;
   }
 
   public String getMessage() {
@@ -63,7 +70,7 @@ public class SessionPlayerChatPacket implements MinecraftPacket {
 
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction,
-      ProtocolVersion protocolVersion) {
+                     ProtocolVersion protocolVersion) {
     this.message = ProtocolUtils.readString(buf, 256);
     this.timestamp = Instant.ofEpochMilli(buf.readLong());
     this.salt = buf.readLong();
@@ -78,7 +85,7 @@ public class SessionPlayerChatPacket implements MinecraftPacket {
 
   @Override
   public void encode(ByteBuf buf, ProtocolUtils.Direction direction,
-      ProtocolVersion protocolVersion) {
+                     ProtocolVersion protocolVersion) {
     ProtocolUtils.writeString(buf, this.message);
     buf.writeLong(this.timestamp.toEpochMilli());
     buf.writeLong(this.salt);
@@ -92,12 +99,6 @@ public class SessionPlayerChatPacket implements MinecraftPacket {
   @Override
   public boolean handle(MinecraftSessionHandler handler) {
     return handler.handle(this);
-  }
-
-  protected static byte[] readMessageSignature(ByteBuf buf) {
-    byte[] signature = new byte[256];
-    buf.readBytes(signature);
-    return signature;
   }
 
   public SessionPlayerChatPacket withLastSeenMessages(LastSeenMessages lastSeenMessages) {

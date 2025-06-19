@@ -22,9 +22,10 @@ import com.velocitypowered.api.proxy.crypto.IdentifiedKey;
 import com.velocitypowered.api.proxy.player.ChatSession;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import io.netty.buffer.ByteBuf;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import java.util.Objects;
 import java.util.UUID;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class RemoteChatSession implements ChatSession {
 

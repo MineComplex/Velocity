@@ -20,9 +20,10 @@ package com.velocitypowered.proxy.protocol.packet.brigadier;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.velocitypowered.api.network.ProtocolVersion;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class ArgumentIdentifier {
 
@@ -58,6 +59,14 @@ public class ArgumentIdentifier {
     this.versionById = ImmutableMap.copyOf(temp);
   }
 
+  public static VersionSet mapSet(ProtocolVersion version, int id) {
+    return new VersionSet(version, id);
+  }
+
+  public static ArgumentIdentifier id(String identifier, VersionSet... versions) {
+    return new ArgumentIdentifier(identifier, versions);
+  }
+
   @Override
   public String toString() {
     return "ArgumentIdentifier{" +
@@ -71,14 +80,6 @@ public class ArgumentIdentifier {
 
   public @Nullable Integer getIdByProtocolVersion(ProtocolVersion version) {
     return versionById.get(Preconditions.checkNotNull(version));
-  }
-
-  public static VersionSet mapSet(ProtocolVersion version, int id) {
-    return new VersionSet(version, id);
-  }
-
-  public static ArgumentIdentifier id(String identifier, VersionSet... versions) {
-    return new ArgumentIdentifier(identifier, versions);
   }
 
   /**
