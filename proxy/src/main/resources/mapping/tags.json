@@ -3691,6 +3691,23 @@
             "minecraft:water"
         ]
     },
+    "minecraft:game_event": {
+        "minecraft:allay_can_listen": [
+            
+        ],
+        "minecraft:ignore_vibrations_sneaking": [
+            
+        ],
+        "minecraft:shrieker_can_listen": [
+            
+        ],
+        "minecraft:vibrations": [
+            
+        ],
+        "minecraft:warden_can_listen": [
+            
+        ]
+    },
     "minecraft:item": {
         "minecraft:acacia_logs": [
             "minecraft:acacia_log",
@@ -5559,23 +5576,6 @@
             "minecraft:red_carpet",
             "minecraft:white_carpet",
             "minecraft:yellow_carpet"
-        ]
-    },
-    "minecraft:game_event": {
-        "minecraft:allay_can_listen": [
-            
-        ],
-        "minecraft:ignore_vibrations_sneaking": [
-            
-        ],
-        "minecraft:shrieker_can_listen": [
-            
-        ],
-        "minecraft:vibrations": [
-            
-        ],
-        "minecraft:warden_can_listen": [
-            
         ]
     }
 }

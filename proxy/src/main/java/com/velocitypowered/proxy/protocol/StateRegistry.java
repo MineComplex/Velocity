@@ -847,7 +847,8 @@ public enum StateRegistry {
           map(0x19, MINECRAFT_1_20_2, false),
           map(0x1A, MINECRAFT_1_20_3, false),
           map(0x1D, MINECRAFT_1_20_5, false),
-          map(0x1F, MINECRAFT_1_21_2, false));
+          map(0x1F, MINECRAFT_1_21_2, false),
+          map(0x20, ProtocolVersion.MINECRAFT_1_21_6, false));
       serverbound.register(ClientMovePositionOnlyPacket.class, ClientMovePositionOnlyPacket::new,
           map(0x04, MINECRAFT_1_7_2, false),
           map(0x0C, MINECRAFT_1_9, false),
@@ -864,7 +865,8 @@ public enum StateRegistry {
           map(0x16, MINECRAFT_1_20_2, false),
           map(0x17, MINECRAFT_1_20_3, false),
           map(0x1A, MINECRAFT_1_20_5, false),
-          map(0x1C, MINECRAFT_1_21_2, false));
+          map(0x1C, MINECRAFT_1_21_2, false),
+          map(0x1D, ProtocolVersion.MINECRAFT_1_21_6, false));
       serverbound.register(ClientMoveRotationOnlyPacket.class, ClientMoveRotationOnlyPacket::new,
           map(0x05, MINECRAFT_1_7_2, false),
           map(0x0E, MINECRAFT_1_9, false),
@@ -881,7 +883,8 @@ public enum StateRegistry {
           map(0x18, MINECRAFT_1_20_2, false),
           map(0x19, MINECRAFT_1_20_3, false),
           map(0x1C, MINECRAFT_1_20_5, false),
-          map(0x1E, MINECRAFT_1_21_2, false));
+          map(0x1E, MINECRAFT_1_21_2, false),
+          map(0x1F, ProtocolVersion.MINECRAFT_1_21_6, false));
       serverbound.register(ClientMovePacket.class, ClientMovePacket::new,
           map(0x06, MINECRAFT_1_7_2, false),
           map(0x0D, MINECRAFT_1_9, false),
@@ -898,7 +901,8 @@ public enum StateRegistry {
           map(0x17, MINECRAFT_1_20_2, false),
           map(0x18, MINECRAFT_1_20_3, false),
           map(0x1B, MINECRAFT_1_20_5, false),
-          map(0x1D, MINECRAFT_1_21_2, false));
+          map(0x1D, MINECRAFT_1_21_2, false),
+          map(0x1E, ProtocolVersion.MINECRAFT_1_21_6, false));
       serverbound.register(ClientTeleportConfirmPacket.class, ClientTeleportConfirmPacket::new,
           map(0x00, MINECRAFT_1_9, false));
 

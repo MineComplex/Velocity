@@ -18,11 +18,13 @@
 package com.velocitypowered.proxy.protocol.data.tile;
 
 import com.velocitypowered.api.network.ProtocolVersion;
+import com.velocitypowered.proxy.util.EnumUniverse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -39,10 +41,12 @@ public enum TileEntityVersion {
   MINECRAFT_1_20_5(EnumSet.of(ProtocolVersion.MINECRAFT_1_20_5)),
   MINECRAFT_1_21(EnumSet.of(ProtocolVersion.MINECRAFT_1_21)),
   MINECRAFT_1_21_2(EnumSet.of(ProtocolVersion.MINECRAFT_1_21_2)),
-  MINECRAFT_1_21_4(EnumSet.of(ProtocolVersion.MINECRAFT_1_21_4)),
-  MINECRAFT_1_21_5(EnumSet.of(ProtocolVersion.MINECRAFT_1_21_5));
+  MINECRAFT_1_21_5(EnumSet.of(ProtocolVersion.MINECRAFT_1_21_5)),
+  MINECRAFT_1_21_6(EnumSet.of(ProtocolVersion.MINECRAFT_1_21_6)),
+  MINECRAFT_1_21_7(EnumSet.of(ProtocolVersion.MINECRAFT_1_21_7));
 
   private static final EnumMap<ProtocolVersion, TileEntityVersion> MC_VERSION_TO_ITEM_VERSIONS = new EnumMap<>(ProtocolVersion.class);
+  private static final Map<String, TileEntityVersion> KEY_LOOKUP = Map.copyOf(EnumUniverse.createProtocolLookup(values()));
 
   static {
     for (TileEntityVersion version : TileEntityVersion.values()) {
@@ -55,21 +59,7 @@ public enum TileEntityVersion {
   private final Set<ProtocolVersion> versions;
 
   public static TileEntityVersion parse(String from) {
-    return switch (from) {
-      case "1.19" -> MINECRAFT_1_19;
-      case "1.19.1" -> MINECRAFT_1_19_1;
-      case "1.19.3" -> MINECRAFT_1_19_3;
-      case "1.19.4" -> MINECRAFT_1_19_4;
-      case "1.20" -> MINECRAFT_1_20;
-      case "1.20.2" -> MINECRAFT_1_20_2;
-      case "1.20.3" -> MINECRAFT_1_20_3;
-      case "1.20.5" -> MINECRAFT_1_20_5;
-      case "1.21" -> MINECRAFT_1_21;
-      case "1.21.2" -> MINECRAFT_1_21_2;
-      case "1.21.4" -> MINECRAFT_1_21_4;
-      case "1.21.5" -> MINECRAFT_1_21_5;
-      default -> LEGACY;
-    };
+    return KEY_LOOKUP.getOrDefault(from, LEGACY);
   }
 
   public static TileEntityVersion from(ProtocolVersion protocolVersion) {

@@ -1070,6 +1070,11 @@
         "facing": "north",
         "powered": "false"
     },
+    "minecraft:dried_ghast": {
+        "facing": "north",
+        "hydration": "0",
+        "waterlogged": "false"
+    },
     "minecraft:dropper": {
         "facing": "north",
         "triggered": "false"
