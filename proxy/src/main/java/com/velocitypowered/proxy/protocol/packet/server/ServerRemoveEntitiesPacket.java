@@ -42,11 +42,7 @@ public class ServerRemoveEntitiesPacket implements MinecraftPacket {
       ProtocolUtils.writeVarInt(byteBuf, 1); // size
     }
 
-    if (protocolVersion.lessThan(ProtocolVersion.MINECRAFT_1_8)) {
-      byteBuf.writeInt(entityId);
-    } else {
-      ProtocolUtils.writeVarInt(byteBuf, entityId);
-    }
+    ProtocolUtils.writeVarInt(byteBuf, entityId);
   }
 
   @Override

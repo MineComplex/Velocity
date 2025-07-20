@@ -53,14 +53,9 @@ public class ClientPlayerInputPacket implements MinecraftPacket {
     sideways = byteBuf.readFloat();
     forward = byteBuf.readFloat();
 
-    if (protocolVersion.lessThan(ProtocolVersion.MINECRAFT_1_8)) {
-      jump = byteBuf.readBoolean();
-      sneak = byteBuf.readBoolean();
-    } else {
-      byte flags = byteBuf.readByte();
-      jump = (flags & 0x01) != 0;
-      sneak = (flags & 0x02) != 0;
-    }
+    byte flags = byteBuf.readByte();
+    jump = (flags & 0x01) != 0;
+    sneak = (flags & 0x02) != 0;
   }
 
   @Override

@@ -23,12 +23,14 @@ import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufHolder;
 import io.netty.util.ReferenceCounted;
+import lombok.RequiredArgsConstructor;
 
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Function;
 
+@RequiredArgsConstructor
 public class PreparedPacket {
 
   private final ByteBuf[] packets = new ByteBuf[ProtocolVersion.values().length];
@@ -38,18 +40,12 @@ public class PreparedPacket {
   private ByteBuf[] uncompressedPackets;
   private boolean disposed;
 
-  public PreparedPacket(ProtocolVersion minVersion, ProtocolVersion maxVersion, PreparedPacketFactory factory) {
-    this.minVersion = minVersion;
-    this.maxVersion = maxVersion;
-    this.factory = factory;
-  }
-
   public <T> PreparedPacket prepare(T packet) {
     if (packet == null) {
       return this;
     }
 
-    return prepare((version) -> packet, ProtocolVersion.MINIMUM_VERSION, ProtocolVersion.MAXIMUM_VERSION);
+    return prepare(version -> packet, ProtocolVersion.MINIMUM_VERSION, ProtocolVersion.MAXIMUM_VERSION);
   }
 
   public <T> PreparedPacket prepare(T[] packets) {
@@ -62,7 +58,7 @@ public class PreparedPacket {
     }
 
     for (T packet : packets) {
-      prepare((version) -> packet, ProtocolVersion.MINIMUM_VERSION, ProtocolVersion.MAXIMUM_VERSION);
+      prepare(version -> packet, ProtocolVersion.MINIMUM_VERSION, ProtocolVersion.MAXIMUM_VERSION);
     }
 
     return this;
@@ -73,7 +69,7 @@ public class PreparedPacket {
       return this;
     }
 
-    return prepare((version) -> packet, from, ProtocolVersion.MAXIMUM_VERSION);
+    return prepare(version -> packet, from, ProtocolVersion.MAXIMUM_VERSION);
   }
 
   public <T> PreparedPacket prepare(T packet, ProtocolVersion from, ProtocolVersion to) {
@@ -81,7 +77,7 @@ public class PreparedPacket {
       return this;
     }
 
-    return prepare((version) -> packet, from, to);
+    return prepare(version -> packet, from, to);
   }
 
   public <T> PreparedPacket prepare(T[] packets, ProtocolVersion from) {
@@ -125,9 +121,9 @@ public class PreparedPacket {
   }
 
   public <T> PreparedPacket prepare(Function<ProtocolVersion, T> packet, ProtocolVersion originalFrom, ProtocolVersion originalTo) {
-    ProtocolVersion from = originalFrom.compareTo(minVersion) > 0 ? originalFrom : minVersion;
-    ProtocolVersion to = originalTo.compareTo(maxVersion) < 0 ? originalTo : maxVersion;
-    if (from.compareTo(to) > 0) {
+    ProtocolVersion from = originalFrom.greaterThan(minVersion) ? originalFrom : minVersion;
+    ProtocolVersion to = originalTo.lessThan(maxVersion) ? originalTo : maxVersion;
+    if (from.greaterThan(to)) {
       return this;
     }
 

@@ -170,15 +170,17 @@ public class Chunk {
   private ChunkSnapshot createSnapshot(boolean full, long previousUpdate) {
     BlockSection[] sectionsSnapshot = new BlockSection[sections.length];
     for (int i = 0; i < sections.length; ++i) {
-      if (sections[i] != null && sections[i].getLastUpdate() > previousUpdate) {
-        sectionsSnapshot[i] = sections[i].getSnapshot();
+      BlockSection section = sections[i];
+      if (section != null && section.getLastUpdate() > previousUpdate) {
+        sectionsSnapshot[i] = section.getSnapshot();
       }
     }
 
     LightSection[] lightSnapshot = new LightSection[light.length];
-    for (int i = 0; i < lightSnapshot.length; ++i) {
-      if (light[i].getLastUpdate() > previousUpdate) {
-        lightSnapshot[i] = light[i].copy();
+    for (int i = 0; i < light.length; ++i) {
+      LightSection section = light[i];
+      if (section.getLastUpdate() > previousUpdate) {
+        lightSnapshot[i] = section.copy();
       }
     }
 

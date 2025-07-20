@@ -48,13 +48,7 @@ public class ClientAnimationPacket implements MinecraftPacket {
 
   @Override
   public void decode(@NotNull ByteBuf bytebuf, ProtocolUtils.Direction direction, @NotNull ProtocolVersion version) {
-    if (version.lessThan(ProtocolVersion.MINECRAFT_1_8)) {
-      entityId = bytebuf.readInt();
-      type = LegacyAnimationType.getById(bytebuf.readByte());
-    } else if (version.greaterThan(ProtocolVersion.MINECRAFT_1_8)) {
-      // Only 1.9+ clients have an offhand
-      hand = ProtocolUtils.readVarInt(bytebuf);
-    }
+    hand = ProtocolUtils.readVarInt(bytebuf);
   }
 
   @Override

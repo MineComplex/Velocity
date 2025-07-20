@@ -37,15 +37,6 @@ public class ServerSetPassengersPacket implements MinecraftPacket {
 
   @Override
   public void encode(ByteBuf byteBuf, ProtocolUtils.Direction direction, ProtocolVersion protocolVersion) {
-    // You can find this in the EntityAttach packet,
-    // which was later replaced by SetPassengers in 1.9+
-    if (protocolVersion.noGreaterThan(ProtocolVersion.MINECRAFT_1_8)) {
-      byteBuf.writeInt(passengerId);
-      byteBuf.writeInt(entityId);
-      byteBuf.writeByte(0); // leash
-      return;
-    }
-
     ProtocolUtils.writeVarInt(byteBuf, entityId);
     ProtocolUtils.writeVarInt(byteBuf, 1); // passenger count
     ProtocolUtils.writeVarInt(byteBuf, passengerId);

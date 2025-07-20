@@ -17,12 +17,14 @@
 
 package com.velocitypowered.proxy.protocol.data.storage;
 
-import com.velocitypowered.proxy.protocol.data.block.BlockStorage;
+import com.velocitypowered.proxy.protocol.data.block.BlockTypeStorage;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.Arrays;
 
 @Getter
+@AllArgsConstructor
 public class NibbleArray3D {
 
   private final byte[] data;
@@ -36,18 +38,14 @@ public class NibbleArray3D {
     fill(defaultValue);
   }
 
-  public NibbleArray3D(byte[] array) {
-    data = array;
-  }
-
   public int get(int posX, int posY, int posZ) {
-    int key = BlockStorage.index(posX, posY, posZ);
+    int key = BlockTypeStorage.index(posX, posY, posZ);
     int index = key >> 1;
     return (key & 1) == 0 ? data[index] & 15 : data[index] >> 4 & 15;
   }
 
   public void set(int posX, int posY, int posZ, int value) {
-    set(BlockStorage.index(posX, posY, posZ), value);
+    set(BlockTypeStorage.index(posX, posY, posZ), value);
   }
 
   public void set(int key, int val) {

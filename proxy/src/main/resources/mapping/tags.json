@@ -707,13 +707,6 @@
             "minecraft:podzol",
             "minecraft:rooted_dirt"
         ],
-        "minecraft:dirt_like": [
-            "minecraft:coarse_dirt",
-            "minecraft:dirt",
-            "minecraft:grass_block",
-            "minecraft:mycelium",
-            "minecraft:podzol"
-        ],
         "minecraft:does_not_block_hoppers": [
             "minecraft:bee_nest",
             "minecraft:beehive"
@@ -822,7 +815,6 @@
             "minecraft:mud",
             "minecraft:muddy_mangrove_roots",
             "minecraft:mycelium",
-            "minecraft:netherrack",
             "minecraft:orange_tulip",
             "minecraft:oxeye_daisy",
             "minecraft:pink_tulip",
@@ -4640,10 +4632,6 @@
         ],
         "minecraft:frog_food": [
             "minecraft:slime_ball"
-        ],
-        "minecraft:furnace_materials": [
-            "minecraft:blackstone",
-            "minecraft:cobblestone"
         ],
         "minecraft:goat_food": [
             "minecraft:wheat"

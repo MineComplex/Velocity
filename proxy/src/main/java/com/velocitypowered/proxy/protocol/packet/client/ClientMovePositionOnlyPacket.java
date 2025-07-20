@@ -45,9 +45,6 @@ public class ClientMovePositionOnlyPacket implements MinecraftPacket {
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion protocolVersion) {
     x = buf.readDouble();
-    if (protocolVersion.compareTo(ProtocolVersion.MINECRAFT_1_8) < 0) {
-      buf.skipBytes(8);
-    }
     y = buf.readDouble();
     z = buf.readDouble();
 
@@ -76,7 +73,7 @@ public class ClientMovePositionOnlyPacket implements MinecraftPacket {
 
   @Override
   public int expectedMaxLength(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
-    return version.compareTo(ProtocolVersion.MINECRAFT_1_8) < 0 ? 33 : 25;
+    return 25;
   }
 
   @Override

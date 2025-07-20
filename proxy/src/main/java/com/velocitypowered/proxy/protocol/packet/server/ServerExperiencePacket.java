@@ -43,13 +43,8 @@ public class ServerExperiencePacket implements MinecraftPacket {
   @Override
   public void encode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion protocolVersion) {
     buf.writeFloat(expBar);
-    if (protocolVersion.compareTo(ProtocolVersion.MINECRAFT_1_8) < 0) {
-      buf.writeShort(level);
-      buf.writeShort(totalExp);
-    } else {
-      ProtocolUtils.writeVarInt(buf, level);
-      ProtocolUtils.writeVarInt(buf, totalExp);
-    }
+    ProtocolUtils.writeVarInt(buf, level);
+    ProtocolUtils.writeVarInt(buf, totalExp);
   }
 
   @Override

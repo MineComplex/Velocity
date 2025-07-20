@@ -52,9 +52,6 @@ public class ClientMovePacket implements MinecraftPacket {
   @Override
   public void decode(ByteBuf buf, Direction direction, ProtocolVersion protocolVersion) {
     x = buf.readDouble();
-    if (protocolVersion.compareTo(ProtocolVersion.MINECRAFT_1_8) < 0) {
-      buf.skipBytes(8);
-    }
     y = buf.readDouble();
     z = buf.readDouble();
     yaw = buf.readFloat();
@@ -80,7 +77,7 @@ public class ClientMovePacket implements MinecraftPacket {
 
   @Override
   public int expectedMaxLength(ByteBuf buf, Direction direction, ProtocolVersion version) {
-    return version.compareTo(ProtocolVersion.MINECRAFT_1_8) < 0 ? 41 : 33;
+    return 33;
   }
 
   @Override

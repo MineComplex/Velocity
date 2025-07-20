@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 @Getter
+@AllArgsConstructor
 public enum Biome {
 
   PLAINS(
@@ -90,12 +91,6 @@ public enum Biome {
   private final int id;
   private final Element element;
 
-  Biome(String name, int id, Element element) {
-    this.name = name;
-    this.id = id;
-    this.element = element;
-  }
-
   public static CompoundBinaryTag getRegistry(ProtocolVersion version) {
     return CompoundBinaryTag.builder()
         .putString("type", "minecraft:worldgen/biome")
@@ -125,17 +120,16 @@ public enum Biome {
 
     public CompoundBinaryTag encode(ProtocolVersion version) {
       Builder tagBuilder = CompoundBinaryTag.builder()
-          .putFloat("depth", this.depth)
-          .putFloat("temperature", this.temperature)
-          .putFloat("scale", this.scale)
-          .putFloat("downfall", this.downfall)
-          .putString("category", this.category)
-          .put("effects", this.effects.encode());
+          .putFloat("depth", depth)
+          .putFloat("temperature", temperature)
+          .putFloat("scale", scale).putFloat("downfall", downfall)
+          .putString("category", category)
+          .put("effects", effects.encode());
 
-      if (version.compareTo(ProtocolVersion.MINECRAFT_1_19_4) < 0) {
-        tagBuilder.putString("precipitation", this.hasPrecipitation ? "rain" : "none");
+      if (version.lessThan(ProtocolVersion.MINECRAFT_1_19_4)) {
+        tagBuilder.putString("precipitation", hasPrecipitation ? "rain" : "none");
       } else {
-        tagBuilder.putBoolean("has_precipitation", this.hasPrecipitation);
+        tagBuilder.putBoolean("has_precipitation", hasPrecipitation);
       }
 
       return tagBuilder.build();
@@ -179,37 +173,37 @@ public enum Biome {
     public CompoundBinaryTag encode() {
       Builder result = CompoundBinaryTag.builder();
 
-      result.putInt("sky_color", this.skyColor);
-      result.putInt("water_fog_color", this.waterColor);
-      result.putInt("fog_color", this.fogColor);
-      result.putInt("water_color", this.waterColor);
+      result.putInt("sky_color", skyColor);
+      result.putInt("water_fog_color", waterColor);
+      result.putInt("fog_color", fogColor);
+      result.putInt("water_color", waterColor);
 
-      if (this.foliageColor != null) {
-        result.putInt("foliage_color", this.foliageColor);
+      if (foliageColor != null) {
+        result.putInt("foliage_color", foliageColor);
       }
 
-      if (this.grassColorModifier != null) {
-        result.putString("grass_color_modifier", this.grassColorModifier);
+      if (grassColorModifier != null) {
+        result.putString("grass_color_modifier", grassColorModifier);
       }
 
-      if (this.music != null) {
-        result.put("music", this.music.encode());
+      if (music != null) {
+        result.put("music", music.encode());
       }
 
-      if (this.ambientSound != null) {
-        result.putString("ambient_sound", this.ambientSound);
+      if (ambientSound != null) {
+        result.putString("ambient_sound", ambientSound);
       }
 
-      if (this.additionsSound != null) {
-        result.put("additions_sound", this.additionsSound.encode());
+      if (additionsSound != null) {
+        result.put("additions_sound", additionsSound.encode());
       }
 
-      if (this.moodSound != null) {
-        result.put("mood_sound", this.moodSound.encode());
+      if (moodSound != null) {
+        result.put("mood_sound", moodSound.encode());
       }
 
-      if (this.particle != null) {
-        result.put("particle", this.particle.encode());
+      if (particle != null) {
+        result.put("particle", particle.encode());
       }
 
       return result.build();
@@ -398,17 +392,17 @@ public enum Biome {
 
       public Effects build() {
         return new Effects(
-            this.skyColor,
-            this.waterFogColor,
-            this.fogColor,
-            this.waterColor,
-            this.foliageColor,
-            this.grassColorModifier,
-            this.music,
-            this.ambientSound,
-            this.additionsSound,
-            this.moodSound,
-            this.particle
+            skyColor,
+            waterFogColor,
+            fogColor,
+            waterColor,
+            foliageColor,
+            grassColorModifier,
+            music,
+            ambientSound,
+            additionsSound,
+            moodSound,
+            particle
         );
       }
 

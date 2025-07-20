@@ -33,20 +33,12 @@ public class EntityMetadata {
   private final Map<Byte, Entry> entries;
 
   public void encode(ByteBuf buf, ProtocolVersion protocolVersion) {
-    if (protocolVersion.compareTo(ProtocolVersion.MINECRAFT_1_8) <= 0) {
-      entries.forEach((index, value) -> {
-        buf.writeByte((index & 0x1F) | (value.getType(protocolVersion) << 5));
-        value.encode(buf, protocolVersion);
-      });
-      buf.writeByte(0x7F);
-    } else {
-      entries.forEach((index, value) -> {
-        buf.writeByte(index);
-        ProtocolUtils.writeVarInt(buf, value.getType(protocolVersion));
-        value.encode(buf, protocolVersion);
-      });
-      buf.writeByte(0xFF);
-    }
+    entries.forEach((index, value) -> {
+      buf.writeByte(index);
+      ProtocolUtils.writeVarInt(buf, value.getType(protocolVersion));
+      value.encode(buf, protocolVersion);
+    });
+    buf.writeByte(0xFF);
   }
 
   public interface Entry {
@@ -76,7 +68,7 @@ public class EntityMetadata {
 
     @Override
     public void encode(ByteBuf buf, ProtocolVersion protocolVersion) {
-      if (protocolVersion.compareTo(ProtocolVersion.MINECRAFT_1_20_5) >= 0) {
+      if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_20_5)) {
         encodeModern(buf, protocolVersion);
       } else {
         encodeLegacy(buf, protocolVersion);
@@ -101,31 +93,14 @@ public class EntityMetadata {
     }
 
     public void encodeLegacy(ByteBuf buf, ProtocolVersion protocolVersion) {
-      if (protocolVersion.compareTo(ProtocolVersion.MINECRAFT_1_13_2) >= 0) {
-        buf.writeBoolean(present);
-      }
-
-      if (!present && protocolVersion.compareTo(ProtocolVersion.MINECRAFT_1_13_2) < 0) {
-        buf.writeShort(-1);
-      }
+      buf.writeBoolean(present);
 
       if (present) {
-        if (protocolVersion.compareTo(ProtocolVersion.MINECRAFT_1_13_2) < 0) {
-          buf.writeShort(item.getId(protocolVersion));
-        } else {
-          ProtocolUtils.writeVarInt(buf, item.getId(protocolVersion));
-        }
+        ProtocolUtils.writeVarInt(buf, item.getId(protocolVersion));
         buf.writeByte(count);
-        if (protocolVersion.compareTo(ProtocolVersion.MINECRAFT_1_13) < 0) {
-          buf.writeShort(data);
-        }
 
         if (nbt == null) {
-          if (protocolVersion.compareTo(ProtocolVersion.MINECRAFT_1_8) < 0) {
-            buf.writeShort(-1);
-          } else {
-            buf.writeByte(0);
-          }
+          buf.writeByte(0);
         } else {
           ProtocolUtils.writeBinaryTag(buf, protocolVersion, nbt);
         }
@@ -134,9 +109,7 @@ public class EntityMetadata {
 
     @Override
     public int getType(ProtocolVersion protocolVersion) {
-      if (protocolVersion.compareTo(ProtocolVersion.MINECRAFT_1_12_2) <= 0) {
-        return 5;
-      } else if (protocolVersion.compareTo(ProtocolVersion.MINECRAFT_1_19_1) <= 0) {
+      if (protocolVersion.noGreaterThan(ProtocolVersion.MINECRAFT_1_19_1)) {
         return 6;
       } else {
         return 7;
@@ -151,20 +124,12 @@ public class EntityMetadata {
 
     @Override
     public void encode(ByteBuf buf, ProtocolVersion protocolVersion) {
-      if (protocolVersion.compareTo(ProtocolVersion.MINECRAFT_1_8) <= 0) {
-        buf.writeInt(value);
-      } else {
-        ProtocolUtils.writeVarInt(buf, value);
-      }
+      ProtocolUtils.writeVarInt(buf, value);
     }
 
     @Override
     public int getType(ProtocolVersion protocolVersion) {
-      if (protocolVersion.compareTo(ProtocolVersion.MINECRAFT_1_8) <= 0) {
-        return 2;
-      } else {
-        return 1;
-      }
+      return 1;
     }
   }
 

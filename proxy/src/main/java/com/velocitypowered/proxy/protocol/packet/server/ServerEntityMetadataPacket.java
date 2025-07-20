@@ -48,11 +48,7 @@ public class ServerEntityMetadataPacket implements MinecraftPacket {
 
   @Override
   public void encode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion protocolVersion) {
-    if (protocolVersion.compareTo(ProtocolVersion.MINECRAFT_1_7_6) <= 0) {
-      buf.writeInt(entityId);
-    } else {
-      ProtocolUtils.writeVarInt(buf, entityId);
-    }
+    ProtocolUtils.writeVarInt(buf, entityId);
     metadata.apply(protocolVersion).encode(buf, protocolVersion);
   }
 

@@ -23,11 +23,6 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.function.Function;
 
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_12_2;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_13_1;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_13_2;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_15_2;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_16_1;
 import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_16_4;
 import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_18_2;
 import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_19_1;
@@ -37,8 +32,6 @@ import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_20;
 import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21;
 import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_2;
 import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_4;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_7_6;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_8;
 
 // TODO: load mappings from a separate file
 @Getter
@@ -51,21 +44,6 @@ public enum BlockType {
   // - https://github.com/ViaVersion/Mappings/tree/main/mappings
   //STONE(protocolVersion -> 1, 1),
   ENCHANTMENT_TABLE(protocolVersion -> {
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_12_2)) {
-      return 116;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_13_1)) {
-      return 4612;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_13_2)) {
-      return 4613;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_15_2)) {
-      return 5116;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_16_1)) {
-      return 5132;
-    }
     if (protocolVersion.noGreaterThan(MINECRAFT_1_16_4)) {
       return 5136;
     }
@@ -93,25 +71,6 @@ public enum BlockType {
     return 8173;
   }, protocolVersion -> (double) 0.75f),
   TRAPDOOR(protocolVersion -> {
-    // We have to use wooden trapdoors for 1.7 since 1.7 doesn't have iron trapdoors
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_7_6)) {
-      return 96;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_12_2)) {
-      return 167;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_13_1)) {
-      return 6509;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_13_2)) {
-      return 6510;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_15_2)) {
-      return 7016;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_16_1)) {
-      return 7552;
-    }
     if (protocolVersion.noGreaterThan(MINECRAFT_1_16_4)) {
       return 7556;
     }
@@ -142,21 +101,6 @@ public enum BlockType {
     return 11303;
   }, protocolVersion -> 0.1875),
   END_PORTAL_FRAME(protocolVersion -> {
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_12_2)) {
-      return 120;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_13_1)) {
-      return 4633;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_13_2)) {
-      return 4634;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_15_2)) {
-      return 5137;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_16_1)) {
-      return 5153;
-    }
     if (protocolVersion.noGreaterThan(MINECRAFT_1_16_4)) {
       return 5157;
     }
@@ -184,21 +128,6 @@ public enum BlockType {
     return 8195;
   }, protocolVersion -> 0.8125),
   DAYLIGHT_SENSOR(protocolVersion -> {
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_12_2)) {
-      return 151;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_13_1)) {
-      return 5651;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_13_2)) {
-      return 5652;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_15_2)) {
-      return 6158;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_16_1)) {
-      return 6694;
-    }
     if (protocolVersion.noGreaterThan(MINECRAFT_1_16_4)) {
       return 6698;
     }
@@ -229,21 +158,6 @@ public enum BlockType {
     return 10016;
   }, protocolVersion -> 0.375),
   COBBLESTONE_WALL(protocolVersion -> {
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_12_2)) {
-      return 139;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_13_1)) {
-      return 5196;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_13_2)) {
-      return 5197;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_15_2)) {
-      return 5700;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_16_1)) {
-      return 5660;
-    }
     if (protocolVersion.noGreaterThan(MINECRAFT_1_16_4)) {
       return 5664;
     }
@@ -271,21 +185,6 @@ public enum BlockType {
     return 8706;
   }, protocolVersion -> 1.5),
   STONE_SLABS(protocolVersion -> {
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_12_2)) {
-      return 44;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_13_1)) {
-      return 7296;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_13_2)) {
-      return 7297;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_15_2)) {
-      return 7809;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_16_1)) {
-      return 8345;
-    }
     if (protocolVersion.noGreaterThan(MINECRAFT_1_16_4)) {
       return 8349;
     }
@@ -316,21 +215,6 @@ public enum BlockType {
     return 12120;
   }, protocolVersion -> 0.5),
   WHITE_CARPET(protocolVersion -> {
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_12_2)) {
-      return 171;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_13_1)) {
-      return 6823;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_13_2)) {
-      return 6824;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_15_2)) {
-      return 7330;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_16_1)) {
-      return 7866;
-    }
     if (protocolVersion.noGreaterThan(MINECRAFT_1_16_4)) {
       return 7870;
     }
@@ -359,7 +243,7 @@ public enum BlockType {
       return 11607;
     }
     return 11617;
-  }, protocolVersion -> protocolVersion.compareTo(MINECRAFT_1_8) < 0 ? 0 : 0.0625);
+  }, protocolVersion -> 0.0625);
 
   private final Function<ProtocolVersion, Integer> id;
   private final Function<ProtocolVersion, Double> blockHeight;

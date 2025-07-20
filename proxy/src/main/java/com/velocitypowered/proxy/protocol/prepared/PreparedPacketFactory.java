@@ -210,7 +210,7 @@ public class PreparedPacketFactory {
     if (releaseReferenceCounted && packet instanceof ReferenceCounted referenceCounted) {
       referenceCounted.release();
     }
-    return compress(packetData, (version.compareTo(ProtocolVersion.MINECRAFT_1_8) >= 0 && enableCompression));
+    return compress(packetData, enableCompression);
   }
 
   public void inject(Player player, MinecraftConnection connection, ChannelPipeline pipeline) {

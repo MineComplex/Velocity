@@ -70,7 +70,7 @@ public class ServerTagsPacket implements MinecraftPacket {
 
   @Override
   public void encode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
-    if (version.compareTo(ProtocolVersion.MINECRAFT_1_17) >= 0) {
+    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_17)) {
       ProtocolUtils.writeVarInt(buf, tags.size());
       tags.forEach((tagType, tagList) -> {
         ProtocolUtils.writeString(buf, tagType);
@@ -80,9 +80,7 @@ public class ServerTagsPacket implements MinecraftPacket {
       writeTagList(buf, tags.get("minecraft:block"));
       writeTagList(buf, tags.get("minecraft:item"));
       writeTagList(buf, tags.get("minecraft:fluid"));
-      if (version.compareTo(ProtocolVersion.MINECRAFT_1_14) >= 0) {
-        writeTagList(buf, tags.get("minecraft:entity_type"));
-      }
+      writeTagList(buf, tags.get("minecraft:entity_type"));
     }
   }
 

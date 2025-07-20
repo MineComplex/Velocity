@@ -52,14 +52,14 @@ public class ServerInventorySetSlotPacket implements MinecraftPacket {
 
   @Override
   public void encode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion protocolVersion) {
-    if (protocolVersion.compareTo(ProtocolVersion.MINECRAFT_1_20_5) >= 0) {
-      encodeModern(buf, direction, protocolVersion);
+    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_20_5)) {
+      encodeModern(buf, protocolVersion);
     } else {
-      encodeLegacy(buf, direction, protocolVersion);
+      encodeLegacy(buf, protocolVersion);
     }
   }
 
-  public void encodeModern(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion protocolVersion) {
+  public void encodeModern(ByteBuf buf, ProtocolVersion protocolVersion) {
     if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_21_2)) {
       ProtocolUtils.writeVarInt(buf, windowId);
     } else {
@@ -84,10 +84,10 @@ public class ServerInventorySetSlotPacket implements MinecraftPacket {
     }
   }
 
-  public void encodeLegacy(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion protocolVersion) {
+  public void encodeLegacy(ByteBuf buf, ProtocolVersion protocolVersion) {
     buf.writeByte(windowId);
 
-    if (protocolVersion.compareTo(ProtocolVersion.MINECRAFT_1_17_1) >= 0) {
+    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_17_1)) {
       ProtocolUtils.writeVarInt(buf, 0); // State Id.
     }
 
@@ -95,31 +95,14 @@ public class ServerInventorySetSlotPacket implements MinecraftPacket {
     int id = item.getId(protocolVersion);
     boolean present = id > 0;
 
-    if (protocolVersion.compareTo(ProtocolVersion.MINECRAFT_1_13_2) >= 0) {
-      buf.writeBoolean(present);
-    }
-
-    if (!present && protocolVersion.compareTo(ProtocolVersion.MINECRAFT_1_13_2) < 0) {
-      buf.writeShort(-1);
-    }
+    buf.writeBoolean(present);
 
     if (present) {
-      if (protocolVersion.compareTo(ProtocolVersion.MINECRAFT_1_13_2) < 0) {
-        buf.writeShort(id);
-      } else {
-        ProtocolUtils.writeVarInt(buf, id);
-      }
+      ProtocolUtils.writeVarInt(buf, id);
       buf.writeByte(count);
-      if (protocolVersion.compareTo(ProtocolVersion.MINECRAFT_1_13) < 0) {
-        buf.writeShort(data);
-      }
 
       if (nbt == null) {
-        if (protocolVersion.compareTo(ProtocolVersion.MINECRAFT_1_8) < 0) {
-          buf.writeShort(-1);
-        } else {
-          buf.writeByte(0);
-        }
+        buf.writeByte(0);
       } else {
         ProtocolUtils.writeBinaryTag(buf, protocolVersion, nbt);
       }

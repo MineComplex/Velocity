@@ -49,25 +49,13 @@ public class ServerSpawnEntityPacket implements MinecraftPacket {
   public void encode(ByteBuf byteBuf, ProtocolUtils.Direction direction, ProtocolVersion protocolVersion) {
     ProtocolUtils.writeVarInt(byteBuf, entityId);
 
-    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_9)) {
-      ProtocolUtils.writeUuid(byteBuf, uuid != null ? uuid : UUID.randomUUID());
-    }
+    ProtocolUtils.writeUuid(byteBuf, uuid != null ? uuid : UUID.randomUUID());
 
-    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_14)) {
-      ProtocolUtils.writeVarInt(byteBuf, type.apply(protocolVersion));
-    } else {
-      byteBuf.writeByte(type.apply(protocolVersion));
-    }
+    ProtocolUtils.writeVarInt(byteBuf, type.apply(protocolVersion));
 
-    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_9)) {
-      byteBuf.writeDouble(x);
-      byteBuf.writeDouble(y);
-      byteBuf.writeDouble(z);
-    } else {
-      byteBuf.writeInt((int) (x * 32D));
-      byteBuf.writeInt((int) (y * 32D));
-      byteBuf.writeInt((int) (z * 32D));
-    }
+    byteBuf.writeDouble(x);
+    byteBuf.writeDouble(y);
+    byteBuf.writeDouble(z);
 
     byteBuf.writeByte((int) (pitch * (256.0F / 360.0F)));
     byteBuf.writeByte((int) (yaw * (256.0F / 360.0F)));
@@ -79,11 +67,9 @@ public class ServerSpawnEntityPacket implements MinecraftPacket {
       byteBuf.writeInt(data); // data
     }
 
-    if (data > 0 || protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_9)) {
-      byteBuf.writeShort((int) (velocityX * 8000D));
-      byteBuf.writeShort((int) (velocityY * 8000D));
-      byteBuf.writeShort((int) (velocityZ * 8000D));
-    }
+    byteBuf.writeShort((int) (velocityX * 8000D));
+    byteBuf.writeShort((int) (velocityY * 8000D));
+    byteBuf.writeShort((int) (velocityZ * 8000D));
   }
 
   @Override

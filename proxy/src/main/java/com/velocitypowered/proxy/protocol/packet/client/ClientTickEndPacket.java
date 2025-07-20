@@ -38,6 +38,7 @@ public class ClientTickEndPacket implements MinecraftPacket {
 
   @Override
   public boolean handle(MinecraftSessionHandler handler) {
+    handler.handleGeneric(this);
     return true;
   }
 

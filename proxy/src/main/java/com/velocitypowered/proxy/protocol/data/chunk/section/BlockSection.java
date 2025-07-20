@@ -20,8 +20,8 @@ package com.velocitypowered.proxy.protocol.data.chunk.section;
 import com.google.common.base.Preconditions;
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.protocol.data.block.Block;
-import com.velocitypowered.proxy.protocol.data.block.BlockStorage;
-import com.velocitypowered.proxy.protocol.data.storage.BlockStorage19;
+import com.velocitypowered.proxy.protocol.data.block.BlockTypeStorage;
+import com.velocitypowered.proxy.protocol.data.storage.BlockStorage;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -31,30 +31,30 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 @AllArgsConstructor
 public class BlockSection {
 
-  private final BlockStorage blocks;
+  private final BlockTypeStorage blocks;
 
   @Getter
   private long lastUpdate = System.nanoTime();
 
   public BlockSection() {
-    this(new BlockStorage19(ProtocolVersion.MINECRAFT_1_17));
+    this(new BlockStorage(ProtocolVersion.MINECRAFT_1_17));
   }
 
   public void setBlockAt(int posX, int posY, int posZ, @Nullable Block block) {
     this.checkIndexes(posX, posY, posZ);
-    this.blocks.set(posX, posY, posZ, block == null ? Block.AIR : block);
-    this.lastUpdate = System.nanoTime();
+    blocks.set(posX, posY, posZ, block == null ? Block.AIR : block);
+    lastUpdate = System.nanoTime();
   }
 
   public Block getBlockAt(int posX, int posY, int posZ) {
-    this.checkIndexes(posX, posY, posZ);
-    return this.blocks.get(posX, posY, posZ);
+    checkIndexes(posX, posY, posZ);
+    return blocks.get(posX, posY, posZ);
   }
 
   private void checkIndexes(int posX, int posY, int posZ) {
-    Preconditions.checkArgument(this.checkIndex(posX), "x should be between 0 and 15");
-    Preconditions.checkArgument(this.checkIndex(posY), "y should be between 0 and 15");
-    Preconditions.checkArgument(this.checkIndex(posZ), "z should be between 0 and 15");
+    Preconditions.checkArgument(checkIndex(posX), "x should be between 0 and 15");
+    Preconditions.checkArgument(checkIndex(posY), "y should be between 0 and 15");
+    Preconditions.checkArgument(checkIndex(posZ), "z should be between 0 and 15");
   }
 
   private boolean checkIndex(int pos) {
@@ -62,7 +62,7 @@ public class BlockSection {
   }
 
   public BlockSection getSnapshot() {
-    return new BlockSection(this.blocks.copy(), this.lastUpdate);
+    return new BlockSection(blocks.copy(), lastUpdate);
   }
 
 }

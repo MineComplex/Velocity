@@ -56,7 +56,7 @@ public class ClientPlayerChatSessionPacket implements MinecraftPacket {
 
   @Override
   public boolean handle(MinecraftSessionHandler minecraftSessionHandler) {
-    // LimboAPI hook - skip server-side signature verification if enabled
+    // skip server-side signature verification if enabled
     if (minecraftSessionHandler instanceof ClientPlaySessionHandler) {
       return true;
     }

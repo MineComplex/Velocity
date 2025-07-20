@@ -31,6 +31,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
@@ -69,7 +70,16 @@ public class Block {
   }
 
   public Block(boolean solid, boolean air, boolean motionBlocking, String modernId, short blockStateId) {
-    this(solid, air, motionBlocking, modernId, blockStateId, MODERN_BLOCK_STRING_MAP.get(modernId.split("\\[")[0]));
+    this(solid, air, motionBlocking, modernId, blockStateId, findId(modernId));
+  }
+
+  private static short findId(String modernId) {
+    String block = modernId.split("\\[")[0];
+    Short id = MODERN_BLOCK_STRING_MAP.get(block);
+    if (id == null) {
+      throw new IllegalStateException("failed to find local id for specific block: " + block);
+    }
+    return id;
   }
 
   public Block(boolean solid, boolean air, boolean motionBlocking, String modernId, short blockStateId, short blockId) {
@@ -163,7 +173,7 @@ public class Block {
 
     modernMap.forEach((modernId, versionMap) -> {
       Short id = null;
-      for (ProtocolVersion version : ProtocolVersion.SUPPORTED_VERSIONS) {
+      for (ProtocolVersion version : EnumSet.range(ProtocolVersion.MINECRAFT_1_16_4, ProtocolVersion.MAXIMUM_VERSION)) {
         id = Short.valueOf(versionMap.getOrDefault(version.toString(), String.valueOf(id)));
         Block.MODERN_BLOCK_STATE_IDS_MAP.computeIfAbsent(version, k -> new ShortObjectHashMap<>()).put(Short.parseShort(modernId), id);
       }

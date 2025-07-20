@@ -43,23 +43,9 @@ public class ServerDefaultSpawnPositionPacket implements MinecraftPacket {
 
   @Override
   public void encode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion protocolVersion) {
-    if (protocolVersion.compareTo(ProtocolVersion.MINECRAFT_1_8) < 0) {
-      buf.writeInt(posX);
-      buf.writeInt(posY);
-      buf.writeInt(posZ);
-    } else {
-      long location;
-      if (protocolVersion.compareTo(ProtocolVersion.MINECRAFT_1_14) < 0) {
-        location = ((posX & 0x3FFFFFFL) << 38) | ((posY & 0xFFFL) << 26) | (posZ & 0x3FFFFFFL);
-      } else {
-        location = ((posX & 0x3FFFFFFL) << 38) | ((posZ & 0x3FFFFFFL) << 12) | (posY & 0xFFFL);
-      }
-
-      buf.writeLong(location);
-
-      if (protocolVersion.compareTo(ProtocolVersion.MINECRAFT_1_17) >= 0) {
-        buf.writeFloat(angle);
-      }
+    buf.writeLong(((posX & 0x3FFFFFFL) << 38) | ((posZ & 0x3FFFFFFL) << 12) | (posY & 0xFFFL));
+    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_17)) {
+      buf.writeFloat(angle);
     }
   }
 

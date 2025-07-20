@@ -70,7 +70,7 @@ public class ItemComponentManager {
 
     Map<String, ProtocolVersion> cache = new HashMap<>();
     for (ProtocolVersion version : ProtocolVersion.values()) {
-      if (version.compareTo(ProtocolVersion.MINECRAFT_1_20_5) < 0) {
+      if (version.lessThan(ProtocolVersion.MINECRAFT_1_20_5)) {
         continue;
       }
 
