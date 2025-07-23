@@ -19,7 +19,6 @@ package com.velocitypowered.proxy.protocol.packet.client;
 
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
-import com.velocitypowered.proxy.connection.client.ClientLimboSessionHandler;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import io.netty.buffer.ByteBuf;
@@ -57,11 +56,8 @@ public class ClientMoveOnGroundOnlyPacket implements MinecraftPacket {
 
   @Override
   public boolean handle(MinecraftSessionHandler handler) {
-    if (handler instanceof ClientLimboSessionHandler client) {
-      return client.handle(this);
-    } else {
-      return true;
-    }
+    handler.handleGeneric(this);
+    return true;
   }
 
   @Override
