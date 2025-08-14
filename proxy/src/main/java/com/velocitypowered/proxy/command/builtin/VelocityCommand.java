@@ -173,8 +173,7 @@ public final class VelocityCommand {
             .append(Component.text()
                 .content("PaperMC")
                 .color(NamedTextColor.GREEN)
-                .clickEvent(
-                    ClickEvent.openUrl("https://papermc.io/software/velocity"))
+                .clickEvent(ClickEvent.openUrl(VelocityServer.VELOCITY_URL))
                 .build())
             .append(Component.text(" - "))
             .append(Component.text()
