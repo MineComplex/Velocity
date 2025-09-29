@@ -39,7 +39,12 @@ import com.velocitypowered.api.util.Favicon;
 import com.velocitypowered.api.util.GameProfile;
 import com.velocitypowered.api.util.ProxyVersion;
 import com.velocitypowered.proxy.command.VelocityCommandManager;
-import com.velocitypowered.proxy.command.builtin.*;
+import com.velocitypowered.proxy.command.builtin.CallbackCommand;
+import com.velocitypowered.proxy.command.builtin.GlistCommand;
+import com.velocitypowered.proxy.command.builtin.SendCommand;
+import com.velocitypowered.proxy.command.builtin.ServerCommand;
+import com.velocitypowered.proxy.command.builtin.ShutdownCommand;
+import com.velocitypowered.proxy.command.builtin.VelocityCommand;
 import com.velocitypowered.proxy.config.VelocityConfiguration;
 import com.velocitypowered.proxy.connection.client.ConnectedPlayer;
 import com.velocitypowered.proxy.connection.player.resourcepack.VelocityResourcePackInfo;
@@ -53,11 +58,6 @@ import com.velocitypowered.proxy.plugin.loader.VelocityPluginContainer;
 import com.velocitypowered.proxy.plugin.loader.VelocityPluginDescription;
 import com.velocitypowered.proxy.plugin.virtual.VelocityVirtualPlugin;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
-import com.velocitypowered.proxy.protocol.data.block.Block;
-import com.velocitypowered.proxy.protocol.data.item.Item;
-import com.velocitypowered.proxy.protocol.data.map.MapPalette;
-import com.velocitypowered.proxy.protocol.data.tag.TagManager;
-import com.velocitypowered.proxy.protocol.data.tile.TileEntity;
 import com.velocitypowered.proxy.protocol.util.FaviconSerializer;
 import com.velocitypowered.proxy.protocol.util.GameProfileSerializer;
 import com.velocitypowered.proxy.scheduler.VelocityScheduler;
@@ -73,20 +73,6 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
-import lombok.Getter;
-import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.audience.ForwardingAudience;
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.translation.GlobalTranslator;
-import net.kyori.adventure.translation.TranslationStore;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -96,12 +82,39 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyPair;
 import java.text.MessageFormat;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import lombok.Getter;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.audience.ForwardingAudience;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.translation.GlobalTranslator;
+import net.kyori.adventure.translation.TranslationStore;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.bstats.MetricsBase;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Implementation of {@link ProxyServer}.
@@ -139,6 +152,8 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
       )
       .registerTypeHierarchyAdapter(Favicon.class, FaviconSerializer.INSTANCE)
       .create();
+  private static final int PRE_SHUTDOWN_TIMEOUT =
+      Integer.getInteger("velocity.pre-shutdown-timeout", 10);
   @Getter
   public static VelocityServer instance;
   private final ConnectionManager cm;
@@ -231,12 +246,6 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
     pluginManager.registerPlugin(this.createVirtualPlugin());
 
     registerTranslations();
-
-    Block.init();
-    TileEntity.init();
-    Item.init();
-    TagManager.init();
-    MapPalette.init();
 
     // Yes, you're reading that correctly. We're generating a 1024-bit RSA keypair. Sounds
     // dangerous, right? We're well within the realm of factoring such a key...
@@ -567,6 +576,20 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
       // Shutdown the connection manager, this should be
       // done first to refuse new connections
       cm.shutdown();
+
+      try {
+        eventManager.fire(new ProxyPreShutdownEvent())
+            .toCompletableFuture()
+            .get(PRE_SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
+      } catch (TimeoutException ignored) {
+        logger.warn("Your plugins took over {} seconds during pre shutdown.",
+            PRE_SHUTDOWN_TIMEOUT);
+      } catch (ExecutionException ee) {
+        logger.error("Exception in ProxyPreShutdownEvent handler; continuing shutdown.", ee);
+      } catch (InterruptedException ignored) {
+        Thread.currentThread().interrupt();
+        logger.warn("Interrupted while waiting for ProxyPreShutdownEvent; continuing shutdown.");
+      }
 
       ImmutableList<ConnectedPlayer> players = ImmutableList.copyOf(connectionsByUuid.values());
       for (ConnectedPlayer player : players) {
