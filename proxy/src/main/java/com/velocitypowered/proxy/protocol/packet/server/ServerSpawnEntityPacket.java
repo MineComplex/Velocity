@@ -21,6 +21,7 @@ import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
+import com.velocitypowered.proxy.protocol.data.entity.PackedVector;
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -57,6 +58,10 @@ public class ServerSpawnEntityPacket implements MinecraftPacket {
     byteBuf.writeDouble(y);
     byteBuf.writeDouble(z);
 
+    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_21_9)) {
+      PackedVector.write(byteBuf, this.velocityX, this.velocityY, this.velocityZ);
+    }
+
     byteBuf.writeByte((int) (pitch * (256.0F / 360.0F)));
     byteBuf.writeByte((int) (yaw * (256.0F / 360.0F)));
 
@@ -67,9 +72,11 @@ public class ServerSpawnEntityPacket implements MinecraftPacket {
       byteBuf.writeInt(data); // data
     }
 
-    byteBuf.writeShort((int) (velocityX * 8000D));
-    byteBuf.writeShort((int) (velocityY * 8000D));
-    byteBuf.writeShort((int) (velocityZ * 8000D));
+    if (protocolVersion.lessThan(ProtocolVersion.MINECRAFT_1_21_9)) {
+      byteBuf.writeShort((int) (velocityX * 8000.0F));
+      byteBuf.writeShort((int) (velocityY * 8000.0F));
+      byteBuf.writeShort((int) (velocityZ * 8000.0F));
+    }
   }
 
   @Override

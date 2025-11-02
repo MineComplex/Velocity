@@ -37,6 +37,7 @@ import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_20_5;
 import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21;
 import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_2;
 import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_5;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_7;
 
 @UtilityClass
 public class EntityData {
@@ -60,8 +61,10 @@ public class EntityData {
       return 71;
     } else if (protocolVersion.noGreaterThan(MINECRAFT_1_21_5)) {
       return 70;
-    } else {
+    } else if (protocolVersion.compareTo(MINECRAFT_1_21_7) <= 0) {
       return 71;
+    } else {
+      return 72;
     }
   }
 
@@ -80,8 +83,10 @@ public class EntityData {
       return 85;
     } else if (version.noGreaterThan(MINECRAFT_1_21_5)) {
       return 84;
+    } else if (version.noGreaterThan(MINECRAFT_1_21_7)) {
+      return 85;
     }
-    return 85;
+    return 87;
   }
 
   public int getMinecartId(ProtocolVersion version) {
@@ -103,8 +108,10 @@ public class EntityData {
       return 82;
     } else if (version.noGreaterThan(MINECRAFT_1_21_5)) {
       return 81;
+    } else if (version.noGreaterThan(MINECRAFT_1_21_7)) {
+      return 82;
     }
-    return 82;
+    return 84;
   }
 
   public byte getMetadataIndex(ProtocolVersion protocolVersion) {

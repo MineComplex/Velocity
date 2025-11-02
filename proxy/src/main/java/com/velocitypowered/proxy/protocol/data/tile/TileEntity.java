@@ -41,7 +41,7 @@ public class TileEntity {
 
   @Getter
   private final String modernId;
-  private final Map<TileEntityVersion, Integer> versionIds = new EnumMap<>(TileEntityVersion.class);
+  private final Map<TileEntityVersion, Short> versionIds = new EnumMap<>(TileEntityVersion.class);
 
   @SuppressWarnings("unchecked")
   public static void init() {
@@ -55,7 +55,7 @@ public class TileEntity {
 
     blockEntitiesMapping.forEach((modernId, protocols) -> {
       TileEntity TileEntity = new TileEntity(modernId);
-      protocols.forEach((key, value) -> TileEntity.versionIds.put(TileEntityVersion.parse(key), Integer.parseInt(value)));
+      protocols.forEach((key, value) -> TileEntity.versionIds.put(TileEntityVersion.parse(key), Short.parseShort(value)));
       MODERN_ID_MAP.put(modernId, TileEntity);
     });
   }
@@ -69,7 +69,11 @@ public class TileEntity {
   }
 
   public int getId(TileEntityVersion version) {
-    return versionIds.get(version);
+    Short result = versionIds.get(version);
+    if (result == null) {
+      throw new IllegalArgumentException("Item " + modernId + " does not exists on " + version);
+    }
+    return result;
   }
 
   public boolean isSupportedOn(ProtocolVersion version) {

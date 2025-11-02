@@ -68,7 +68,11 @@ public class TagManager {
   }
 
   public ServerTagsPacket getUpdateTagsPacket(ProtocolVersion version) {
-    return VERSION_MAP.get(WorldVersion.from(version));
+    ServerTagsPacket packet = VERSION_MAP.get(WorldVersion.from(version));
+    if (packet == null) {
+      throw new NullPointerException("Not found tags packet for " + version + " or world version " + WorldVersion.from(version));
+    }
+    return packet;
   }
 
   public ServerTagsPacket getUpdateTagsPacket(WorldVersion version) {
