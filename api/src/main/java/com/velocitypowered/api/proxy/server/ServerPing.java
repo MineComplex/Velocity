@@ -12,6 +12,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.velocitypowered.api.util.Favicon;
 import com.velocitypowered.api.util.ModInfo;
+import net.kyori.adventure.text.Component;
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -19,7 +22,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import org.checkerframework.checker.nullness.qual.Nullable;
+
 
 /**
  * Represents a 1.7 and above server list ping response. This class is immutable.
@@ -28,7 +31,7 @@ public final class ServerPing {
 
   private final Version version;
   private final @Nullable Players players;
-  private final net.kyori.adventure.text.Component description;
+  private final @Nullable Component description;
   private final @Nullable Favicon favicon;
   private final @Nullable ModInfo modinfo;
 
@@ -47,8 +50,8 @@ public final class ServerPing {
    * @param modinfo the mods this server runs
    */
   public ServerPing(Version version, @Nullable Players players,
-      net.kyori.adventure.text.Component description, @Nullable Favicon favicon,
-      @Nullable ModInfo modinfo) {
+                    Component description, @Nullable Favicon favicon,
+                    @Nullable ModInfo modinfo) {
     this.version = Preconditions.checkNotNull(version, "version");
     this.players = players;
     this.description = Preconditions.checkNotNull(description, "description");
@@ -64,7 +67,8 @@ public final class ServerPing {
     return Optional.ofNullable(players);
   }
 
-  public net.kyori.adventure.text.Component getDescriptionComponent() {
+  @Nullable
+  public Component getDescriptionComponent() {
     return description;
   }
 
@@ -151,7 +155,7 @@ public final class ServerPing {
     private final List<SamplePlayer> samplePlayers = new ArrayList<>();
     private String modType = "FML";
     private final List<ModInfo.Mod> mods = new ArrayList<>();
-    private net.kyori.adventure.text.Component description;
+    private Component description;
     private @Nullable Favicon favicon;
     private boolean nullOutPlayers;
     private boolean nullOutModinfo;
@@ -299,7 +303,7 @@ public final class ServerPing {
      * @param description Component to use as the description.
      * @return this builder, for chaining
      */
-    public Builder description(net.kyori.adventure.text.Component description) {
+    public Builder description(Component description) {
       this.description = Preconditions.checkNotNull(description, "description");
       return this;
     }
@@ -359,7 +363,7 @@ public final class ServerPing {
       return samplePlayers;
     }
 
-    public Optional<net.kyori.adventure.text.Component> getDescriptionComponent() {
+    public Optional<Component> getDescriptionComponent() {
       return Optional.ofNullable(description);
     }
 

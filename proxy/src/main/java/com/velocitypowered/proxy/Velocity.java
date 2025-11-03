@@ -20,10 +20,11 @@ package com.velocitypowered.proxy;
 import com.velocitypowered.proxy.util.VelocityProperties;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.ResourceLeakDetector.Level;
-import java.text.DecimalFormat;
-import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.text.DecimalFormat;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The main class. Responsible for parsing command line arguments and then launching the
@@ -45,11 +46,6 @@ public class Velocity {
     // Netty natives are extracted there as well
     if (VelocityProperties.hasProperty("velocity.natives-tmpdir")) {
       System.setProperty("io.netty.native.workdir", System.getProperty("velocity.natives-tmpdir"));
-    }
-
-    // Restore allocator used before Netty 4.2 due to oom issues with the adaptive allocator
-    if (System.getProperty("io.netty.allocator.type") == null) {
-      System.setProperty("io.netty.allocator.type", "pooled");
     }
 
     // Disable the resource leak detector by default as it reduces performance. Allow the user to

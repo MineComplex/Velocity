@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.velocitypowered.api.util.Ordered;
+
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -93,7 +94,7 @@ public enum ProtocolVersion implements Ordered<ProtocolVersion> {
   MINECRAFT_1_21_5(770, "1.21.5"),
   MINECRAFT_1_21_6(771, "1.21.6"),
   MINECRAFT_1_21_7(772, "1.21.7", "1.21.8"),
-  MINECRAFT_1_21_9(773, "1.21.9");
+  MINECRAFT_1_21_9(773, "1.21.9", "1.21.10");
 
   private static final int SNAPSHOT_BIT = 30;
 

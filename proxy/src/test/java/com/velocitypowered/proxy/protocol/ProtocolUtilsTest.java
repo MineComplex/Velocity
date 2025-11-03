@@ -17,13 +17,14 @@
 
 package com.velocitypowered.proxy.protocol;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import org.junit.jupiter.api.Test;
+
+import static com.velocitypowered.proxy.protocol.ProtocolUtils.encode21BitVarInt;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Protocol utils test.
@@ -83,7 +84,7 @@ public class ProtocolUtilsTest {
 
   private void writeReadTest3Bytes(ByteBuf buf, int test) {
     buf.clear();
-    ProtocolUtils.write21BitVarInt(buf, test);
+    buf.writeMedium(encode21BitVarInt(test));
     assertEquals(test, ProtocolUtils.readVarInt(buf));
   }
 

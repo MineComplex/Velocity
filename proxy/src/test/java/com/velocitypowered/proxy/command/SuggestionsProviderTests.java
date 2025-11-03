@@ -17,18 +17,22 @@
 
 package com.velocitypowered.proxy.command;
 
-import static com.mojang.brigadier.arguments.StringArgumentType.word;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import com.google.common.collect.ImmutableList;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.mojang.brigadier.suggestion.Suggestions;
 import com.velocitypowered.api.command.Command;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.command.RawCommand;
+import com.velocitypowered.api.command.SimpleCommand;
+import org.junit.jupiter.api.Test;
+
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import org.junit.jupiter.api.Test;
+
+import static com.mojang.brigadier.arguments.StringArgumentType.word;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Tests {@link Command} implementation-independent suggestion methods of
@@ -284,6 +288,28 @@ public class SuggestionsProviderTests extends CommandTestSuite {
     @Override
     public List<String> suggest(final Invocation invocation) {
       return ImmutableList.of();
+    }
+  }
+
+  @Test
+  void testSuggestionOffset() {
+    final var meta = manager.metaBuilder("offset").build();
+    manager.register(meta, new SimpleCommand() {
+      @Override
+      public void execute(final Invocation invocation) {
+        fail();
+      }
+
+      @Override
+      public List<String> suggest(final Invocation invocation) {
+        return List.of("bump");
+      }
+    });
+
+    assertSuggestions("offset bu", "bump");
+    for (int i = 10; i < 20; i++) {
+      final Suggestions suggestions = manager.offerBrigadierSuggestions(source, "offset " + "bump ".repeat(i)).join();
+      assertEquals(7 + 5 * i, suggestions.getList().get(0).getRange().getStart());
     }
   }
 }

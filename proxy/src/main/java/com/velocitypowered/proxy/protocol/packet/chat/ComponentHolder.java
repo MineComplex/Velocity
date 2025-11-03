@@ -52,8 +52,9 @@ import java.util.List;
 import java.util.Map;
 
 public class ComponentHolder {
-  public static final int DEFAULT_MAX_STRING_SIZE = 262143;
   private static final Logger logger = LogManager.getLogger(ComponentHolder.class);
+  public static final int DEFAULT_MAX_STRING_SIZE = 262143;
+
   private final ProtocolVersion version;
   private @MonotonicNonNull Component component;
   private @MonotonicNonNull String json;
@@ -72,6 +73,41 @@ public class ComponentHolder {
   public ComponentHolder(ProtocolVersion version, BinaryTag binaryTag) {
     this.version = version;
     this.binaryTag = binaryTag;
+  }
+
+  public Component getComponent() {
+    if (component == null) {
+      if (json != null) {
+        component = ProtocolUtils.getJsonChatSerializer(version).deserialize(json);
+      } else if (binaryTag != null) {
+        // TODO: replace this with adventure-text-serializer-nbt
+        try {
+          json = deserialize(binaryTag).toString();
+          component = ProtocolUtils.getJsonChatSerializer(version).deserialize(json);
+        } catch (Exception ex) {
+          logger.error(
+              "Error converting binary component to JSON component! "
+                  + "Binary: " + binaryTag + " JSON: " + json, ex);
+          throw ex;
+        }
+      }
+    }
+    return component;
+  }
+
+  public String getJson() {
+    if (json == null) {
+      json = ProtocolUtils.getJsonChatSerializer(version).serialize(getComponent());
+    }
+    return json;
+  }
+
+  public BinaryTag getBinaryTag() {
+    if (binaryTag == null) {
+      // TODO: replace this with adventure-text-serializer-nbt
+      binaryTag = serialize(ProtocolUtils.getJsonChatSerializer(version).serializeToTree(getComponent()));
+    }
+    return binaryTag;
   }
 
   public static BinaryTag serialize(JsonElement json) {
@@ -249,41 +285,6 @@ public class ComponentHolder {
     } else {
       return new ComponentHolder(version, ProtocolUtils.readString(buf));
     }
-  }
-
-  public Component getComponent() {
-    if (component == null) {
-      if (json != null) {
-        component = ProtocolUtils.getJsonChatSerializer(version).deserialize(json);
-      } else if (binaryTag != null) {
-        // TODO: replace this with adventure-text-serializer-nbt
-        try {
-          json = deserialize(binaryTag).toString();
-          component = ProtocolUtils.getJsonChatSerializer(version).deserialize(json);
-        } catch (Exception ex) {
-          logger.error(
-              "Error converting binary component to JSON component! "
-                  + "Binary: " + binaryTag + " JSON: " + json, ex);
-          throw ex;
-        }
-      }
-    }
-    return component;
-  }
-
-  public String getJson() {
-    if (json == null) {
-      json = ProtocolUtils.getJsonChatSerializer(version).serialize(getComponent());
-    }
-    return json;
-  }
-
-  public BinaryTag getBinaryTag() {
-    if (binaryTag == null) {
-      // TODO: replace this with adventure-text-serializer-nbt
-      binaryTag = serialize(ProtocolUtils.getJsonChatSerializer(version).serializeToTree(getComponent()));
-    }
-    return binaryTag;
   }
 
   public void write(ByteBuf buf) {

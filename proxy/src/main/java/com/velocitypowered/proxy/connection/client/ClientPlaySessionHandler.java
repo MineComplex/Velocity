@@ -38,9 +38,22 @@ import com.velocitypowered.proxy.connection.forge.legacy.LegacyForgeConstants;
 import com.velocitypowered.proxy.connection.player.resourcepack.ResourcePackResponseBundle;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.StateRegistry;
-import com.velocitypowered.proxy.protocol.packet.*;
+import com.velocitypowered.proxy.protocol.packet.BossBarPacket;
+import com.velocitypowered.proxy.protocol.packet.ClientSettingsPacket;
+import com.velocitypowered.proxy.protocol.packet.JoinGamePacket;
+import com.velocitypowered.proxy.protocol.packet.KeepAlivePacket;
+import com.velocitypowered.proxy.protocol.packet.PluginMessagePacket;
+import com.velocitypowered.proxy.protocol.packet.ResourcePackResponsePacket;
+import com.velocitypowered.proxy.protocol.packet.RespawnPacket;
+import com.velocitypowered.proxy.protocol.packet.ServerboundCookieResponsePacket;
+import com.velocitypowered.proxy.protocol.packet.TabCompleteRequestPacket;
+import com.velocitypowered.proxy.protocol.packet.TabCompleteResponsePacket;
 import com.velocitypowered.proxy.protocol.packet.TabCompleteResponsePacket.Offer;
-import com.velocitypowered.proxy.protocol.packet.chat.*;
+import com.velocitypowered.proxy.protocol.packet.chat.ChatAcknowledgementPacket;
+import com.velocitypowered.proxy.protocol.packet.chat.ChatHandler;
+import com.velocitypowered.proxy.protocol.packet.chat.ChatTimeKeeper;
+import com.velocitypowered.proxy.protocol.packet.chat.CommandHandler;
+import com.velocitypowered.proxy.protocol.packet.chat.ComponentHolder;
 import com.velocitypowered.proxy.protocol.packet.chat.keyed.KeyedChatHandler;
 import com.velocitypowered.proxy.protocol.packet.chat.keyed.KeyedCommandHandler;
 import com.velocitypowered.proxy.protocol.packet.chat.keyed.KeyedPlayerChatPacket;
@@ -70,7 +83,11 @@ import org.apache.logging.log4j.Logger;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Queue;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -519,9 +536,13 @@ public class ClientPlaySessionHandler implements MinecraftSessionHandler {
 
       // Config state clears everything in the client. No need to clear later.
       spawned = false;
-      serverBossBars.clear();
       player.clearPlayerListHeaderAndFooterSilent();
       player.getTabList().clearAllSilent();
+      if (player.getProtocolVersion().noLessThan(ProtocolVersion.MINECRAFT_1_20_2)) {
+        player.getBossBarManager().dropPackets();
+      } else {
+        serverBossBars.clear();
+      }
     }
 
     player.switchToConfigState();
@@ -559,15 +580,20 @@ public class ClientPlaySessionHandler implements MinecraftSessionHandler {
       }
     }
 
-    // Remove previous boss bars. These don't get cleared when sending JoinGame, thus the need to
-    // track them.
-    for (UUID serverBossBar : serverBossBars) {
-      BossBarPacket deletePacket = new BossBarPacket();
-      deletePacket.setUuid(serverBossBar);
-      deletePacket.setAction(BossBarPacket.REMOVE);
-      player.getConnection().delayedWrite(deletePacket);
+    destination.setEntityId(joinGame.getEntityId()); // used for sound api
+    if (player.getProtocolVersion().noLessThan(ProtocolVersion.MINECRAFT_1_20_2)) {
+      player.getBossBarManager().sendBossBars();
+    } else {
+      // Remove previous boss bars. These don't get cleared when sending JoinGame (up until 1.20.2),
+      // thus the need to track them.
+      for (UUID serverBossBar : serverBossBars) {
+        BossBarPacket deletePacket = new BossBarPacket();
+        deletePacket.setUuid(serverBossBar);
+        deletePacket.setAction(BossBarPacket.REMOVE);
+        player.getConnection().delayedWrite(deletePacket);
+      }
+      serverBossBars.clear();
     }
-    serverBossBars.clear();
 
     // Tell the server about the proxy's plugin message channels.
     ProtocolVersion serverVersion = serverMc.getProtocolVersion();
@@ -678,23 +704,35 @@ public class ClientPlaySessionHandler implements MinecraftSessionHandler {
             return;
           }
 
-          List<Offer> offers = new ArrayList<>();
-          for (Suggestion suggestion : suggestions.getList()) {
-            String offer = suggestion.getText();
-            ComponentHolder tooltip = null;
-            if (suggestion.getTooltip() instanceof ComponentLike componentLike) {
-              tooltip = new ComponentHolder(player.getProtocolVersion(), componentLike.asComponent());
-            } else if (suggestion.getTooltip() != null) {
-              tooltip = new ComponentHolder(player.getProtocolVersion(), Component.text(suggestion.getTooltip().getString()));
+          int startPos = -1;
+          for (var suggestion : suggestions.getList()) {
+            if (startPos == -1 || startPos > suggestion.getRange().getStart()) {
+              startPos = suggestion.getRange().getStart();
             }
-            offers.add(new Offer(offer, tooltip));
           }
-          int startPos = packet.getCommand().lastIndexOf(' ') + 1;
+
           if (startPos > 0) {
+            List<Offer> offers = new ArrayList<>();
+            for (Suggestion suggestion : suggestions.getList()) {
+              String offer;
+              if (suggestion.getRange().getStart() == startPos) {
+                offer = suggestion.getText();
+              } else {
+                offer = command.substring(startPos, suggestion.getRange().getStart()) + suggestion.getText();
+              }
+              ComponentHolder tooltip = null;
+              if (suggestion.getTooltip() instanceof ComponentLike componentLike) {
+                tooltip = new ComponentHolder(player.getProtocolVersion(), componentLike.asComponent());
+              } else if (suggestion.getTooltip() != null) {
+                tooltip = new ComponentHolder(player.getProtocolVersion(), Component.text(suggestion.getTooltip().getString()));
+              }
+              offers.add(new Offer(offer, tooltip));
+            }
+
             TabCompleteResponsePacket resp = new TabCompleteResponsePacket();
             resp.setTransactionId(packet.getTransactionId());
-            resp.setStart(startPos);
-            resp.setLength(packet.getCommand().length() - startPos);
+            resp.setStart(startPos + 1);
+            resp.setLength(packet.getCommand().length() - startPos - 1);
             resp.getOffers().addAll(offers);
             player.getConnection().write(resp);
           }

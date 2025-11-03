@@ -28,6 +28,8 @@ import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.config.PingPassthroughMode;
 import com.velocitypowered.proxy.config.VelocityConfiguration;
 import com.velocitypowered.proxy.server.VelocityRegisteredServer;
+import net.kyori.adventure.text.Component;
+
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -107,6 +109,13 @@ public class ServerListPingHandler {
             if (response == fallback) {
               continue;
             }
+
+            if (response.getDescriptionComponent() == null) {
+              return response.asBuilder()
+                  .description(Component.empty())
+                  .build();
+            }
+
             return response;
           }
           return fallback;

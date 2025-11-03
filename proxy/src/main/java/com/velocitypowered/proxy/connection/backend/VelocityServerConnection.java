@@ -27,7 +27,11 @@ import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.config.PlayerInfoForwarding;
-import com.velocitypowered.proxy.connection.*;
+import com.velocitypowered.proxy.connection.ConnectionTypes;
+import com.velocitypowered.proxy.connection.MinecraftConnection;
+import com.velocitypowered.proxy.connection.MinecraftConnectionAssociation;
+import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
+import com.velocitypowered.proxy.connection.PlayerDataForwarding;
 import com.velocitypowered.proxy.connection.client.ConnectedPlayer;
 import com.velocitypowered.proxy.connection.forge.modern.ModernForgeConnectionType;
 import com.velocitypowered.proxy.connection.util.ConnectionRequestResults.Impl;
@@ -41,6 +45,7 @@ import com.velocitypowered.proxy.server.VelocityRegisteredServer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jetbrains.annotations.NotNull;
 
@@ -67,6 +72,7 @@ public class VelocityServerConnection implements MinecraftConnectionAssociation,
   public boolean gracefulDisconnect = false;
   private BackendConnectionPhase connectionPhase = BackendConnectionPhases.UNKNOWN;
   private final Map<Long, Long> pendingPings = new HashMap<>();
+  private @MonotonicNonNull Integer entityId;
 
   /**
    * Initializes a new server connection.
@@ -319,6 +325,14 @@ public class VelocityServerConnection implements MinecraftConnectionAssociation,
 
   public Map<Long, Long> getPendingPings() {
     return pendingPings;
+  }
+
+  public Integer getEntityId() {
+    return entityId;
+  }
+
+  public void setEntityId(Integer entityId) {
+    this.entityId = entityId;
   }
 
   /**

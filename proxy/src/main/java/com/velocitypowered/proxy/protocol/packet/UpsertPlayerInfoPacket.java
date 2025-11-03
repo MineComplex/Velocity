@@ -46,6 +46,8 @@ import java.util.UUID;
 @AllArgsConstructor
 public class UpsertPlayerInfoPacket implements MinecraftPacket {
 
+  private static final Action[] ALL_ACTIONS = Action.class.getEnumConstants();
+
   private final EnumSet<Action> actions;
   private final List<Entry> entries;
 
@@ -57,6 +59,14 @@ public class UpsertPlayerInfoPacket implements MinecraftPacket {
   public UpsertPlayerInfoPacket(Action action) {
     this.actions = EnumSet.of(action);
     this.entries = new ArrayList<>();
+  }
+
+  public List<Entry> getEntries() {
+    return entries;
+  }
+
+  public EnumSet<Action> getActions() {
+    return actions;
   }
 
   public boolean containsAction(Action action) {
@@ -82,14 +92,13 @@ public class UpsertPlayerInfoPacket implements MinecraftPacket {
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction,
                      ProtocolVersion protocolVersion) {
-    Action[] actions = Action.class.getEnumConstants();
-    byte[] bytes = new byte[-Math.floorDiv(-actions.length, 8)];
+    byte[] bytes = new byte[-Math.floorDiv(-ALL_ACTIONS.length, 8)];
     buf.readBytes(bytes);
     BitSet actionSet = BitSet.valueOf(bytes);
 
-    for (int idx = 0; idx < actions.length; idx++) {
+    for (int idx = 0; idx < ALL_ACTIONS.length; idx++) {
       if (actionSet.get(idx)) {
-        addAction(actions[idx]);
+        addAction(ALL_ACTIONS[idx]);
       }
     }
 
@@ -106,14 +115,13 @@ public class UpsertPlayerInfoPacket implements MinecraftPacket {
   @Override
   public void encode(ByteBuf buf, ProtocolUtils.Direction direction,
                      ProtocolVersion protocolVersion) {
-    Action[] actions = Action.class.getEnumConstants();
-    BitSet set = new BitSet(actions.length);
-    for (int idx = 0; idx < actions.length; idx++) {
-      set.set(idx, this.actions.contains(actions[idx]));
+    BitSet set = new BitSet(ALL_ACTIONS.length);
+    for (int idx = 0; idx < ALL_ACTIONS.length; idx++) {
+      set.set(idx, this.actions.contains(ALL_ACTIONS[idx]));
     }
 
     byte[] bytes = set.toByteArray();
-    buf.writeBytes(Arrays.copyOf(bytes, -Math.floorDiv(-actions.length, 8)));
+    buf.writeBytes(Arrays.copyOf(bytes, -Math.floorDiv(-ALL_ACTIONS.length, 8)));
 
     ProtocolUtils.writeVarInt(buf, this.entries.size());
     for (Entry entry : this.entries) {
@@ -128,12 +136,6 @@ public class UpsertPlayerInfoPacket implements MinecraftPacket {
   @Override
   public boolean handle(MinecraftSessionHandler handler) {
     return handler.handle(this);
-  }
-
-  public BitSet readFixedBitSet(ByteBuf buf, int param0) {
-    byte[] var0 = new byte[-Math.floorDiv(-param0, 8)];
-    buf.readBytes(var0);
-    return BitSet.valueOf(var0);
   }
 
   public enum Action {

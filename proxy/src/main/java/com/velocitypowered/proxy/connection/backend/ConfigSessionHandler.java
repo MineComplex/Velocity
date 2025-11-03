@@ -60,12 +60,13 @@ import com.velocitypowered.proxy.protocol.packet.config.TagsUpdatePacket;
 import com.velocitypowered.proxy.protocol.util.PluginMessageUtil;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.concurrent.CompletableFuture;
 import net.kyori.adventure.key.Key;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * A special session handler that catches "last minute" disconnects. This version is to accommodate
@@ -257,7 +258,13 @@ public class ConfigSessionHandler implements MinecraftSessionHandler {
   @Override
   public boolean handle(DisconnectPacket packet) {
     serverConn.disconnect();
-    resultFuture.complete(ConnectionRequestResults.forDisconnect(packet, serverConn.getServer()));
+    // If the player receives a DisconnectPacket without a connection to a server in progress,
+    // it means that the backend server has kicked the player during reconfiguration
+    if (serverConn.getPlayer().getConnectionInFlight() != null) {
+      resultFuture.complete(ConnectionRequestResults.forDisconnect(packet, serverConn.getServer()));
+    } else {
+      serverConn.getPlayer().handleConnectionException(serverConn.getServer(), packet, true);
+    }
     return true;
   }
 
