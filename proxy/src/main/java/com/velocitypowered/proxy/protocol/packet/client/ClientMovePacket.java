@@ -72,12 +72,12 @@ public class ClientMovePacket implements MinecraftPacket {
   }
 
   @Override
-  public int expectedMaxLength(ByteBuf buf, Direction direction, ProtocolVersion version) {
+  public int decodeExpectedMaxLength(ByteBuf buf, Direction direction, ProtocolVersion version) {
     return 33;
   }
 
   @Override
-  public int expectedMinLength(ByteBuf buf, Direction direction, ProtocolVersion version) {
+  public int decodeExpectedMinLength(ByteBuf buf, Direction direction, ProtocolVersion version) {
     return 33;
   }
 

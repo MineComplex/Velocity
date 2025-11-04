@@ -49,27 +49,22 @@ public class ServerSpawnEntityPacket implements MinecraftPacket {
   @Override
   public void encode(ByteBuf byteBuf, ProtocolUtils.Direction direction, ProtocolVersion protocolVersion) {
     ProtocolUtils.writeVarInt(byteBuf, entityId);
-
     ProtocolUtils.writeUuid(byteBuf, uuid != null ? uuid : UUID.randomUUID());
-
     ProtocolUtils.writeVarInt(byteBuf, type.apply(protocolVersion));
-
     byteBuf.writeDouble(x);
     byteBuf.writeDouble(y);
     byteBuf.writeDouble(z);
 
     if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_21_9)) {
-      PackedVector.write(byteBuf, this.velocityX, this.velocityY, this.velocityZ);
+      PackedVector.write(byteBuf, velocityX, velocityY, velocityZ);
     }
-
     byteBuf.writeByte((int) (pitch * (256.0F / 360.0F)));
     byteBuf.writeByte((int) (yaw * (256.0F / 360.0F)));
-
-    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_19)) {
+    if (protocolVersion.greaterThan(ProtocolVersion.MINECRAFT_1_18_2)) {
       byteBuf.writeByte((int) (headYaw * (256.0F / 360.0F)));
-      ProtocolUtils.writeVarInt(byteBuf, data); // data
+      ProtocolUtils.writeVarInt(byteBuf, data);
     } else {
-      byteBuf.writeInt(data); // data
+      byteBuf.writeInt(data);
     }
 
     if (protocolVersion.lessThan(ProtocolVersion.MINECRAFT_1_21_9)) {

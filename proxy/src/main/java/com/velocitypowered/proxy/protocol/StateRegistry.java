@@ -833,7 +833,7 @@ public enum StateRegistry {
           TransferPacket::new,
           map(0x73, MINECRAFT_1_20_5, false),
           map(0x7A, MINECRAFT_1_21_2, false),
-          map(0x7F, MINECRAFT_1_21_9, true));
+          map(0x7F, MINECRAFT_1_21_9, false));
       clientbound.register(
           ClientboundCustomReportDetailsPacket.class,
           ClientboundCustomReportDetailsPacket::new,
