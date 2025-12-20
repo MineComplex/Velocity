@@ -38,33 +38,36 @@ import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21;
 import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_2;
 import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_5;
 import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_7;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_9;
 
 @UtilityClass
 public class EntityData {
 
-  public int getFrameId(ProtocolVersion protocolVersion) {
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_16_4)) {
+  public int getFrameId(ProtocolVersion version) {
+    if (version.noGreaterThan(MINECRAFT_1_16_4)) {
       return 38;
-    } else if (protocolVersion.noGreaterThan(MINECRAFT_1_18_2)) {
+    } else if (version.noGreaterThan(MINECRAFT_1_18_2)) {
       return 42;
-    } else if (protocolVersion.noGreaterThan(MINECRAFT_1_19_1)) {
+    } else if (version.noGreaterThan(MINECRAFT_1_19_1)) {
       return 45;
-    } else if (protocolVersion.noGreaterThan(MINECRAFT_1_19_3)) {
+    } else if (version.noGreaterThan(MINECRAFT_1_19_3)) {
       return 46;
-    } else if (protocolVersion.noGreaterThan(MINECRAFT_1_20_2)) {
+    } else if (version.noGreaterThan(MINECRAFT_1_20_2)) {
       return 56;
-    } else if (protocolVersion.noGreaterThan(MINECRAFT_1_20_3)) {
+    } else if (version.noGreaterThan(MINECRAFT_1_20_3)) {
       return 57;
-    } else if (protocolVersion.noGreaterThan(MINECRAFT_1_21)) {
+    } else if (version.noGreaterThan(MINECRAFT_1_21)) {
       return 60;
-    } else if (protocolVersion.noGreaterThan(MINECRAFT_1_21_2)) {
+    } else if (version.noGreaterThan(MINECRAFT_1_21_2)) {
       return 71;
-    } else if (protocolVersion.noGreaterThan(MINECRAFT_1_21_5)) {
+    } else if (version.noGreaterThan(MINECRAFT_1_21_5)) {
       return 70;
-    } else if (protocolVersion.compareTo(MINECRAFT_1_21_7) <= 0) {
+    } else if (version.noGreaterThan(MINECRAFT_1_21_7)) {
       return 71;
-    } else {
+    } else if (version.noGreaterThan(MINECRAFT_1_21_9)) {
       return 72;
+    } else {
+      return 73;
     }
   }
 
@@ -85,8 +88,10 @@ public class EntityData {
       return 84;
     } else if (version.noGreaterThan(MINECRAFT_1_21_7)) {
       return 85;
+    } else if (version.noGreaterThan(MINECRAFT_1_21_9)) {
+      return 87;
     }
-    return 87;
+    return 89;
   }
 
   public int getMinecartId(ProtocolVersion version) {
@@ -110,30 +115,32 @@ public class EntityData {
       return 81;
     } else if (version.noGreaterThan(MINECRAFT_1_21_7)) {
       return 82;
+    } else if (version.noGreaterThan(MINECRAFT_1_21_9)) {
+      return 84;
     }
-    return 84;
+    return 85;
   }
 
-  public byte getMetadataIndex(ProtocolVersion protocolVersion) {
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_16_4)) {
+  public byte getMetadataIndex(ProtocolVersion version) {
+    if (version.noGreaterThan(MINECRAFT_1_16_4)) {
       return 7;
-    } else if (protocolVersion.noGreaterThan(MINECRAFT_1_21_5)) {
+    } else if (version.noGreaterThan(MINECRAFT_1_21_5)) {
       return 8;
     }
     return 9;
   }
 
-  public EntityMetadata createMapMetadata(ProtocolVersion protocolVersion, int mapId) {
+  public EntityMetadata createMapMetadata(ProtocolVersion version, int mapId) {
     return new EntityMetadata(Map.of(
-        getMetadataIndex(protocolVersion), new EntityMetadata.SlotEntry(Item.fromItem(Material.FILLED_MAP), 1, 0,
+        getMetadataIndex(version), new EntityMetadata.SlotEntry(Item.fromItem(Material.FILLED_MAP), 1, 0,
             CompoundBinaryTag.builder().put("map", IntBinaryTag.intBinaryTag(mapId)).build(),
             new ItemComponentMap().add(MINECRAFT_1_20_5, "minecraft:map_id", mapId))
     ));
   }
 
-  public EntityMetadata createRotationMetadata(ProtocolVersion protocolVersion, int rotation) {
+  public EntityMetadata createRotationMetadata(ProtocolVersion version, int rotation) {
     return new EntityMetadata(Map.of(
-        (byte) (getMetadataIndex(protocolVersion) + 1), new EntityMetadata.VarIntEntry(rotation)
+        (byte) (getMetadataIndex(version) + 1), new EntityMetadata.VarIntEntry(rotation)
     ));
   }
 
