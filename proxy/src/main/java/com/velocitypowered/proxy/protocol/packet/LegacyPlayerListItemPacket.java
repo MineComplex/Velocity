@@ -26,15 +26,15 @@ import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import io.netty.buffer.ByteBuf;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import lombok.Getter;
 import lombok.ToString;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.checkerframework.checker.nullness.qual.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 @Getter
 @ToString
@@ -45,8 +45,8 @@ public class LegacyPlayerListItemPacket implements MinecraftPacket {
   public static final int UPDATE_LATENCY = 2;
   public static final int UPDATE_DISPLAY_NAME = 3;
   public static final int REMOVE_PLAYER = 4;
-  private final List<Item> items = new ArrayList<>();
   private int action;
+  private final List<Item> items = new ArrayList<>();
 
   public LegacyPlayerListItemPacket(int action, List<Item> items) {
     this.action = action;
@@ -56,12 +56,12 @@ public class LegacyPlayerListItemPacket implements MinecraftPacket {
   public LegacyPlayerListItemPacket() {
   }
 
-  private static @Nullable Component readOptionalComponent(ByteBuf buf, ProtocolVersion version) {
-    if (buf.readBoolean()) {
-      return ProtocolUtils.getJsonChatSerializer(version)
-          .deserialize(ProtocolUtils.readString(buf));
-    }
-    return null;
+  public int getAction() {
+    return action;
+  }
+
+  public List<Item> getItems() {
+    return items;
   }
 
   @Override
@@ -74,33 +74,25 @@ public class LegacyPlayerListItemPacket implements MinecraftPacket {
         Item item = new Item(ProtocolUtils.readUuid(buf));
         items.add(item);
         switch (action) {
-          case ADD_PLAYER:
+          case ADD_PLAYER -> {
             item.setName(ProtocolUtils.readString(buf));
             item.setProperties(ProtocolUtils.readProperties(buf));
             item.setGameMode(ProtocolUtils.readVarInt(buf));
             item.setLatency(ProtocolUtils.readVarInt(buf));
             item.setDisplayName(readOptionalComponent(buf, version));
-
             if (version.noLessThan(ProtocolVersion.MINECRAFT_1_19)) {
               if (buf.readBoolean()) {
                 item.setPlayerKey(ProtocolUtils.readPlayerKey(version, buf));
               }
             }
-            break;
-          case UPDATE_GAMEMODE:
-            item.setGameMode(ProtocolUtils.readVarInt(buf));
-            break;
-          case UPDATE_LATENCY:
-            item.setLatency(ProtocolUtils.readVarInt(buf));
-            break;
-          case UPDATE_DISPLAY_NAME:
-            item.setDisplayName(readOptionalComponent(buf, version));
-            break;
-          case REMOVE_PLAYER:
+          }
+          case UPDATE_GAMEMODE -> item.setGameMode(ProtocolUtils.readVarInt(buf));
+          case UPDATE_LATENCY -> item.setLatency(ProtocolUtils.readVarInt(buf));
+          case UPDATE_DISPLAY_NAME -> item.setDisplayName(readOptionalComponent(buf, version));
+          case REMOVE_PLAYER -> {
             //Do nothing, all that is needed is the uuid
-            break;
-          default:
-            throw new UnsupportedOperationException("Unknown action " + action);
+          }
+          default -> throw new UnsupportedOperationException("Unknown action " + action);
         }
       }
     } else {
@@ -110,6 +102,14 @@ public class LegacyPlayerListItemPacket implements MinecraftPacket {
       item.setLatency(buf.readShort());
       items.add(item);
     }
+  }
+
+  private static @Nullable Component readOptionalComponent(ByteBuf buf, ProtocolVersion version) {
+    if (buf.readBoolean()) {
+      return ProtocolUtils.getJsonChatSerializer(version)
+          .deserialize(ProtocolUtils.readString(buf));
+    }
+    return null;
   }
 
   @Override
@@ -123,7 +123,7 @@ public class LegacyPlayerListItemPacket implements MinecraftPacket {
 
         ProtocolUtils.writeUuid(buf, uuid);
         switch (action) {
-          case ADD_PLAYER:
+          case ADD_PLAYER -> {
             ProtocolUtils.writeString(buf, item.getName());
             ProtocolUtils.writeProperties(buf, item.getProperties());
             ProtocolUtils.writeVarInt(buf, item.getGameMode());
@@ -137,25 +137,18 @@ public class LegacyPlayerListItemPacket implements MinecraftPacket {
                 buf.writeBoolean(false);
               }
             }
-            break;
-          case UPDATE_GAMEMODE:
-            ProtocolUtils.writeVarInt(buf, item.getGameMode());
-            break;
-          case UPDATE_LATENCY:
-            ProtocolUtils.writeVarInt(buf, item.getLatency());
-            break;
-          case UPDATE_DISPLAY_NAME:
-            writeDisplayName(buf, item.getDisplayName(), version);
-            break;
-          case REMOVE_PLAYER:
+          }
+          case UPDATE_GAMEMODE -> ProtocolUtils.writeVarInt(buf, item.getGameMode());
+          case UPDATE_LATENCY -> ProtocolUtils.writeVarInt(buf, item.getLatency());
+          case UPDATE_DISPLAY_NAME -> writeDisplayName(buf, item.getDisplayName(), version);
+          case REMOVE_PLAYER -> {
             // Do nothing, all that is needed is the uuid
-            break;
-          default:
-            throw new UnsupportedOperationException("Unknown action " + action);
+          }
+          default -> throw new UnsupportedOperationException("Unknown action " + action);
         }
       }
     } else {
-      Item item = items.get(0);
+      Item item = items.getFirst();
       Component displayNameComponent = item.getDisplayName();
       if (displayNameComponent != null) {
         String displayName = LegacyComponentSerializer.legacySection()
@@ -176,7 +169,7 @@ public class LegacyPlayerListItemPacket implements MinecraftPacket {
   }
 
   private void writeDisplayName(ByteBuf buf, @Nullable Component displayName,
-                                ProtocolVersion version) {
+      ProtocolVersion version) {
     buf.writeBoolean(displayName != null);
     if (displayName != null) {
       ProtocolUtils.writeString(buf, ProtocolUtils.getJsonChatSerializer(version)
@@ -247,5 +240,8 @@ public class LegacyPlayerListItemPacket implements MinecraftPacket {
       return this;
     }
 
+    public @Nullable IdentifiedKey getPlayerKey() {
+      return playerKey;
+    }
   }
 }

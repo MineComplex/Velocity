@@ -35,17 +35,6 @@ import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.util.ProxyVersion;
 import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.util.InformationUtils;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.TranslatableComponent;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
@@ -65,6 +54,17 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.minimessage.translation.Argument;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Implements the {@code /velocity} command and friends.
@@ -162,9 +162,9 @@ public final class VelocityCommand {
           .build();
       final Component copyright = Component
           .translatable("velocity.command.version-copyright",
-              Component.text(version.getVendor()),
-                  Component.text(version.getName()),
-                  Component.text(LocalDate.now().getYear()));
+              Argument.string("vendor", version.getVendor()),
+              Argument.string("name", version.getName()),
+              Argument.component("year", Component.text(LocalDate.now().getYear())));
       source.sendMessage(velocity);
       source.sendMessage(copyright);
 
@@ -217,7 +217,7 @@ public final class VelocityCommand {
       final TranslatableComponent output = Component.translatable()
           .key("velocity.command.plugins-list")
           .color(NamedTextColor.YELLOW)
-          .arguments(listBuilder.build())
+          .arguments(Argument.component("plugins", listBuilder.build()))
           .build();
       source.sendMessage(output);
       return Command.SINGLE_SUCCESS;
@@ -233,17 +233,17 @@ public final class VelocityCommand {
         hoverText.append(Component.newline());
         hoverText.append(Component.translatable(
             "velocity.command.plugin-tooltip-website",
-            Component.text(url)));
+            Argument.component("url", Component.text(url))));
       });
       if (!description.getAuthors().isEmpty()) {
         hoverText.append(Component.newline());
         if (description.getAuthors().size() == 1) {
           hoverText.append(Component.translatable("velocity.command.plugin-tooltip-author",
-              Component.text(description.getAuthors().get(0))));
+              Component.text(description.getAuthors().getFirst())));
         } else {
           hoverText.append(
               Component.translatable("velocity.command.plugin-tooltip-author",
-                  Component.text(String.join(", ", description.getAuthors()))
+                  Argument.string("authors", String.join(", ", description.getAuthors()))
               )
           );
         }

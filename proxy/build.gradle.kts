@@ -13,7 +13,7 @@ plugins {
 
 application {
     mainClass.set("com.velocitypowered.proxy.Velocity")
-    applicationDefaultJvmArgs += listOf("-Dvelocity.packet-decode-logging=true");
+    applicationDefaultJvmArgs += listOf("-Dvelocity.packet-decode-logging=true")
 }
 
 tasks {
@@ -30,6 +30,10 @@ tasks {
     }
 
     shadowJar {
+        filesMatching("META-INF/org/apache/logging/log4j/core/config/plugins/**") {
+            duplicatesStrategy = DuplicatesStrategy.INCLUDE
+        }
+
         transform(Log4j2PluginsCacheFileTransformer::class.java)
 
         // Exclude all the collection types we don"t intend to use
@@ -135,7 +139,6 @@ dependencies {
     compileOnly("org.projectlombok:lombok:1.18.36")
     implementation(project(":velocity-api"))
     implementation(project(":velocity-native"))
-    implementation(project(":velocity-proxy-log4j2-plugin"))
 
     implementation(libs.bundles.log4j)
     implementation(libs.kyori.ansi)

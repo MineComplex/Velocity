@@ -79,20 +79,6 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
-import lombok.Getter;
-import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.audience.ForwardingAudience;
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.translation.GlobalTranslator;
-import net.kyori.adventure.translation.TranslationStore;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -101,7 +87,6 @@ import java.net.http.HttpClient;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyPair;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -120,6 +105,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import lombok.Getter;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.audience.ForwardingAudience;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.translation.MiniMessageTranslationStore;
+import net.kyori.adventure.translation.GlobalTranslator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Implementation of {@link ProxyServer}.
@@ -158,7 +157,7 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
       .registerTypeHierarchyAdapter(Favicon.class, FaviconSerializer.INSTANCE)
       .create();
   private static final int PRE_SHUTDOWN_TIMEOUT =
-      Integer.getInteger("velocity.pre-shutdown-timeout", 10);
+            Integer.getInteger("velocity.pre-shutdown-timeout", 10);
   @Getter
   public static VelocityServer instance;
   private final ConnectionManager cm;
@@ -250,8 +249,6 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
     console.setupStreams();
     pluginManager.registerPlugin(this.createVirtualPlugin());
 
-    registerTranslations();
-
     Block.init();
     TileEntity.init();
     Item.init();
@@ -306,6 +303,8 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
 
     this.doStartupConfigLoad();
 
+    registerTranslations();
+
     for (ServerInfo cliServer : options.getServers()) {
       servers.register(cliServer);
     }
@@ -348,8 +347,8 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
   }
 
   private void registerTranslations() {
-    final TranslationStore.StringBased<MessageFormat> translationRegistry =
-            TranslationStore.messageFormat(Key.key("velocity", "translations"));
+    final MiniMessageTranslationStore translationRegistry =
+        MiniMessageTranslationStore.create(Key.key("velocity", "translations"));
     translationRegistry.defaultLocale(Locale.US);
     try {
       ResourceUtils.visitResources(VelocityServer.class, path -> {
@@ -841,7 +840,7 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
   public VelocityChannelRegistrar getChannelRegistrar() {
     return channelRegistrar;
   }
-  
+
   @Override
   public boolean isShuttingDown() {
     return shutdownInProgress.get();
