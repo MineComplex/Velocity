@@ -23,9 +23,15 @@ import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.packet.chat.LastSeenMessages;
 import io.netty.buffer.ByteBuf;
-
 import java.time.Instant;
 
+/**
+ * Represents a player chat packet specific to a session, implementing {@link MinecraftPacket}.
+ *
+ * <p>The {@code SessionPlayerChatPacket} handles chat messages sent by a player during a session,
+ * and may include session-specific context, such as timestamps, message formatting, or other
+ * relevant session data.</p>
+ */
 public class SessionPlayerChatPacket implements MinecraftPacket {
 
   protected String message;
@@ -36,12 +42,6 @@ public class SessionPlayerChatPacket implements MinecraftPacket {
   protected LastSeenMessages lastSeenMessages;
 
   public SessionPlayerChatPacket() {
-  }
-
-  protected static byte[] readMessageSignature(ByteBuf buf) {
-    byte[] signature = new byte[256];
-    buf.readBytes(signature);
-    return signature;
   }
 
   public String getMessage() {
@@ -101,6 +101,21 @@ public class SessionPlayerChatPacket implements MinecraftPacket {
     return handler.handle(this);
   }
 
+  protected static byte[] readMessageSignature(ByteBuf buf) {
+    byte[] signature = new byte[256];
+    buf.readBytes(signature);
+    return signature;
+  }
+
+  /**
+   * Creates a new {@code SessionPlayerChatPacket} with the specified last-seen messages.
+   *
+   * <p>This method constructs a new {@code SessionPlayerChatPacket} instance that retains the
+   * current packet's properties, while updating the last seen messages.</p>
+   *
+   * @param lastSeenMessages the last seen messages to associate with the new packet
+   * @return a new {@code SessionPlayerChatPacket} with the updated last seen messages
+   */
   public SessionPlayerChatPacket withLastSeenMessages(LastSeenMessages lastSeenMessages) {
     SessionPlayerChatPacket packet = new SessionPlayerChatPacket();
     packet.message = message;

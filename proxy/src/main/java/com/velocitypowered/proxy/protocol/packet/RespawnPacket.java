@@ -24,16 +24,21 @@ import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.Pair;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 import net.kyori.adventure.nbt.BinaryTagIO;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
 @Getter
 @Setter
 @ToString
+/**
+ * Represents a respawn packet sent by the server when the player changes dimensions or respawns.
+ * The packet contains information about the new dimension, difficulty, gamemode, and more.
+ */
 public class RespawnPacket implements MinecraftPacket {
 
   private int dimension;
@@ -71,6 +76,12 @@ public class RespawnPacket implements MinecraftPacket {
     this.seaLevel = seaLevel;
   }
 
+  /**
+   * Creates a new {@code RespawnPacket} from a {@link JoinGamePacket}.
+   *
+   * @param joinGame the {@code JoinGamePacket} to use
+   * @return a new {@code RespawnPacket} based on the provided {@code JoinGamePacket}
+   */
   public static RespawnPacket fromJoinGame(JoinGamePacket joinGame) {
     return new RespawnPacket(joinGame.getDimension(), joinGame.getPartialHashedSeed(),
         joinGame.getDifficulty(), joinGame.getGamemode(), joinGame.getLevelType(),

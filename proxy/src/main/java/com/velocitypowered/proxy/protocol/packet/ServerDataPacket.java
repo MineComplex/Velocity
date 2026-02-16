@@ -25,31 +25,34 @@ import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.ProtocolUtils.Direction;
 import com.velocitypowered.proxy.protocol.packet.chat.ComponentHolder;
 import io.netty.buffer.ByteBuf;
+import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.Nullable;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.jetbrains.annotations.Nullable;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
 @AllArgsConstructor
+/**
+ * Represents the server data packet sent from the server to the client, which contains information
+ * such as the server description, favicon, and secure chat enforcement status.
+ */
 public class ServerDataPacket implements MinecraftPacket {
 
   private @Nullable ComponentHolder description;
   private @Nullable Favicon favicon;
   private boolean secureChatEnforced; // Added in 1.19.1 - Removed in 1.20.5
 
-  public ServerDataPacket() {
-  }
-
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction,
-                     ProtocolVersion protocolVersion) {
+      ProtocolVersion protocolVersion) {
     if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_19_4) || buf.readBoolean()) {
       this.description = ComponentHolder.read(buf, protocolVersion);
     }
@@ -67,14 +70,14 @@ public class ServerDataPacket implements MinecraftPacket {
       buf.readBoolean();
     }
     if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_19_1)
-        && protocolVersion.lessThan(ProtocolVersion.MINECRAFT_1_20_5)) {
+            && protocolVersion.lessThan(ProtocolVersion.MINECRAFT_1_20_5)) {
       this.secureChatEnforced = buf.readBoolean();
     }
   }
 
   @Override
   public void encode(ByteBuf buf, ProtocolUtils.Direction direction,
-                     ProtocolVersion protocolVersion) {
+      ProtocolVersion protocolVersion) {
     boolean hasDescription = this.description != null;
     if (protocolVersion.lessThan(ProtocolVersion.MINECRAFT_1_19_4)) {
       buf.writeBoolean(hasDescription);
@@ -99,7 +102,7 @@ public class ServerDataPacket implements MinecraftPacket {
       buf.writeBoolean(false);
     }
     if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_19_1)
-        && protocolVersion.lessThan(ProtocolVersion.MINECRAFT_1_20_5)) {
+            && protocolVersion.lessThan(ProtocolVersion.MINECRAFT_1_20_5)) {
       buf.writeBoolean(this.secureChatEnforced);
     }
   }

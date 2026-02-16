@@ -22,17 +22,20 @@ import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import io.netty.buffer.ByteBuf;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import java.util.Objects;
 
+import lombok.NoArgsConstructor;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
+/**
+ * Represents the client settings packet in Minecraft, which is sent by the client
+ * to the server to communicate its settings such as locale, view distance, chat preferences,
+ * skin customization, and other client-side configurations.
+ */
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
 @AllArgsConstructor
 public class ClientSettingsPacket implements MinecraftPacket {
   private @Nullable String locale;
@@ -46,23 +49,12 @@ public class ClientSettingsPacket implements MinecraftPacket {
   private boolean clientListingAllowed; // Added in 1.18, overwrites server-list "anonymous" mode
   private int particleStatus; // Added in 1.21.2
 
-  public ClientSettingsPacket(String locale, byte viewDistance, int chatVisibility, boolean chatColors,
-                              short skinParts, int mainHand, boolean textFilteringEnabled, boolean clientListingAllowed,
-                              int particleStatus) {
-    this.locale = locale;
-    this.viewDistance = viewDistance;
-    this.chatVisibility = chatVisibility;
-    this.chatColors = chatColors;
-    this.skinParts = skinParts;
-    this.mainHand = mainHand;
-    this.textFilteringEnabled = textFilteringEnabled;
-    this.clientListingAllowed = clientListingAllowed;
-    this.particleStatus = particleStatus;
-  }
-
-  public ClientSettingsPacket() {
-  }
-
+  /**
+   * Gets the client's locale.
+   *
+   * @return the locale
+   * @throws IllegalStateException if no locale is specified
+   */
   public String getLocale() {
     if (locale == null) {
       throw new IllegalStateException("No locale specified");

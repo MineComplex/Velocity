@@ -23,24 +23,29 @@ import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.ProtocolUtils.Direction;
 import io.netty.buffer.ByteBuf;
+import lombok.NoArgsConstructor;
+import net.kyori.adventure.key.Key;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import net.kyori.adventure.key.Key;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
 @AllArgsConstructor
+/**
+ * Represents a server-bound packet sent by the client containing a key and an optional payload.
+ * This packet is typically used for exchanging metadata or other information between the client
+ * and server.
+ */
 public class ServerboundCookieResponsePacket implements MinecraftPacket {
 
   private Key key;
   private byte @Nullable [] payload;
-
-  public ServerboundCookieResponsePacket() {
-  }
 
   @Override
   public void decode(ByteBuf buf, Direction direction, ProtocolVersion protocolVersion) {

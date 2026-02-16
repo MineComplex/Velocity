@@ -26,6 +26,10 @@ import io.netty.buffer.ByteBuf;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Represents a packet sent from the server to the client, containing custom report details.
+ * This packet carries a map of key-value pairs, where each key and value are strings.
+ */
 public class ClientboundCustomReportDetailsPacket implements MinecraftPacket {
 
   private Map<String, String> details;

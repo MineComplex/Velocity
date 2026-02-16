@@ -25,13 +25,6 @@ import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.packet.chat.ComponentHolder;
 import com.velocitypowered.proxy.protocol.packet.chat.RemoteChatSession;
 import io.netty.buffer.ByteBuf;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -39,11 +32,15 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
 @Setter
 @ToString
 @AllArgsConstructor
+/**
+ * Represents the packet for updating or inserting player information.
+ */
 public class UpsertPlayerInfoPacket implements MinecraftPacket {
 
   private static final Action[] ALL_ACTIONS = Action.class.getEnumConstants();
@@ -59,14 +56,6 @@ public class UpsertPlayerInfoPacket implements MinecraftPacket {
   public UpsertPlayerInfoPacket(Action action) {
     this.actions = EnumSet.of(action);
     this.entries = new ArrayList<>();
-  }
-
-  public List<Entry> getEntries() {
-    return entries;
-  }
-
-  public EnumSet<Action> getActions() {
-    return actions;
   }
 
   public boolean containsAction(Action action) {
@@ -91,7 +80,7 @@ public class UpsertPlayerInfoPacket implements MinecraftPacket {
 
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction,
-                     ProtocolVersion protocolVersion) {
+      ProtocolVersion protocolVersion) {
     byte[] bytes = new byte[-Math.floorDiv(-ALL_ACTIONS.length, 8)];
     buf.readBytes(bytes);
     BitSet actionSet = BitSet.valueOf(bytes);
@@ -114,7 +103,7 @@ public class UpsertPlayerInfoPacket implements MinecraftPacket {
 
   @Override
   public void encode(ByteBuf buf, ProtocolUtils.Direction direction,
-                     ProtocolVersion protocolVersion) {
+      ProtocolVersion protocolVersion) {
     BitSet set = new BitSet(ALL_ACTIONS.length);
     for (int idx = 0; idx < ALL_ACTIONS.length; idx++) {
       set.set(idx, this.actions.contains(ALL_ACTIONS[idx]));
@@ -138,6 +127,9 @@ public class UpsertPlayerInfoPacket implements MinecraftPacket {
     return handler.handle(this);
   }
 
+  /**
+   * Represents the possible actions in the player info packet.
+   */
   public enum Action {
     ADD_PLAYER((ignored, buf, info) -> { // read
       info.profile = new GameProfile(
@@ -222,6 +214,9 @@ public class UpsertPlayerInfoPacket implements MinecraftPacket {
   @Setter
   @ToString
   @RequiredArgsConstructor
+  /**
+   * Represents an entry in the player info packet.
+   */
   public static class Entry {
 
     private final UUID profileId;

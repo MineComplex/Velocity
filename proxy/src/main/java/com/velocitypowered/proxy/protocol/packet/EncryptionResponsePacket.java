@@ -17,6 +17,8 @@
 
 package com.velocitypowered.proxy.protocol.packet;
 
+import static com.velocitypowered.proxy.connection.VelocityConstants.EMPTY_BYTE_ARRAY;
+
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
@@ -24,16 +26,25 @@ import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.ProtocolUtils.Direction;
 import com.velocitypowered.proxy.util.except.QuietDecoderException;
 import io.netty.buffer.ByteBuf;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
-import static com.velocitypowered.proxy.connection.VelocityConstants.EMPTY_BYTE_ARRAY;
+import java.util.Arrays;
 
 @Getter
 @Setter
 @ToString
+/**
+ * Represents the encryption response packet in Minecraft, which is sent by the client
+ * during the encryption handshake process. This packet contains the shared secret
+ * and verifies the token used to establish secure communication between the client
+ * and the server.
+ *
+ * <p>The packet structure varies depending on the Minecraft protocol version, with additional
+ * fields such as a salt being present in versions 1.19 and above.</p>
+ */
 public class EncryptionResponsePacket implements MinecraftPacket {
 
   private static final QuietDecoderException NO_SALT = new QuietDecoderException(

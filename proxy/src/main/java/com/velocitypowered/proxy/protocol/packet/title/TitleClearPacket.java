@@ -28,6 +28,15 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
+/**
+ * The {@code TitleClearPacket} class represents a packet that handles the clearing or removal of a title
+ * from the player's screen in Minecraft.
+ *
+ * <p>This packet is used to instruct the client to clear any currently displayed title and subtitle.</p>
+ *
+ * <p>It extends the {@link GenericTitlePacket}, inheriting basic title properties but is specifically
+ * focused on clearing the title display.</p>
+ */
 public class TitleClearPacket extends GenericTitlePacket {
 
   public TitleClearPacket() {

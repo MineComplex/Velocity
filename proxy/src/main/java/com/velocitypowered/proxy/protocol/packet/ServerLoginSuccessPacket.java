@@ -26,24 +26,27 @@ import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.ProtocolUtils.Direction;
 import com.velocitypowered.proxy.util.VelocityProperties;
 import io.netty.buffer.ByteBuf;
+import java.util.List;
+import java.util.UUID;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
-import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Setter
 @ToString
+/**
+ * Represents the packet sent from the server to the client to indicate successful login.
+ * This packet contains the player's UUID, username, and properties associated with their profile.
+ */
 public class ServerLoginSuccessPacket implements MinecraftPacket {
 
-  private static final boolean strictErrorHandling = VelocityProperties
-      .readBoolean("velocity.strictErrorHandling", true);
   private @Nullable UUID uuid;
   private @Nullable String username;
   private @Nullable List<GameProfile.Property> properties;
+  private static final boolean strictErrorHandling = VelocityProperties
+          .readBoolean("velocity.strictErrorHandling", true);
 
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {

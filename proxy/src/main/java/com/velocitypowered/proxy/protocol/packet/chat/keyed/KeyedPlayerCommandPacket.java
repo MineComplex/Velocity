@@ -36,6 +36,13 @@ import java.util.Map;
 import static com.velocitypowered.proxy.protocol.packet.chat.keyed.KeyedPlayerChatPacket.INVALID_PREVIOUS_MESSAGES;
 import static com.velocitypowered.proxy.protocol.packet.chat.keyed.KeyedPlayerChatPacket.MAXIMUM_PREVIOUS_MESSAGE_COUNT;
 
+/**
+ * Represents a player command packet with support for keyed commands.
+ *
+ * <p>The {@code KeyedPlayerCommandPacket} handles player commands sent to the server,
+ * allowing for command execution based on specific keys. This packet can include additional
+ * information such as arguments and key-based identifiers for the command.</p>
+ */
 public class KeyedPlayerCommandPacket implements MinecraftPacket {
 
   private static final int MAX_NUM_ARGUMENTS = 8;

@@ -135,8 +135,8 @@ public class VelocityEventManager implements EventManager {
     final Object instance;
 
     public HandlerRegistration(final PluginContainer plugin, final short order,
-        final Class<?> eventType, final Object instance, final EventHandler<Object> handler,
-        final AsyncType asyncType) {
+                               final Class<?> eventType, final Object instance, final EventHandler<Object> handler,
+                               final AsyncType asyncType) {
       this.plugin = plugin;
       this.order = order;
       this.eventType = eventType;
@@ -242,8 +242,8 @@ public class VelocityEventManager implements EventManager {
     final @Nullable Class<?> continuationType;
 
     private MethodHandlerInfo(final Method method, final AsyncType asyncType,
-        final @Nullable Class<?> eventType, final short order, final @Nullable String errors,
-        final @Nullable Class<?> continuationType) {
+                              final @Nullable Class<?> eventType, final short order, final @Nullable String errors,
+                              final @Nullable Class<?> continuationType) {
       this.method = method;
       this.asyncType = asyncType;
       this.eventType = eventType;
@@ -254,7 +254,7 @@ public class VelocityEventManager implements EventManager {
   }
 
   private void collectMethods(final Class<?> targetClass,
-      final Map<String, MethodHandlerInfo> collected) {
+                              final Map<String, MethodHandlerInfo> collected) {
     for (final Method method : targetClass.getDeclaredMethods()) {
       final Subscribe subscribe = method.getAnnotation(Subscribe.class);
       if (subscribe == null) {
@@ -382,7 +382,7 @@ public class VelocityEventManager implements EventManager {
   @Override
   @SuppressWarnings("unchecked")
   public <E> void register(final Object plugin, final Class<E> eventClass,
-      final PostOrder order, final EventHandler<E> handler) {
+                           final PostOrder order, final EventHandler<E> handler) {
     if (order == PostOrder.CUSTOM) {
       throw new IllegalArgumentException(
           "This method does not support custom post orders. Use the overload with short instead."
@@ -393,12 +393,12 @@ public class VelocityEventManager implements EventManager {
 
   @Override
   public <E> void register(Object plugin, Class<E> eventClass, short postOrder,
-      EventHandler<E> handler) {
+                           EventHandler<E> handler) {
     register(plugin, eventClass, postOrder, handler, AsyncType.SOMETIMES);
   }
 
   private  <E> void register(Object plugin, Class<E> eventClass, short postOrder,
-      EventHandler<E> handler, AsyncType asyncType) {
+                             EventHandler<E> handler, AsyncType asyncType) {
     final PluginContainer pluginContainer = pluginManager.ensurePluginContainer(plugin);
     requireNonNull(eventClass, "eventClass");
     requireNonNull(handler, "handler");
@@ -521,13 +521,43 @@ public class VelocityEventManager implements EventManager {
   }
 
   private <E> void fire(final @Nullable CompletableFuture<E> future,
-      final E event, final HandlersCache handlersCache) {
+                        final E event, final HandlersCache handlersCache) {
     final HandlerRegistration registration = handlersCache.handlers[0];
     if (registration.asyncType == AsyncType.ALWAYS) {
       registration.plugin.getExecutorService().execute(
           () -> fire(future, event, 0, true, handlersCache.handlers));
     } else {
       fire(future, event, 0, false, handlersCache.handlers);
+    }
+  }
+
+  private <E> void fire(final @Nullable CompletableFuture<E> future, final E event,
+                        final int offset, final boolean currentlyAsync, final HandlerRegistration[] registrations) {
+    for (int i = offset; i < registrations.length; i++) {
+      final HandlerRegistration registration = registrations[i];
+      try {
+        final EventTask eventTask = registration.handler.executeAsync(event);
+        if (eventTask == null) {
+          continue;
+        }
+        final ContinuationTask<E> continuationTask = new ContinuationTask<>(eventTask,
+            registrations, future, event, i, currentlyAsync);
+        if (currentlyAsync || !eventTask.requiresAsync()) {
+          if (continuationTask.execute()) {
+            continue;
+          }
+        } else {
+          registration.plugin.getExecutorService().execute(continuationTask);
+        }
+        // fire will continue in another thread once the async task is
+        // executed and the continuation is resumed
+        return;
+      } catch (final Throwable t) {
+        logHandlerException(registration, t);
+      }
+    }
+    if (future != null) {
+      future.complete(event);
     }
   }
 
@@ -656,7 +686,7 @@ public class VelocityEventManager implements EventManager {
   }
 
   public static  <E> void fire(final @Nullable CompletableFuture<E> future, final E event,
-      final int offset, final boolean currentlyAsync, final HandlerRegistration[] registrations) {
+                               final int offset, final boolean currentlyAsync, final HandlerRegistration[] registrations) {
     for (int i = offset; i < registrations.length; i++) {
       final HandlerRegistration registration = registrations[i];
       try {
@@ -689,6 +719,6 @@ public class VelocityEventManager implements EventManager {
       final HandlerRegistration registration, final Throwable t) {
     final PluginDescription pluginDescription = registration.plugin.getDescription();
     logger.error("Couldn't pass {} to {} {}", registration.eventType.getSimpleName(),
-            pluginDescription.getId(), pluginDescription.getVersion().orElse(""), t);
+        pluginDescription.getId(), pluginDescription.getVersion().orElse(""), t);
   }
 }

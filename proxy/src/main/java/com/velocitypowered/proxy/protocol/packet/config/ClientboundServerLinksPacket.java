@@ -23,10 +23,13 @@ import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.packet.chat.ComponentHolder;
 import io.netty.buffer.ByteBuf;
-
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a packet sent from the server to the client, containing server-related links.
+ * This packet carries a list of links (e.g., URLs or other resources) associated with the server.
+ */
 public class ClientboundServerLinksPacket implements MinecraftPacket {
 
   private List<ServerLink> serverLinks;
@@ -66,6 +69,16 @@ public class ClientboundServerLinksPacket implements MinecraftPacket {
     return serverLinks;
   }
 
+  /**
+   * Represents a link to a server with an ID, display name, and URL.
+   *
+   * <p>This record holds the server's identification number, a display name
+   * encapsulated in a {@code ComponentHolder}, and the server's URL as a string.</p>
+   *
+   * @param id the unique identifier for the server
+   * @param displayName the display name of the server, represented by a {@code ComponentHolder}
+   * @param url the URL of the server
+   */
   public record ServerLink(int id, ComponentHolder displayName, String url) {
 
     private static ServerLink read(ByteBuf buf, ProtocolVersion version) {

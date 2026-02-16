@@ -22,21 +22,25 @@ import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import io.netty.buffer.ByteBuf;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
 @AllArgsConstructor
+/**
+ * Represents a packet that sets the compression threshold for network communication.
+ * When the size of a packet exceeds the threshold, the packet will be compressed.
+ */
 public class SetCompressionPacket implements MinecraftPacket {
 
   private int threshold;
-
-  public SetCompressionPacket() {
-  }
 
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {

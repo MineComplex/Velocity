@@ -24,17 +24,19 @@ import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.ProtocolUtils.Direction;
 import io.netty.buffer.ByteBuf;
+import lombok.NoArgsConstructor;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-
 import java.util.UUID;
 
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
 @AllArgsConstructor
 public class ResourcePackResponsePacket implements MinecraftPacket {
 
@@ -42,9 +44,12 @@ public class ResourcePackResponsePacket implements MinecraftPacket {
   private String hash = "";
   private @MonotonicNonNull Status status;
 
-  public ResourcePackResponsePacket() {
-  }
-
+  /**
+   * Gets the status of the resource pack response.
+   *
+   * @return the status of the response
+   * @throws IllegalStateException if the packet has not been deserialized yet
+   */
   public Status getStatus() {
     if (status == null) {
       throw new IllegalStateException("Packet not yet deserialized");

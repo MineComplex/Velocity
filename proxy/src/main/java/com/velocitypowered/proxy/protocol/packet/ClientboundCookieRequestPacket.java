@@ -23,20 +23,24 @@ import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.ProtocolUtils.Direction;
 import io.netty.buffer.ByteBuf;
+import lombok.NoArgsConstructor;
+import net.kyori.adventure.key.Key;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
-import net.kyori.adventure.key.Key;
 
 @Getter
+@NoArgsConstructor
 @AllArgsConstructor
 @ToString
+/**
+ * Represents a packet sent from the server to the client to request cookies.
+ * This packet can be used to initiate a request for cookie-related data from the client,
+ * typically for authentication or tracking purposes.
+ */
 public class ClientboundCookieRequestPacket implements MinecraftPacket {
 
   private Key key;
-
-  public ClientboundCookieRequestPacket() {
-  }
 
   @Override
   public void decode(ByteBuf buf, Direction direction, ProtocolVersion protocolVersion) {

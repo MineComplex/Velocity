@@ -24,6 +24,14 @@ import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.util.except.QuietDecoderException;
 import io.netty.buffer.ByteBuf;
 
+/**
+ * The {@code KnownPacksPacket} class represents a packet that handles the synchronization
+ * of known resource packs between the client and server in the Minecraft protocol.
+ *
+ * <p>This packet contains a list of {@link KnownPack} instances, each representing a resource
+ * pack with a namespace, identifier, and version. It allows the server to inform the client
+ * about available resource packs.</p>
+ */
 public class KnownPacksPacket implements MinecraftPacket {
 
   private static final int MAX_LENGTH_PACKS = Integer.getInteger("velocity.max-known-packs", 64);
@@ -64,6 +72,17 @@ public class KnownPacksPacket implements MinecraftPacket {
     return handler.handle(this);
   }
 
+  /**
+   * The {@code KnownPack} record represents a known resource pack with a namespace,
+   * identifier, and version in the Minecraft protocol.
+   *
+   * <p>It encapsulates the information needed to identify a resource pack, typically used
+   * for managing or synchronizing resource packs between the client and server.</p>
+   *
+   * @param namespace the namespace of the resource pack (e.g., "minecraft" or a mod name)
+   * @param id the unique identifier of the resource pack within the namespace
+   * @param version the version of the resource pack
+   */
   public record KnownPack(String namespace, String id, String version) {
     private static KnownPack read(ByteBuf buf) {
       return new KnownPack(ProtocolUtils.readString(buf), ProtocolUtils.readString(buf), ProtocolUtils.readString(buf));

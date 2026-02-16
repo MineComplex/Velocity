@@ -17,10 +17,6 @@ application {
 }
 
 tasks {
-    withType<Checkstyle> {
-        exclude("**/com/velocitypowered/proxy/protocol/packet/**")
-    }
-
     jar {
         manifest {
             attributes["Implementation-Title"] = "Velocity"
@@ -36,7 +32,7 @@ tasks {
 
         transform(Log4j2PluginsCacheFileTransformer::class.java)
 
-        // Exclude all the collection types we don"t intend to use
+        // Exclude all the collection types we don't intend to use
         exclude("it/unimi/dsi/fastutil/booleans/**")
         exclude("it/unimi/dsi/fastutil/bytes/**")
         exclude("it/unimi/dsi/fastutil/chars/**")
@@ -45,7 +41,7 @@ tasks {
         exclude("it/unimi/dsi/fastutil/longs/**")
         exclude("it/unimi/dsi/fastutil/shorts/**")
 
-        // Exclude the fastutil IO utilities - we don"t use them.
+        // Exclude the fastutil IO utilities - we don't use them.
         exclude("it/unimi/dsi/fastutil/io/**")
 
         // Exclude most of the int types - Object2IntMap have a values() method that returns an

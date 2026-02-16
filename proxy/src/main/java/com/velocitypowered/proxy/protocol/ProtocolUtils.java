@@ -701,7 +701,7 @@ public enum ProtocolUtils {
   private static final int FORGE_MAX_ARRAY_LENGTH = Integer.MAX_VALUE & 0x1FFF9A;
 
   /**
-   * Reads an byte array for legacy version 1.7 from the specified {@code buf}
+   * Reads an byte array for legacy version 1.7 from the specified {@code buf}.
    *
    * @param buf the buffer to read from
    * @return the read byte array
@@ -739,7 +739,7 @@ public enum ProtocolUtils {
   }
 
   /**
-   * Writes an byte array for legacy version 1.7 to the specified {@code buf}
+   * Writes an byte array for legacy version 1.7 to the specified {@code buf}.
    *
    * @param b             array
    * @param buf           buf
@@ -763,7 +763,7 @@ public enum ProtocolUtils {
   }
 
   /**
-   * Writes an {@link ByteBuf} for legacy version 1.7 to the specified {@code buf}
+   * Writes an {@link ByteBuf} for legacy version 1.7 to the specified {@code buf}.
    *
    * @param b             array
    * @param buf           buf

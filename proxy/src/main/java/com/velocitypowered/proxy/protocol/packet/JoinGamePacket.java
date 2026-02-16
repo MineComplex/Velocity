@@ -21,20 +21,24 @@ import com.google.common.collect.ImmutableSet;
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.connection.registry.DimensionInfo;
-import com.velocitypowered.proxy.protocol.MinecraftPacket;
-import com.velocitypowered.proxy.protocol.ProtocolUtils;
+import com.velocitypowered.proxy.protocol.*;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.Pair;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 import net.kyori.adventure.nbt.BinaryTagIO;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
 @ToString
+/**
+ * Represents a packet sent to the client when they successfully join a game in Minecraft.
+ * This packet contains all the necessary information to initialize the client state,
+ * including the player's entity ID, game mode, dimension, world settings, and more.
+ */
 public class JoinGamePacket implements MinecraftPacket {
 
   private static final BinaryTagIO.Reader JOINGAME_READER = BinaryTagIO.reader(4 * 1024 * 1024);

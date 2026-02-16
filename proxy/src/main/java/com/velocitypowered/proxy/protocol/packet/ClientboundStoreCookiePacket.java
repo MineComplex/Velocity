@@ -23,23 +23,23 @@ import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.ProtocolUtils.Direction;
 import io.netty.buffer.ByteBuf;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.NoArgsConstructor;
 import net.kyori.adventure.key.Key;
 
 @Getter
 @Setter
 @ToString
 @AllArgsConstructor
+@NoArgsConstructor
+/**
+ * Represents a packet sent from the server to the client to store a cookie.
+ * This packet can be used to send cookie-related data from the server to be stored or processed
+ * by the client.
+ */
 public class ClientboundStoreCookiePacket implements MinecraftPacket {
 
   private Key key;
   private byte[] payload;
-
-  public ClientboundStoreCookiePacket() {
-  }
 
   @Override
   public void decode(ByteBuf buf, Direction direction, ProtocolVersion protocolVersion) {

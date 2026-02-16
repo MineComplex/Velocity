@@ -17,20 +17,27 @@
 
 package com.velocitypowered.proxy.protocol.packet.chat.session;
 
+import static com.velocitypowered.proxy.protocol.packet.chat.keyed.KeyedChatHandler.invalidCancel;
+import static com.velocitypowered.proxy.protocol.packet.chat.keyed.KeyedChatHandler.invalidChange;
+
 import com.velocitypowered.api.event.EventManager;
 import com.velocitypowered.api.event.player.PlayerChatEvent;
 import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.connection.client.ConnectedPlayer;
 import com.velocitypowered.proxy.protocol.packet.chat.ChatHandler;
 import com.velocitypowered.proxy.protocol.packet.chat.ChatQueue;
+import java.util.concurrent.CompletableFuture;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.concurrent.CompletableFuture;
 
-import static com.velocitypowered.proxy.protocol.packet.chat.keyed.KeyedChatHandler.invalidCancel;
-import static com.velocitypowered.proxy.protocol.packet.chat.keyed.KeyedChatHandler.invalidChange;
-
+/**
+ * A handler for processing session-based chat packets, implementing {@link ChatHandler}.
+ *
+ * <p>The {@code SessionChatHandler} processes and handles chat messages sent during a player's
+ * session using {@link SessionPlayerChatPacket}. It provides the logic for handling session-specific
+ * chat messages, ensuring the correct context and formatting within the session.</p>
+ */
 public class SessionChatHandler implements ChatHandler<SessionPlayerChatPacket> {
 
   private static final Logger logger = LogManager.getLogger(SessionChatHandler.class);

@@ -22,10 +22,16 @@ import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import io.netty.buffer.ByteBuf;
+import java.util.UUID;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.util.UUID;
-
+/**
+ * Represents a legacy chat packet used in older versions of Minecraft.
+ *
+ * <p>The {@code LegacyChatPacket} is responsible for holding and transmitting chat messages
+ * in the format used by legacy versions of Minecraft. It implements {@link MinecraftPacket}
+ * to ensure compatibility with the packet-handling system.</p>
+ */
 public class LegacyChatPacket implements MinecraftPacket {
 
   public static final byte CHAT_TYPE = (byte) 0;
@@ -46,6 +52,7 @@ public class LegacyChatPacket implements MinecraftPacket {
       try {
         return Integer.parseInt(value.trim());
       } catch (final NumberFormatException e) {
+        // Exception has been handled
       }
     }
     return 100;
@@ -107,8 +114,8 @@ public class LegacyChatPacket implements MinecraftPacket {
     message = ProtocolUtils.readString(buf, direction == ProtocolUtils.Direction.CLIENTBOUND
         ? 262144
         : version.noLessThan(ProtocolVersion.MINECRAFT_1_11)
-          ? MAX_SERVERBOUND_MESSAGE_LENGTH
-          : MAX_SERVERBOUND_MESSAGE_LENGTH_LEGACY);
+        ? MAX_SERVERBOUND_MESSAGE_LENGTH
+        : MAX_SERVERBOUND_MESSAGE_LENGTH_LEGACY);
     if (direction == ProtocolUtils.Direction.CLIENTBOUND
         && version.noLessThan(ProtocolVersion.MINECRAFT_1_8)) {
       type = buf.readByte();
