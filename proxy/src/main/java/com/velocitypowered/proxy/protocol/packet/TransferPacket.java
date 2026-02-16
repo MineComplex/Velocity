@@ -27,17 +27,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import java.net.InetSocketAddress;
 import org.jetbrains.annotations.Nullable;
 
+import java.net.InetSocketAddress;
+
+/**
+ * Represents a packet used to transfer a player to another server.
+ */
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-/**
- * Represents a packet used to transfer a player to another server.
- */
 public class TransferPacket implements MinecraftPacket {
   private String host;
   private int port;

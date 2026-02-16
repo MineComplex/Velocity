@@ -22,31 +22,24 @@ import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import io.netty.buffer.ByteBuf;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Represents a packet sent from the server to the client to display system chat messages.
  * This packet handles the communication of messages that are not player-generated, but instead
  * come from the system or server itself.
  */
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class SystemChatPacket implements MinecraftPacket {
 
   private ComponentHolder component;
   private ChatType type;
-
-  public SystemChatPacket() {
-  }
-  public SystemChatPacket(ComponentHolder component, ChatType type) {
-    this.component = component;
-    this.type = type;
-  }
-
-  public ChatType getType() {
-    return type;
-  }
-
-  public ComponentHolder getComponent() {
-    return component;
-  }
 
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {

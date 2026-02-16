@@ -17,8 +17,6 @@
 
 package com.velocitypowered.proxy.protocol.packet;
 
-import static com.velocitypowered.proxy.protocol.util.PluginMessageUtil.transformLegacyToModernChannel;
-
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
@@ -26,19 +24,21 @@ import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.ProtocolUtils.Direction;
 import com.velocitypowered.proxy.protocol.util.DeferredByteBufHolder;
 import io.netty.buffer.ByteBuf;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
-@Getter
-@Setter
-@ToString
+import static com.velocitypowered.proxy.protocol.util.PluginMessageUtil.transformLegacyToModernChannel;
+
 /**
  * Represents a plugin message packet, which allows for custom communication between
  * a Minecraft server and a client via custom channels.
  */
+@Getter
+@Setter
+@ToString
 public class PluginMessagePacket extends DeferredByteBufHolder implements MinecraftPacket {
 
   private @Nullable String channel;

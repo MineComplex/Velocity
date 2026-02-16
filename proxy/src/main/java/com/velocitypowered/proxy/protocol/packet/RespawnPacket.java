@@ -24,21 +24,20 @@ import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.Pair;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import net.kyori.adventure.nbt.BinaryTagIO;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-
-@Getter
-@Setter
-@ToString
 /**
  * Represents a respawn packet sent by the server when the player changes dimensions or respawns.
  * The packet contains information about the new dimension, difficulty, gamemode, and more.
  */
+@Getter
+@Setter
+@ToString
 public class RespawnPacket implements MinecraftPacket {
 
   private int dimension;

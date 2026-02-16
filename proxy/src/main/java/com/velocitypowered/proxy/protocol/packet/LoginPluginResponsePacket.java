@@ -25,18 +25,18 @@ import com.velocitypowered.proxy.protocol.ProtocolUtils.Direction;
 import com.velocitypowered.proxy.protocol.util.DeferredByteBufHolder;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-@Getter
-@Setter
-@ToString
 /**
  * Represents the response packet to a plugin message sent during the login phase.
  * The packet contains the plugin message ID, a success flag, and any additional data.
  */
+@Getter
+@Setter
+@ToString
 public class LoginPluginResponsePacket extends DeferredByteBufHolder implements MinecraftPacket {
 
   private int id;

@@ -25,25 +25,25 @@ import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.ProtocolUtils.Direction;
 import com.velocitypowered.proxy.protocol.packet.chat.ComponentHolder;
 import io.netty.buffer.ByteBuf;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-
+/**
+ * Represents the server data packet sent from the server to the client, which contains information
+ * such as the server description, favicon, and secure chat enforcement status.
+ */
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-/**
- * Represents the server data packet sent from the server to the client, which contains information
- * such as the server description, favicon, and secure chat enforcement status.
- */
 public class ServerDataPacket implements MinecraftPacket {
 
   private @Nullable ComponentHolder description;

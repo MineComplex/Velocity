@@ -22,15 +22,11 @@ import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.packet.chat.ComponentHolder;
 import io.netty.buffer.ByteBuf;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
-@Getter
-@Setter
-@ToString
 /**
  * The {@code LegacyTitlePacket} class represents a packet that handles title-related functionality
  * for older versions of Minecraft where title handling differs.
@@ -41,6 +37,9 @@ import lombok.ToString;
  * <p>It extends the {@link GenericTitlePacket}, inheriting basic title properties but is specifically
  * focused on legacy title implementations.</p>
  */
+@Getter
+@Setter
+@ToString
 public class LegacyTitlePacket extends GenericTitlePacket {
 
   private @Nullable ComponentHolder component;
@@ -68,7 +67,8 @@ public class LegacyTitlePacket extends GenericTitlePacket {
         buf.writeInt(stay);
         buf.writeInt(fadeOut);
       }
-      case HIDE, RESET -> {}
+      case HIDE, RESET -> {
+      }
       default -> throw new UnsupportedOperationException("Unknown action " + getAction());
     }
 

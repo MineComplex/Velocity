@@ -26,12 +26,12 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-@Getter
-@Setter
-@ToString
 /**
  * Represents a packet used for ping identification with a unique ID.
  */
+@Getter
+@Setter
+@ToString
 public class PingIdentifyPacket implements MinecraftPacket {
 
   private int id;

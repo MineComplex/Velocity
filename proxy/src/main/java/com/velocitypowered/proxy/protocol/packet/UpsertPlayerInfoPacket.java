@@ -25,6 +25,13 @@ import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.packet.chat.ComponentHolder;
 import com.velocitypowered.proxy.protocol.packet.chat.RemoteChatSession;
 import io.netty.buffer.ByteBuf;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -32,15 +39,14 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
-import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents the packet for updating or inserting player information.
+ */
 @Getter
 @Setter
 @ToString
 @AllArgsConstructor
-/**
- * Represents the packet for updating or inserting player information.
- */
 public class UpsertPlayerInfoPacket implements MinecraftPacket {
 
   private static final Action[] ALL_ACTIONS = Action.class.getEnumConstants();
@@ -210,13 +216,13 @@ public class UpsertPlayerInfoPacket implements MinecraftPacket {
     }
   }
 
+  /**
+   * Represents an entry in the player info packet.
+   */
   @Getter
   @Setter
   @ToString
   @RequiredArgsConstructor
-  /**
-   * Represents an entry in the player info packet.
-   */
   public static class Entry {
 
     private final UUID profileId;

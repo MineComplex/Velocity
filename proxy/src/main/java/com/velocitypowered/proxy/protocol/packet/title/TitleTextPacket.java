@@ -22,14 +22,10 @@ import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.packet.chat.ComponentHolder;
 import io.netty.buffer.ByteBuf;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-@Getter
-@Setter
-@ToString
 /**
  * The {@code TitleTextPacket} class represents a packet that handles the text content for a title
  * displayed to the player in Minecraft.
@@ -39,6 +35,9 @@ import lombok.ToString;
  * <p>It extends the {@link GenericTitlePacket}, inheriting basic title properties and focusing
  * on the specific text content of the title.</p>
  */
+@Getter
+@Setter
+@ToString
 public class TitleTextPacket extends GenericTitlePacket {
 
   private ComponentHolder component;

@@ -23,20 +23,21 @@ import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.ProtocolUtils.Direction;
 import io.netty.buffer.ByteBuf;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
-@Getter
-@Setter
-@ToString
-@AllArgsConstructor
 /**
  * Represents a status response packet sent from the server to the client.
  */
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class StatusResponsePacket implements MinecraftPacket {
 
   private @Nullable CharSequence status;

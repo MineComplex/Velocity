@@ -24,19 +24,19 @@ import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.packet.chat.ComponentHolder;
 import com.velocitypowered.proxy.util.collect.Enum2IntMap;
 import io.netty.buffer.ByteBuf;
-import java.util.Set;
-import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import net.kyori.adventure.bossbar.BossBar;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import java.util.Set;
+import java.util.UUID;
+
 /**
  * Represents a packet used to manage boss bars.
  * This packet can add, remove, or update a boss bar.
  */
-
 @Getter
 @Setter
 @ToString

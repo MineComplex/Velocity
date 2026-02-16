@@ -24,19 +24,16 @@ import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.packet.chat.ComponentHolder;
 import io.netty.buffer.ByteBuf;
-import net.kyori.adventure.text.Component;
-
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
+import net.kyori.adventure.text.Component;
 
-@Getter
-@Setter
-@ToString
 /**
  * Represents a packet that contains both the header and footer for the player list screen (tab list) in Minecraft.
  * This packet allows the server to set or update the header and footer text that is displayed on the client's tab list.
  */
+@Getter
+@Setter
 public class HeaderAndFooterPacket implements MinecraftPacket {
 
   private final ComponentHolder header;
@@ -67,10 +64,8 @@ public class HeaderAndFooterPacket implements MinecraftPacket {
     return handler.handle(this);
   }
 
-  public static HeaderAndFooterPacket create(Component header,
-                                             Component footer, ProtocolVersion protocolVersion) {
-    return new HeaderAndFooterPacket(new ComponentHolder(protocolVersion, header),
-      new ComponentHolder(protocolVersion, footer));
+  public static HeaderAndFooterPacket create(Component header, Component footer, ProtocolVersion protocolVersion) {
+    return new HeaderAndFooterPacket(new ComponentHolder(protocolVersion, header), new ComponentHolder(protocolVersion, footer));
   }
 
   public static HeaderAndFooterPacket reset(ProtocolVersion version) {

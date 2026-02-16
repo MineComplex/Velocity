@@ -17,6 +17,22 @@
 
 package com.velocitypowered.proxy.protocol.packet.brigadier;
 
+import com.google.common.base.Preconditions;
+import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.arguments.FloatArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.LongArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.velocitypowered.api.network.ProtocolVersion;
+import com.velocitypowered.proxy.protocol.ProtocolUtils;
+import io.netty.buffer.ByteBuf;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_19;
 import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_19_3;
 import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_19_4;
@@ -34,22 +50,14 @@ import static com.velocitypowered.proxy.protocol.packet.brigadier.LongArgumentPr
 import static com.velocitypowered.proxy.protocol.packet.brigadier.ModArgumentPropertySerializer.MOD;
 import static com.velocitypowered.proxy.protocol.packet.brigadier.StringArgumentPropertySerializer.STRING;
 
-import com.google.common.base.Preconditions;
-import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.arguments.BoolArgumentType;
-import com.mojang.brigadier.arguments.DoubleArgumentType;
-import com.mojang.brigadier.arguments.FloatArgumentType;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.arguments.LongArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
-import com.velocitypowered.api.network.ProtocolVersion;
-import com.velocitypowered.proxy.protocol.ProtocolUtils;
-import io.netty.buffer.ByteBuf;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.HashMap;
-import java.util.Map;
-
+/**
+ * The {@code ArgumentPropertyRegistry} is responsible for managing the registration and
+ * retrieval of argument properties used in command parsing and execution.
+ *
+ * <p>This class functions as a registry, allowing different argument properties to be registered
+ * and later retrieved or used when processing commands within the system. The properties
+ * might be tied to argument types, validation rules, or transformations.</p>
+ */
 public class ArgumentPropertyRegistry {
 
   private ArgumentPropertyRegistry() {
@@ -64,7 +72,7 @@ public class ArgumentPropertyRegistry {
       new HashMap<>();
 
   private static <T extends ArgumentType<?>> void register(ArgumentIdentifier identifier,
-      Class<T> klazz, ArgumentPropertySerializer<T> serializer) {
+                                                           Class<T> klazz, ArgumentPropertySerializer<T> serializer) {
     byIdentifier.put(identifier, serializer);
     byClass.put(klazz, serializer);
     classToId.put(klazz, identifier);
@@ -75,7 +83,7 @@ public class ArgumentPropertyRegistry {
   }
 
   private static <T> void empty(ArgumentIdentifier identifier,
-      ArgumentPropertySerializer<T> serializer) {
+                                ArgumentPropertySerializer<T> serializer) {
     byIdentifier.put(identifier, serializer);
   }
 
@@ -105,7 +113,7 @@ public class ArgumentPropertyRegistry {
    * @param type the type to serialize
    */
   public static void serialize(ByteBuf buf, ArgumentType<?> type,
-      ProtocolVersion protocolVersion) {
+                               ProtocolVersion protocolVersion) {
     if (type instanceof PassthroughProperty) {
       PassthroughProperty property = (PassthroughProperty) type;
       writeIdentifier(buf, property.getIdentifier(), protocolVersion);
@@ -136,7 +144,7 @@ public class ArgumentPropertyRegistry {
    * @param protocolVersion the protocol version to use
    */
   public static void writeIdentifier(ByteBuf buf, ArgumentIdentifier identifier,
-      ProtocolVersion protocolVersion) {
+                                     ProtocolVersion protocolVersion) {
     if (protocolVersion.noLessThan(MINECRAFT_1_19)) {
       Integer id = identifier.getIdByProtocolVersion(protocolVersion);
       Preconditions.checkNotNull(id, "Don't know how to serialize type " + identifier);
@@ -186,7 +194,7 @@ public class ArgumentPropertyRegistry {
 
           @Override
           public void serialize(BoolArgumentType object, ByteBuf buf,
-              ProtocolVersion protocolVersion) {
+                                ProtocolVersion protocolVersion) {
 
           }
         });
@@ -250,14 +258,14 @@ public class ArgumentPropertyRegistry {
     register(id("minecraft:resource_or_tag", mapSet(MINECRAFT_1_21_6, 44), mapSet(MINECRAFT_1_20_5, 43), mapSet(MINECRAFT_1_20_3, 42),
         mapSet(MINECRAFT_1_19_3, 41), mapSet(MINECRAFT_1_19, 43)), RegistryKeyArgument.class, RegistryKeyArgumentSerializer.REGISTRY);
     register(id("minecraft:resource_or_tag_key", mapSet(MINECRAFT_1_21_6, 45), mapSet(MINECRAFT_1_20_5, 44), mapSet(MINECRAFT_1_20_3, 43),
-        mapSet(MINECRAFT_1_19_3, 42)),
+            mapSet(MINECRAFT_1_19_3, 42)),
         RegistryKeyArgumentList.ResourceOrTagKey.class,
         RegistryKeyArgumentList.ResourceOrTagKey.Serializer.REGISTRY);
     register(id("minecraft:resource", mapSet(MINECRAFT_1_21_6, 46), mapSet(MINECRAFT_1_20_5, 45), mapSet(MINECRAFT_1_20_3, 44),
-        mapSet(MINECRAFT_1_19_3, 43), mapSet(MINECRAFT_1_19, 44)),
+            mapSet(MINECRAFT_1_19_3, 43), mapSet(MINECRAFT_1_19, 44)),
         RegistryKeyArgument.class, RegistryKeyArgumentSerializer.REGISTRY);
     register(id("minecraft:resource_key", mapSet(MINECRAFT_1_21_6, 47), mapSet(MINECRAFT_1_20_5, 46), mapSet(MINECRAFT_1_20_3, 45),
-        mapSet(MINECRAFT_1_19_3, 44)),
+            mapSet(MINECRAFT_1_19_3, 44)),
         RegistryKeyArgumentList.ResourceKey.class,
         RegistryKeyArgumentList.ResourceKey.Serializer.REGISTRY);
     register(id("minecraft:resource_selector", mapSet(MINECRAFT_1_21_6, 48), mapSet(MINECRAFT_1_21_5, 47)),
@@ -271,7 +279,7 @@ public class ArgumentPropertyRegistry {
     empty(id("minecraft:heightmap", mapSet(MINECRAFT_1_21_6, 51), mapSet(MINECRAFT_1_21_5, 50), mapSet(MINECRAFT_1_20_3, 49),
         mapSet(MINECRAFT_1_19_4, 47))); // 1.19.4
 
-    empty(id("minecraft:uuid", mapSet(MINECRAFT_1_21_6, 56), mapSet(MINECRAFT_1_21_5, 54),mapSet(MINECRAFT_1_20_5, 53), mapSet(MINECRAFT_1_20_3, 48),
+    empty(id("minecraft:uuid", mapSet(MINECRAFT_1_21_6, 56), mapSet(MINECRAFT_1_21_5, 54), mapSet(MINECRAFT_1_20_5, 53), mapSet(MINECRAFT_1_20_3, 48),
         mapSet(MINECRAFT_1_19_4, 48), mapSet(MINECRAFT_1_19, 47))); // added in 1.16
 
     empty(id("minecraft:loot_table", mapSet(MINECRAFT_1_21_6, 52), mapSet(MINECRAFT_1_21_5, 51), mapSet(MINECRAFT_1_20_5, 50)));

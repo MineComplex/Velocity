@@ -26,9 +26,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-@Getter
-@Setter
-@ToString
 /**
  * The {@code TitleActionbarPacket} class represents a packet that handles the content of an action bar
  * displayed to the player in Minecraft.
@@ -39,6 +36,9 @@ import lombok.ToString;
  * <p>It extends the {@link GenericTitlePacket}, inheriting basic title properties and focusing on
  * the content of the action bar.</p>
  */
+@Getter
+@Setter
+@ToString
 public class TitleActionbarPacket extends GenericTitlePacket {
 
   private ComponentHolder component;

@@ -26,20 +26,21 @@ import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.ProtocolUtils.Direction;
 import com.velocitypowered.proxy.util.except.QuietDecoderException;
 import io.netty.buffer.ByteBuf;
-import java.util.UUID;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
-@Getter
-@Setter
-@ToString
+import java.util.UUID;
+
 /**
  * Represents the packet sent from the client to the server during the login phase.
  * This packet contains the player's username, optionally a cryptographic key for
  * authentication, and the holder UUID depending on the Minecraft protocol version.
  */
+@Getter
+@Setter
+@ToString
 public class ServerLoginPacket implements MinecraftPacket {
 
   private static final QuietDecoderException EMPTY_USERNAME = new QuietDecoderException(

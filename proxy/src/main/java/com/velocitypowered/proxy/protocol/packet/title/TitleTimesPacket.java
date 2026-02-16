@@ -25,9 +25,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-@Getter
-@Setter
-@ToString
 /**
  * The {@code TitleTimesPacket} class represents a packet that handles the timing settings for a title in
  * Minecraft, such as fade-in, stay, and fade-out durations.
@@ -37,6 +34,9 @@ import lombok.ToString;
  * <p>It extends the {@link GenericTitlePacket} to inherit basic title properties and adds specific timing
  * controls for the title display.</p>
  */
+@Getter
+@Setter
+@ToString
 public class TitleTimesPacket extends GenericTitlePacket {
 
   private int fadeIn;

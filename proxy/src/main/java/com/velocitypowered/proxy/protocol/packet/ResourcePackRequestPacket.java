@@ -28,8 +28,6 @@ import com.velocitypowered.proxy.protocol.ProtocolUtils.Direction;
 import com.velocitypowered.proxy.protocol.packet.chat.ComponentHolder;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
-import java.util.UUID;
-import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,15 +36,18 @@ import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import java.util.UUID;
+import java.util.regex.Pattern;
+
+/**
+ * Represents a resource pack request packet sent by the server to prompt the client to download a resource pack.
+ * The packet includes the resource pack URL, SHA1 hash, and optional prompt.
+ */
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-/**
- * Represents a resource pack request packet sent by the server to prompt the client to download a resource pack.
- * The packet includes the resource pack URL, SHA1 hash, and optional prompt.
- */
 public class ResourcePackRequestPacket implements MinecraftPacket {
 
   private @MonotonicNonNull UUID id; // 1.20.3+

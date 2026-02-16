@@ -17,28 +17,26 @@
 
 package com.velocitypowered.proxy.protocol.packet;
 
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_13;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_8;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_9;
-
-import com.google.common.base.MoreObjects;
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import io.netty.buffer.ByteBuf;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
-@Getter
-@Setter
-@ToString
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_13;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_8;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_9;
+
 /**
  * Represents a packet sent by the client when a tab-completion request is initiated.
  */
+@Getter
+@Setter
+@ToString
 public class TabCompleteRequestPacket implements MinecraftPacket {
 
   private static final int VANILLA_MAX_TAB_COMPLETE_LEN = 2048;

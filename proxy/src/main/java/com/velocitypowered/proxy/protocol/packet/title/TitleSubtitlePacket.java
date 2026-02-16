@@ -26,9 +26,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-@Getter
-@Setter
-@ToString
 /**
  * The {@code TitleSubtitlePacket} class represents a packet that handles the subtitle content for a title
  * displayed to the player in Minecraft.
@@ -38,6 +35,9 @@ import lombok.ToString;
  * <p>It extends the {@link GenericTitlePacket}, inheriting basic title properties and focusing
  * on the subtitle content of the title.</p>
  */
+@Getter
+@Setter
+@ToString
 public class TitleSubtitlePacket extends GenericTitlePacket {
 
   private ComponentHolder component;

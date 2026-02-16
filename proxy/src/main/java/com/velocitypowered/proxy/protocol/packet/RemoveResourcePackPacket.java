@@ -23,23 +23,23 @@ import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.ProtocolUtils.Direction;
 import io.netty.buffer.ByteBuf;
-import java.util.UUID;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.UUID;
+
+/**
+ * Represents a packet sent to remove a previously applied resource pack from the client.
+ * The packet contains an optional UUID that identifies the resource pack to be removed.
+ */
 @Getter
 @Setter
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-/**
- * Represents a packet sent to remove a previously applied resource pack from the client.
- * The packet contains an optional UUID that identifies the resource pack to be removed.
- */
 public class RemoveResourcePackPacket implements MinecraftPacket {
 
   private UUID id;

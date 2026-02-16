@@ -26,22 +26,22 @@ import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import io.netty.buffer.ByteBuf;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import lombok.Getter;
+import lombok.ToString;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import lombok.Getter;
-import lombok.ToString;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
-@Getter
-@ToString
 /**
  * Represents a legacy player list item packet, which is used to modify the player list in a Minecraft client.
  * The packet can add, remove, or update player entries (e.g., updating gamemode, latency, or display names).
  */
+@Getter
+@ToString
 public class LegacyPlayerListItemPacket implements MinecraftPacket {
 
   public static final int ADD_PLAYER = 0;
@@ -58,14 +58,6 @@ public class LegacyPlayerListItemPacket implements MinecraftPacket {
   }
 
   public LegacyPlayerListItemPacket() {
-  }
-
-  public int getAction() {
-    return action;
-  }
-
-  public List<Item> getItems() {
-    return items;
   }
 
   @Override
@@ -85,16 +77,16 @@ public class LegacyPlayerListItemPacket implements MinecraftPacket {
             item.setLatency(ProtocolUtils.readVarInt(buf));
             item.setDisplayName(readOptionalComponent(buf, version));
             if (version.noLessThan(ProtocolVersion.MINECRAFT_1_19)) {
-                if (buf.readBoolean()) {
-                    item.setPlayerKey(ProtocolUtils.readPlayerKey(version, buf));
-                }
+              if (buf.readBoolean()) {
+                item.setPlayerKey(ProtocolUtils.readPlayerKey(version, buf));
+              }
             }
           }
           case UPDATE_GAMEMODE -> item.setGameMode(ProtocolUtils.readVarInt(buf));
           case UPDATE_LATENCY -> item.setLatency(ProtocolUtils.readVarInt(buf));
           case UPDATE_DISPLAY_NAME -> item.setDisplayName(readOptionalComponent(buf, version));
           case REMOVE_PLAYER -> {
-              //Do nothing, all that is needed is the uuid
+            // Do nothing, all that is needed is the uuid
           }
           default -> throw new UnsupportedOperationException("Unknown action " + action);
         }
@@ -145,12 +137,12 @@ public class LegacyPlayerListItemPacket implements MinecraftPacket {
             ProtocolUtils.writeVarInt(buf, item.getLatency());
             writeDisplayName(buf, item.getDisplayName(), version);
             if (version.noLessThan(ProtocolVersion.MINECRAFT_1_19)) {
-                if (item.getPlayerKey() != null) {
-                    buf.writeBoolean(true);
-                    ProtocolUtils.writePlayerKey(buf, item.getPlayerKey());
-                } else {
-                    buf.writeBoolean(false);
-                }
+              if (item.getPlayerKey() != null) {
+                buf.writeBoolean(true);
+                ProtocolUtils.writePlayerKey(buf, item.getPlayerKey());
+              } else {
+                buf.writeBoolean(false);
+              }
             }
           }
           case UPDATE_GAMEMODE -> ProtocolUtils.writeVarInt(buf, item.getGameMode());
@@ -184,7 +176,7 @@ public class LegacyPlayerListItemPacket implements MinecraftPacket {
   }
 
   private void writeDisplayName(ByteBuf buf, @Nullable Component displayName,
-      ProtocolVersion version) {
+                                ProtocolVersion version) {
     buf.writeBoolean(displayName != null);
     if (displayName != null) {
       ProtocolUtils.writeString(buf, ProtocolUtils.getJsonChatSerializer(version)
@@ -192,7 +184,10 @@ public class LegacyPlayerListItemPacket implements MinecraftPacket {
     }
   }
 
-  @Getter
+  /**
+   * Represents an individual item in the player list, containing the player's details such as UUID, name,
+   * game mode, latency, and optionally a display name and player key.
+   */
   public static class Item {
 
     private final UUID uuid;
@@ -234,9 +229,17 @@ public class LegacyPlayerListItemPacket implements MinecraftPacket {
       return uuid;
     }
 
+    public String getName() {
+      return name;
+    }
+
     public Item setName(String name) {
       this.name = name;
       return this;
+    }
+
+    public List<GameProfile.Property> getProperties() {
+      return properties;
     }
 
     public Item setProperties(List<GameProfile.Property> properties) {
@@ -244,14 +247,26 @@ public class LegacyPlayerListItemPacket implements MinecraftPacket {
       return this;
     }
 
+    public int getGameMode() {
+      return gameMode;
+    }
+
     public Item setGameMode(int gameMode) {
       this.gameMode = gameMode;
       return this;
     }
 
+    public int getLatency() {
+      return latency;
+    }
+
     public Item setLatency(int latency) {
       this.latency = latency;
       return this;
+    }
+
+    public @Nullable Component getDisplayName() {
+      return displayName;
     }
 
     public Item setDisplayName(@Nullable Component displayName) {

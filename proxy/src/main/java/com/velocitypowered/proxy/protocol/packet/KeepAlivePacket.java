@@ -28,16 +28,16 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@Getter
-@Setter
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
 /**
  * Represents a KeepAlive packet in Minecraft. This packet is used to ensure that the connection
  * between the client and the server shall still be active by sending a randomly generated ID that
  * the client must respond to.
  */
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class KeepAlivePacket implements MinecraftPacket {
 
   private long randomId;

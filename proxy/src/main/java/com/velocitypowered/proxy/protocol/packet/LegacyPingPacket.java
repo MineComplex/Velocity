@@ -23,16 +23,19 @@ import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.packet.legacyping.LegacyMinecraftPingVersion;
 import io.netty.buffer.ByteBuf;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import java.net.InetSocketAddress;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-@Getter
+import java.net.InetSocketAddress;
+
 /**
  * Represents a legacy ping packet in Minecraft, commonly used in the server list ping process.
  * This packet handles compatibility with older Minecraft versions and contains information
  * such as the ping protocol version and optionally a virtual host address.
  */
+@Getter
+@AllArgsConstructor
 public class LegacyPingPacket implements MinecraftPacket {
 
   private final LegacyMinecraftPingVersion version;
@@ -41,11 +44,6 @@ public class LegacyPingPacket implements MinecraftPacket {
   public LegacyPingPacket(LegacyMinecraftPingVersion version) {
     this.version = version;
     this.vhost = null;
-  }
-
-  public LegacyPingPacket(LegacyMinecraftPingVersion version, InetSocketAddress vhost) {
-    this.version = version;
-    this.vhost = vhost;
   }
 
   @Override

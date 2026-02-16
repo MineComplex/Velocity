@@ -23,7 +23,12 @@ import com.google.common.base.VerifyException;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.reflect.TypeToken;
-import com.velocitypowered.api.event.*;
+import com.velocitypowered.api.event.Continuation;
+import com.velocitypowered.api.event.EventHandler;
+import com.velocitypowered.api.event.EventManager;
+import com.velocitypowered.api.event.EventTask;
+import com.velocitypowered.api.event.PostOrder;
+import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.plugin.PluginContainer;
 import com.velocitypowered.api.plugin.PluginDescription;
 import com.velocitypowered.api.plugin.PluginManager;
@@ -42,7 +47,17 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -531,8 +546,8 @@ public class VelocityEventManager implements EventManager {
     }
   }
 
-  private <E> void fire(final @Nullable CompletableFuture<E> future, final E event,
-                        final int offset, final boolean currentlyAsync, final HandlerRegistration[] registrations) {
+  public static  <E> void fire(final @Nullable CompletableFuture<E> future, final E event,
+                               final int offset, final boolean currentlyAsync, final HandlerRegistration[] registrations) {
     for (int i = offset; i < registrations.length; i++) {
       final HandlerRegistration registration = registrations[i];
       try {
@@ -682,36 +697,6 @@ public class VelocityEventManager implements EventManager {
     @Override
     public void resumeWithException(final Throwable exception) {
       resume(requireNonNull(exception, "exception"), true);
-    }
-  }
-
-  public static  <E> void fire(final @Nullable CompletableFuture<E> future, final E event,
-                               final int offset, final boolean currentlyAsync, final HandlerRegistration[] registrations) {
-    for (int i = offset; i < registrations.length; i++) {
-      final HandlerRegistration registration = registrations[i];
-      try {
-        final EventTask eventTask = registration.handler.executeAsync(event);
-        if (eventTask == null) {
-          continue;
-        }
-        final ContinuationTask<E> continuationTask = new ContinuationTask<>(eventTask,
-            registrations, future, event, i, currentlyAsync);
-        if (currentlyAsync || !eventTask.requiresAsync()) {
-          if (continuationTask.execute()) {
-            continue;
-          }
-        } else {
-          registration.plugin.getExecutorService().execute(continuationTask);
-        }
-        // fire will continue in another thread once the async task is
-        // executed and the continuation is resumed
-        return;
-      } catch (final Throwable t) {
-        logHandlerException(registration, t);
-      }
-    }
-    if (future != null) {
-      future.complete(event);
     }
   }
 

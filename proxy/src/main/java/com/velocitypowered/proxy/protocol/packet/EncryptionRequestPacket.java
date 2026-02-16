@@ -17,28 +17,26 @@
 
 package com.velocitypowered.proxy.protocol.packet;
 
-import static com.velocitypowered.proxy.connection.VelocityConstants.EMPTY_BYTE_ARRAY;
-
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import io.netty.buffer.ByteBuf;
-import java.util.Arrays;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-@Getter
-@Setter
-@ToString
+import static com.velocitypowered.proxy.connection.VelocityConstants.EMPTY_BYTE_ARRAY;
+
 /**
  * Represents the encryption request packet in Minecraft, which is sent by the server
  * during the encryption handshake process. This packet is used to initiate secure
  * communication by providing the client with the server's public key and a verified token.
  * The client must respond with the encrypted shared secret and verify token.
  */
+@Getter
+@Setter
+@ToString
 public class EncryptionRequestPacket implements MinecraftPacket {
 
   private String serverId = "";
