@@ -27,11 +27,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import java.util.Objects;
 import java.util.UUID;
 
-/**
- * Represents a remote chat session that implements the {@link ChatSession} interface.
- * This session is used for handling chat interactions that occur remotely, typically between
- * a client and server, allowing for communication and session tracking.
- */
 public class RemoteChatSession implements ChatSession {
 
   private final @Nullable UUID sessionId;

@@ -76,7 +76,6 @@ public class LegacyCommandHandler extends RateLimitedCommandHandler<LegacyChatPa
         }
         return null;
       });
-    }, command, Instant.now(), null, new CommandExecuteEvent.InvocationInfo(CommandExecuteEvent.SignedState.UNSUPPORTED,
-        CommandExecuteEvent.Source.PLAYER));
+    }, command, Instant.now(), null, new CommandExecuteEvent.InvocationInfo(CommandExecuteEvent.SignedState.UNSUPPORTED, CommandExecuteEvent.Source.PLAYER));
   }
 }

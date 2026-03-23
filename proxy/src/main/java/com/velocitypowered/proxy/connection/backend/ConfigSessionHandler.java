@@ -64,15 +64,14 @@ import net.kyori.adventure.key.Key;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.concurrent.CompletableFuture;
-
 /**
  * A special session handler that catches "last minute" disconnects. This version is to accommodate
  * 1.20.2+ switching. Yes, some of this is exceptionally stupid.
  */
 public class ConfigSessionHandler implements MinecraftSessionHandler {
+  private static final boolean BACKPRESSURE_LOG =
+      Boolean.getBoolean("velocity.log-server-backpressure");
+
   private static final Logger logger = LogManager.getLogger(ConfigSessionHandler.class);
   private final VelocityServer server;
   private final VelocityServerConnection serverConn;
@@ -381,6 +380,22 @@ public class ConfigSessionHandler implements MinecraftSessionHandler {
   @Override
   public void handleGeneric(MinecraftPacket packet) {
     serverConn.getPlayer().getConnection().write(packet);
+  }
+
+  @Override
+  public void writabilityChanged() {
+    Channel serverChan = serverConn.ensureConnected().getChannel();
+    boolean writable = serverChan.isWritable();
+
+    if (BACKPRESSURE_LOG) {
+      if (writable) {
+        logger.info("{} is writable, will auto-read player connection data", this.serverConn);
+      } else {
+        logger.info("{} is not writable, not auto-reading player connection data", this.serverConn);
+      }
+    }
+
+    serverConn.getPlayer().getConnection().setAutoReading(writable);
   }
 
   private void switchFailure(Throwable cause) {

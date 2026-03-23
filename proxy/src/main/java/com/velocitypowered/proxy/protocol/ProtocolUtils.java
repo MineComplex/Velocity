@@ -64,40 +64,40 @@ public enum ProtocolUtils {
           .legacyHoverEventSerializer(NBTLegacyHoverEventSerializer.get())
           .options(
               OptionSchema.globalSchema().stateBuilder()
-              // general options
-              .value(JSONOptions.EMIT_CLICK_URL_HTTPS, Boolean.TRUE)
-              // before 1.16
-              .value(JSONOptions.EMIT_RGB, Boolean.FALSE)
-              .value(JSONOptions.EMIT_HOVER_EVENT_TYPE, JSONOptions.HoverEventValueMode.VALUE_FIELD)
-              .value(JSONOptions.EMIT_CLICK_EVENT_TYPE, JSONOptions.ClickEventValueMode.CAMEL_CASE)
-              // before 1.20.3
-              .value(JSONOptions.EMIT_COMPACT_TEXT_COMPONENT, Boolean.FALSE)
-              .value(JSONOptions.EMIT_HOVER_SHOW_ENTITY_ID_AS_INT_ARRAY, Boolean.FALSE)
-              .value(JSONOptions.VALIDATE_STRICT_EVENTS, Boolean.FALSE)
-              // before 1.21.5
-              .value(JSONOptions.EMIT_CHANGE_PAGE_CLICK_EVENT_PAGE_AS_STRING, Boolean.TRUE)
-              .build()
+                  // general options
+                  .value(JSONOptions.EMIT_CLICK_URL_HTTPS, Boolean.TRUE)
+                  // before 1.16
+                  .value(JSONOptions.EMIT_RGB, Boolean.FALSE)
+                  .value(JSONOptions.EMIT_HOVER_EVENT_TYPE, JSONOptions.HoverEventValueMode.VALUE_FIELD)
+                  .value(JSONOptions.EMIT_CLICK_EVENT_TYPE, JSONOptions.ClickEventValueMode.CAMEL_CASE)
+                  // before 1.20.3
+                  .value(JSONOptions.EMIT_COMPACT_TEXT_COMPONENT, Boolean.FALSE)
+                  .value(JSONOptions.EMIT_HOVER_SHOW_ENTITY_ID_AS_INT_ARRAY, Boolean.FALSE)
+                  .value(JSONOptions.VALIDATE_STRICT_EVENTS, Boolean.FALSE)
+                  // before 1.21.5
+                  .value(JSONOptions.EMIT_CHANGE_PAGE_CLICK_EVENT_PAGE_AS_STRING, Boolean.TRUE)
+                  .build()
           )
           .build();
   private static final GsonComponentSerializer PRE_1_20_3_SERIALIZER =
-          GsonComponentSerializer.builder()
+      GsonComponentSerializer.builder()
           .legacyHoverEventSerializer(NBTLegacyHoverEventSerializer.get())
           .options(
               OptionSchema.globalSchema().stateBuilder()
-              // general options
-              .value(JSONOptions.EMIT_CLICK_URL_HTTPS, Boolean.TRUE)
-              // after 1.16
-              .value(JSONOptions.EMIT_RGB, Boolean.TRUE)
-              .value(JSONOptions.EMIT_HOVER_EVENT_TYPE, JSONOptions.HoverEventValueMode.CAMEL_CASE)
-              .value(JSONOptions.EMIT_CLICK_EVENT_TYPE, JSONOptions.ClickEventValueMode.CAMEL_CASE)
-              .value(JSONOptions.EMIT_HOVER_SHOW_ENTITY_KEY_AS_TYPE_AND_UUID_AS_ID, true)
-              // before 1.20.3
-              .value(JSONOptions.EMIT_COMPACT_TEXT_COMPONENT, Boolean.FALSE)
-              .value(JSONOptions.EMIT_HOVER_SHOW_ENTITY_ID_AS_INT_ARRAY, Boolean.FALSE)
-              .value(JSONOptions.VALIDATE_STRICT_EVENTS, Boolean.FALSE)
-              // before 1.21.5
-              .value(JSONOptions.EMIT_CHANGE_PAGE_CLICK_EVENT_PAGE_AS_STRING, Boolean.TRUE)
-              .build()
+                  // general options
+                  .value(JSONOptions.EMIT_CLICK_URL_HTTPS, Boolean.TRUE)
+                  // after 1.16
+                  .value(JSONOptions.EMIT_RGB, Boolean.TRUE)
+                  .value(JSONOptions.EMIT_HOVER_EVENT_TYPE, JSONOptions.HoverEventValueMode.CAMEL_CASE)
+                  .value(JSONOptions.EMIT_CLICK_EVENT_TYPE, JSONOptions.ClickEventValueMode.CAMEL_CASE)
+                  .value(JSONOptions.EMIT_HOVER_SHOW_ENTITY_KEY_AS_TYPE_AND_UUID_AS_ID, true)
+                  // before 1.20.3
+                  .value(JSONOptions.EMIT_COMPACT_TEXT_COMPONENT, Boolean.FALSE)
+                  .value(JSONOptions.EMIT_HOVER_SHOW_ENTITY_ID_AS_INT_ARRAY, Boolean.FALSE)
+                  .value(JSONOptions.VALIDATE_STRICT_EVENTS, Boolean.FALSE)
+                  // before 1.21.5
+                  .value(JSONOptions.EMIT_CHANGE_PAGE_CLICK_EVENT_PAGE_AS_STRING, Boolean.TRUE)
+                  .build()
           )
           .build();
   private static final GsonComponentSerializer PRE_1_21_5_SERIALIZER =
@@ -105,20 +105,20 @@ public enum ProtocolUtils {
           .legacyHoverEventSerializer(NBTLegacyHoverEventSerializer.get())
           .options(
               OptionSchema.globalSchema().stateBuilder()
-              // general options
-              .value(JSONOptions.EMIT_CLICK_URL_HTTPS, Boolean.TRUE)
-              // after 1.16
-              .value(JSONOptions.EMIT_RGB, Boolean.TRUE)
-              .value(JSONOptions.EMIT_HOVER_EVENT_TYPE, JSONOptions.HoverEventValueMode.CAMEL_CASE)
-              .value(JSONOptions.EMIT_CLICK_EVENT_TYPE, JSONOptions.ClickEventValueMode.CAMEL_CASE)
-              .value(JSONOptions.EMIT_HOVER_SHOW_ENTITY_KEY_AS_TYPE_AND_UUID_AS_ID, true)
-              // after 1.20.3
-              .value(JSONOptions.EMIT_COMPACT_TEXT_COMPONENT, Boolean.TRUE)
-              .value(JSONOptions.EMIT_HOVER_SHOW_ENTITY_ID_AS_INT_ARRAY, Boolean.TRUE)
-              .value(JSONOptions.VALIDATE_STRICT_EVENTS, Boolean.TRUE)
-              // before 1.21.5
-              .value(JSONOptions.EMIT_CHANGE_PAGE_CLICK_EVENT_PAGE_AS_STRING, Boolean.TRUE)
-              .build()
+                  // general options
+                  .value(JSONOptions.EMIT_CLICK_URL_HTTPS, Boolean.TRUE)
+                  // after 1.16
+                  .value(JSONOptions.EMIT_RGB, Boolean.TRUE)
+                  .value(JSONOptions.EMIT_HOVER_EVENT_TYPE, JSONOptions.HoverEventValueMode.CAMEL_CASE)
+                  .value(JSONOptions.EMIT_CLICK_EVENT_TYPE, JSONOptions.ClickEventValueMode.CAMEL_CASE)
+                  .value(JSONOptions.EMIT_HOVER_SHOW_ENTITY_KEY_AS_TYPE_AND_UUID_AS_ID, true)
+                  // after 1.20.3
+                  .value(JSONOptions.EMIT_COMPACT_TEXT_COMPONENT, Boolean.TRUE)
+                  .value(JSONOptions.EMIT_HOVER_SHOW_ENTITY_ID_AS_INT_ARRAY, Boolean.TRUE)
+                  .value(JSONOptions.VALIDATE_STRICT_EVENTS, Boolean.TRUE)
+                  // before 1.21.5
+                  .value(JSONOptions.EMIT_CHANGE_PAGE_CLICK_EVENT_PAGE_AS_STRING, Boolean.TRUE)
+                  .build()
           )
           .build();
   private static final GsonComponentSerializer MODERN_SERIALIZER =
@@ -126,20 +126,20 @@ public enum ProtocolUtils {
           .legacyHoverEventSerializer(NBTLegacyHoverEventSerializer.get())
           .options(
               OptionSchema.globalSchema().stateBuilder()
-              // general options
-              .value(JSONOptions.EMIT_CLICK_URL_HTTPS, Boolean.TRUE)
-              // after 1.16
-              .value(JSONOptions.EMIT_RGB, Boolean.TRUE)
-              .value(JSONOptions.EMIT_HOVER_EVENT_TYPE, JSONOptions.HoverEventValueMode.SNAKE_CASE)
-              .value(JSONOptions.EMIT_CLICK_EVENT_TYPE, JSONOptions.ClickEventValueMode.SNAKE_CASE)
-              // after 1.20.3
-              .value(JSONOptions.EMIT_COMPACT_TEXT_COMPONENT, Boolean.TRUE)
-              .value(JSONOptions.EMIT_HOVER_SHOW_ENTITY_ID_AS_INT_ARRAY, Boolean.TRUE)
-              // after 1.21.5
-              .value(JSONOptions.EMIT_HOVER_SHOW_ENTITY_KEY_AS_TYPE_AND_UUID_AS_ID, Boolean.FALSE)
-              .value(JSONOptions.VALIDATE_STRICT_EVENTS, Boolean.TRUE)
-              .value(JSONOptions.EMIT_CHANGE_PAGE_CLICK_EVENT_PAGE_AS_STRING, Boolean.FALSE)
-              .build()
+                  // general options
+                  .value(JSONOptions.EMIT_CLICK_URL_HTTPS, Boolean.TRUE)
+                  // after 1.16
+                  .value(JSONOptions.EMIT_RGB, Boolean.TRUE)
+                  .value(JSONOptions.EMIT_HOVER_EVENT_TYPE, JSONOptions.HoverEventValueMode.SNAKE_CASE)
+                  .value(JSONOptions.EMIT_CLICK_EVENT_TYPE, JSONOptions.ClickEventValueMode.SNAKE_CASE)
+                  // after 1.20.3
+                  .value(JSONOptions.EMIT_COMPACT_TEXT_COMPONENT, Boolean.TRUE)
+                  .value(JSONOptions.EMIT_HOVER_SHOW_ENTITY_ID_AS_INT_ARRAY, Boolean.TRUE)
+                  // after 1.21.5
+                  .value(JSONOptions.EMIT_HOVER_SHOW_ENTITY_KEY_AS_TYPE_AND_UUID_AS_ID, Boolean.FALSE)
+                  .value(JSONOptions.VALIDATE_STRICT_EVENTS, Boolean.TRUE)
+                  .value(JSONOptions.EMIT_CHANGE_PAGE_CLICK_EVENT_PAGE_AS_STRING, Boolean.FALSE)
+                  .build()
           )
           .build();
 
@@ -160,6 +160,9 @@ public enum ProtocolUtils {
     }
     VAR_INT_LENGTHS[32] = 1; // Special case for the number 0.
   }
+
+  public static final int DEFAULT_MAX_STRING_BYTES = varIntBytes(ByteBufUtil.utf8MaxBytes(DEFAULT_MAX_STRING_SIZE))
+      + ByteBufUtil.utf8MaxBytes(DEFAULT_MAX_STRING_SIZE);
 
   private static DecoderException badVarint() {
     return MinecraftDecoder.DEBUG ? new CorruptedFrameException("Bad VarInt decoded")
@@ -224,72 +227,6 @@ public enum ProtocolUtils {
       buf.writeShort(w);
     } else {
       writeVarIntFull(buf, value);
-    }
-  }
-
-  public static void writeVarLong(final @NotNull ByteBuf byteBuf, final long value) {
-    // Peel the one and two byte count cases explicitly as they are the most common VarLong sizes
-    // that the proxy will write, to improve inlining.
-    if ((value & 0xFFFFFFFFFFFFFF80L) == 0L) {
-      byteBuf.writeByte((byte) value);
-    } else if ((value & 0xFFFFFFFFFFFFC000L) == 0L) {
-      int w = (int) ((value & 0x7FL | 0x80L) << 8 | value >>> 7);
-      byteBuf.writeShort(w);
-    } else {
-      writeVarLongFull(byteBuf, value);
-    }
-  }
-
-  private static void writeVarLongFull(final @NotNull ByteBuf byteBuf, final long value) {
-    if ((value & 0xFFFFFFFFFFFFFF80L) == 0L) {
-      byteBuf.writeByte((byte) value);
-    } else if ((value & 0xFFFFFFFFFFFFC000L) == 0L) {
-      int w = (int) ((value & 0x7FL | 0x80L) << 8 | value >>> 7);
-      byteBuf.writeShort(w);
-    } else if ((value & 0xFFFFFFFFFFE00000L) == 0L) {
-      int w = (int) ((value & 0x7FL | 0x80L) << 16 | (value >>> 7 & 0x7FL | 0x80L) << 8 | value >>> 14);
-      byteBuf.writeMedium(w);
-    } else if ((value & 0xFFFFFFFFF0000000L) == 0L) {
-      int w = (int) ((value & 0x7FL | 0x80L) << 24 | (value >>> 7 & 0x7FL | 0x80L) << 16 |
-                  (value >>> 14 & 0x7FL | 0x80L) << 8 | value >>> 21);
-      byteBuf.writeInt(w);
-    } else {
-      long l = (value & 0x7FL | 0x80L) << 24 | (value >>> 7 & 0x7FL | 0x80L) << 16 |
-                  (value >>> 14 & 0x7FL | 0x80L) << 8 | (value >>> 21 & 0x7FL | 0x80L);
-      if ((value & 0xFFFFFFF800000000L) == 0L) {
-        int w =
-                (int) l;
-        byteBuf.writeInt(w);
-        byteBuf.writeByte((int) (value >>> 28));
-      } else if ((value & 0xFFFFFC0000000000L) == 0L) {
-        int w =
-                (int) l;
-        int w2 = (int) ((value >>> 28 & 0x7FL | 0x80L) << 8 | value >>> 35);
-        byteBuf.writeInt(w);
-        byteBuf.writeShort(w2);
-      } else if ((value & 0xFFFE000000000000L) == 0L) {
-        int w =
-                (int) l;
-        int w2 = (int) ((value >>> 28 & 0x7FL | 0x80L) << 16 | (value >>> 35 & 0x7FL | 0x80L) << 8 | value >>> 42);
-        byteBuf.writeInt(w);
-        byteBuf.writeMedium(w2);
-      } else {
-        long w = (value & 0x7FL | 0x80L) << 56 | (value >>> 7 & 0x7FL | 0x80L) << 48 |
-                    (value >>> 14 & 0x7FL | 0x80L) << 40 | (value >>> 21 & 0x7FL | 0x80L) << 32 |
-                    (value >>> 28 & 0x7FL | 0x80L) << 24 |
-                    (value >>> 35 & 0x7FL | 0x80L) << 16 |
-                    (value >>> 42 & 0x7FL | 0x80L) << 8 | value >>> 49;
-        if ((value & 0xFF00000000000000L) == 0L) {
-          byteBuf.writeLong(w);
-        } else if ((value & Long.MIN_VALUE) == 0L) {
-          byteBuf.writeLong(w);
-          byteBuf.writeByte((byte) (value >>> 56));
-        } else {
-          int w2 = (int) ((value >>> 56 & 0x7FL | 0x80L) << 8 | value >>> 63);
-          byteBuf.writeLong(w);
-          byteBuf.writeShort(w2);
-        }
-      }
     }
   }
 
@@ -483,7 +420,10 @@ public enum ProtocolUtils {
    */
   public static int[] readIntegerArray(ByteBuf buf) {
     int len = readVarInt(buf);
-    checkArgument(len >= 0, "Got a negative-length integer array (%s)", len);
+    checkFrame(len >= 0, "Got a negative-length integer array (%s)", len);
+    checkFrame(buf.isReadable(len),
+        "Trying to read an array that is too long (wanted %s, only have %s)", len,
+        buf.readableBytes());
     int[] array = new int[len];
     for (int i = 0; i < len; i++) {
       array[i] = readVarInt(buf);
@@ -603,6 +543,10 @@ public enum ProtocolUtils {
    */
   public static String[] readStringArray(ByteBuf buf) {
     int length = readVarInt(buf);
+    checkFrame(length >= 0, "Got a negative-length array (%s)", length);
+    checkFrame(buf.isReadable(length),
+        "Trying to read an array that is too long (wanted %s, only have %s)", length,
+        buf.readableBytes());
     String[] ret = new String[length];
     for (int i = 0; i < length; i++) {
       ret[i] = readString(buf);
@@ -701,7 +645,7 @@ public enum ProtocolUtils {
   private static final int FORGE_MAX_ARRAY_LENGTH = Integer.MAX_VALUE & 0x1FFF9A;
 
   /**
-   * Reads an byte array for legacy version 1.7 from the specified {@code buf}.
+   * Reads an byte array for legacy version 1.7 from the specified {@code buf}
    *
    * @param buf the buffer to read from
    * @return the read byte array
@@ -714,6 +658,9 @@ public enum ProtocolUtils {
 
     checkArgument(len <= FORGE_MAX_ARRAY_LENGTH,
         "Cannot receive array longer than %s (got %s bytes)", FORGE_MAX_ARRAY_LENGTH, len);
+    checkFrame(buf.isReadable(len),
+        "Trying to read an array that is too long (wanted %s, only have %s)", len,
+        buf.readableBytes());
 
     byte[] ret = new byte[len];
     buf.readBytes(ret);
@@ -739,7 +686,7 @@ public enum ProtocolUtils {
   }
 
   /**
-   * Writes an byte array for legacy version 1.7 to the specified {@code buf}.
+   * Writes an byte array for legacy version 1.7 to the specified {@code buf}
    *
    * @param b             array
    * @param buf           buf
@@ -763,7 +710,7 @@ public enum ProtocolUtils {
   }
 
   /**
-   * Writes an {@link ByteBuf} for legacy version 1.7 to the specified {@code buf}.
+   * Writes an {@link ByteBuf} for legacy version 1.7 to the specified {@code buf}
    *
    * @param b             array
    * @param buf           buf
@@ -910,6 +857,29 @@ public enum ProtocolUtils {
     }
 
     writeVarInt(buf, source.ordinal());
+  }
+
+  /**
+   * Returns a pre-sized list with a max initial size of {@code Short.MAX_VALUE}.
+   *
+   * @param initialCapacity expected initial capacity
+   * @param <T> entry type
+   * @return pre-sized list
+   */
+  public static <T> List<T> newList(int initialCapacity) {
+    return new ArrayList<>(Math.min(initialCapacity, Short.MAX_VALUE));
+  }
+
+  /**
+   * Returns a pre-sized map with a max initial size of {@code Short.MAX_VALUE}.
+   *
+   * @param initialCapacity expected initial capacity
+   * @param <K> key type
+   * @param <V> value type
+   * @return pre-sized map
+   */
+  public static <K, V> Map<K, V> newMap(int initialCapacity) {
+    return new HashMap<>(Math.min(initialCapacity, Short.MAX_VALUE));
   }
 
   /**

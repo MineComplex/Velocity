@@ -125,7 +125,6 @@ public class KeyedCommandHandler extends RateLimitedCommandHandler<KeyedPlayerCo
         }
         return null;
       });
-    }, packet.getCommand(), packet.getTimestamp(), null, new CommandExecuteEvent.InvocationInfo(CommandExecuteEvent.SignedState.UNSUPPORTED,
-        CommandExecuteEvent.Source.PLAYER));
+    }, packet.getCommand(), packet.getTimestamp(), null, new CommandExecuteEvent.InvocationInfo(CommandExecuteEvent.SignedState.UNSUPPORTED, CommandExecuteEvent.Source.PLAYER));
   }
 }

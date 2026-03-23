@@ -17,6 +17,8 @@
 
 package com.velocitypowered.proxy.event;
 
+import static java.util.Objects.requireNonNull;
+
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.google.common.base.VerifyException;
@@ -36,12 +38,6 @@ import com.velocitypowered.proxy.event.UntargetedEventHandler.EventTaskHandler;
 import com.velocitypowered.proxy.event.UntargetedEventHandler.VoidHandler;
 import com.velocitypowered.proxy.event.UntargetedEventHandler.WithContinuationHandler;
 import com.velocitypowered.proxy.util.collect.Enum2IntMap;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.checkerframework.checker.nullness.qual.Nullable;
-import org.lanternpowered.lmbda.LambdaFactory;
-import org.lanternpowered.lmbda.LambdaType;
-
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
@@ -66,8 +62,11 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.requireNonNull;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.lanternpowered.lmbda.LambdaFactory;
+import org.lanternpowered.lmbda.LambdaType;
 
 /**
  * Implements the Velocity event handler.
@@ -150,8 +149,8 @@ public class VelocityEventManager implements EventManager {
     final Object instance;
 
     public HandlerRegistration(final PluginContainer plugin, final short order,
-                               final Class<?> eventType, final Object instance, final EventHandler<Object> handler,
-                               final AsyncType asyncType) {
+        final Class<?> eventType, final Object instance, final EventHandler<Object> handler,
+        final AsyncType asyncType) {
       this.plugin = plugin;
       this.order = order;
       this.eventType = eventType;
@@ -257,8 +256,8 @@ public class VelocityEventManager implements EventManager {
     final @Nullable Class<?> continuationType;
 
     private MethodHandlerInfo(final Method method, final AsyncType asyncType,
-                              final @Nullable Class<?> eventType, final short order, final @Nullable String errors,
-                              final @Nullable Class<?> continuationType) {
+        final @Nullable Class<?> eventType, final short order, final @Nullable String errors,
+        final @Nullable Class<?> continuationType) {
       this.method = method;
       this.asyncType = asyncType;
       this.eventType = eventType;
@@ -269,7 +268,7 @@ public class VelocityEventManager implements EventManager {
   }
 
   private void collectMethods(final Class<?> targetClass,
-                              final Map<String, MethodHandlerInfo> collected) {
+      final Map<String, MethodHandlerInfo> collected) {
     for (final Method method : targetClass.getDeclaredMethods()) {
       final Subscribe subscribe = method.getAnnotation(Subscribe.class);
       if (subscribe == null) {
@@ -397,7 +396,7 @@ public class VelocityEventManager implements EventManager {
   @Override
   @SuppressWarnings("unchecked")
   public <E> void register(final Object plugin, final Class<E> eventClass,
-                           final PostOrder order, final EventHandler<E> handler) {
+      final PostOrder order, final EventHandler<E> handler) {
     if (order == PostOrder.CUSTOM) {
       throw new IllegalArgumentException(
           "This method does not support custom post orders. Use the overload with short instead."
@@ -408,12 +407,12 @@ public class VelocityEventManager implements EventManager {
 
   @Override
   public <E> void register(Object plugin, Class<E> eventClass, short postOrder,
-                           EventHandler<E> handler) {
+      EventHandler<E> handler) {
     register(plugin, eventClass, postOrder, handler, AsyncType.SOMETIMES);
   }
 
   private  <E> void register(Object plugin, Class<E> eventClass, short postOrder,
-                             EventHandler<E> handler, AsyncType asyncType) {
+      EventHandler<E> handler, AsyncType asyncType) {
     final PluginContainer pluginContainer = pluginManager.ensurePluginContainer(plugin);
     requireNonNull(eventClass, "eventClass");
     requireNonNull(handler, "handler");
@@ -536,7 +535,7 @@ public class VelocityEventManager implements EventManager {
   }
 
   private <E> void fire(final @Nullable CompletableFuture<E> future,
-                        final E event, final HandlersCache handlersCache) {
+      final E event, final HandlersCache handlersCache) {
     final HandlerRegistration registration = handlersCache.handlers[0];
     if (registration.asyncType == AsyncType.ALWAYS) {
       registration.plugin.getExecutorService().execute(
@@ -547,7 +546,7 @@ public class VelocityEventManager implements EventManager {
   }
 
   public static  <E> void fire(final @Nullable CompletableFuture<E> future, final E event,
-                               final int offset, final boolean currentlyAsync, final HandlerRegistration[] registrations) {
+      final int offset, final boolean currentlyAsync, final HandlerRegistration[] registrations) {
     for (int i = offset; i < registrations.length; i++) {
       final HandlerRegistration registration = registrations[i];
       try {
@@ -704,6 +703,6 @@ public class VelocityEventManager implements EventManager {
       final HandlerRegistration registration, final Throwable t) {
     final PluginDescription pluginDescription = registration.plugin.getDescription();
     logger.error("Couldn't pass {} to {} {}", registration.eventType.getSimpleName(),
-        pluginDescription.getId(), pluginDescription.getVersion().orElse(""), t);
+            pluginDescription.getId(), pluginDescription.getVersion().orElse(""), t);
   }
 }

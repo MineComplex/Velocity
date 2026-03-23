@@ -114,25 +114,25 @@ public class SessionCommandHandler extends RateLimitedCommandHandler<SessionPlay
   @Override
   public void handlePlayerCommandInternal(SessionPlayerCommandPacket packet) {
     queueCommandResult(this.server, this.player, (event, newLastSeenMessages) -> {
-      SessionPlayerCommandPacket fixedPacket = packet.withLastSeenMessages(newLastSeenMessages);
+          SessionPlayerCommandPacket fixedPacket = packet.withLastSeenMessages(newLastSeenMessages);
 
-      CommandExecuteEvent.CommandResult result = event.getResult();
-      if (result == CommandExecuteEvent.CommandResult.denied()) {
-        return CompletableFuture.completedFuture(consumeCommand(fixedPacket));
-      }
+          CommandExecuteEvent.CommandResult result = event.getResult();
+          if (result == CommandExecuteEvent.CommandResult.denied()) {
+            return CompletableFuture.completedFuture(consumeCommand(fixedPacket));
+          }
 
-      String commandToRun = result.getCommand().orElse(fixedPacket.command);
-      if (result.isForwardToServer()) {
-        return CompletableFuture.completedFuture(forwardCommand(fixedPacket, commandToRun));
-      }
+          String commandToRun = result.getCommand().orElse(fixedPacket.command);
+          if (result.isForwardToServer()) {
+            return CompletableFuture.completedFuture(forwardCommand(fixedPacket, commandToRun));
+          }
 
-      return runCommand(this.server, this.player, commandToRun, hasRun -> {
-        if (hasRun) {
-          return consumeCommand(fixedPacket);
-        }
-        return forwardCommand(fixedPacket, commandToRun);
-      });
-    }, packet.command, packet.timeStamp, packet.lastSeenMessages,
-            new CommandExecuteEvent.InvocationInfo(packet.getEventSignedState(), CommandExecuteEvent.Source.PLAYER));
+          return runCommand(this.server, this.player, commandToRun, hasRun -> {
+            if (hasRun) {
+              return consumeCommand(fixedPacket);
+            }
+            return forwardCommand(fixedPacket, commandToRun);
+          });
+        }, packet.command, packet.timeStamp, packet.lastSeenMessages,
+        new CommandExecuteEvent.InvocationInfo(packet.getEventSignedState(), CommandExecuteEvent.Source.PLAYER));
   }
 }
