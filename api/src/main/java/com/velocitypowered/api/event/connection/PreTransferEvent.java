@@ -7,14 +7,15 @@
 
 package com.velocitypowered.api.event.connection;
 
-import static java.util.Objects.requireNonNull;
-
 import com.velocitypowered.api.event.ResultedEvent;
 import com.velocitypowered.api.event.annotation.AwaitingEvent;
 import com.velocitypowered.api.proxy.Player;
-import java.net.InetSocketAddress;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
+
+import java.net.InetSocketAddress;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * This event is executed before sending a player to another host,

@@ -10,6 +10,7 @@ package com.velocitypowered.api.plugin;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.velocitypowered.api.plugin.meta.PluginDependency;
+
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;

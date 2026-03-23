@@ -8,9 +8,10 @@
 package com.velocitypowered.api.proxy.server;
 
 import com.google.common.base.Preconditions;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import java.net.InetSocketAddress;
 import java.util.Objects;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * ServerInfo represents a server that a player can connect to. This object is immutable and safe

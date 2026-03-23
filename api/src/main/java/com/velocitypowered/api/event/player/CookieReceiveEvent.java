@@ -11,9 +11,10 @@ import com.google.common.base.Preconditions;
 import com.velocitypowered.api.event.ResultedEvent;
 import com.velocitypowered.api.event.annotation.AwaitingEvent;
 import com.velocitypowered.api.proxy.Player;
-import java.util.Arrays;
 import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
 
 /**
  * This event is fired when a cookie response from a client is received by the proxy.

@@ -9,6 +9,7 @@ package com.velocitypowered.api.event.proxy;
 
 import com.google.common.base.Preconditions;
 import com.velocitypowered.api.network.ListenerType;
+
 import java.net.InetSocketAddress;
 
 /**

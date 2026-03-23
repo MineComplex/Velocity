@@ -24,6 +24,8 @@ import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.util.except.QuietDecoderException;
 import io.netty.buffer.ByteBuf;
 
+import java.util.List;
+
 public class KnownPacksPacket implements MinecraftPacket {
 
     private static final int MAX_LENGTH_PACKS = Integer.getInteger("velocity.max-known-packs", 64);
