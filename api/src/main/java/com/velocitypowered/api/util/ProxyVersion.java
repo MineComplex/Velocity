@@ -8,9 +8,8 @@
 package com.velocitypowered.api.util;
 
 import com.google.common.base.Preconditions;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import java.util.Objects;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Provides a version object for the proxy.

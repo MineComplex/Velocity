@@ -7,6 +7,8 @@
 
 package com.velocitypowered.api.event.player;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.io.BaseEncoding;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
@@ -15,12 +17,9 @@ import com.velocitypowered.api.event.annotation.AwaitingEvent;
 import com.velocitypowered.api.event.player.ServerLoginPluginMessageEvent.ResponseResult;
 import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
-
-import static com.google.common.base.Preconditions.checkNotNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Fired when a server sends a login plugin message to the proxy. Plugins have the opportunity to

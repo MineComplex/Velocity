@@ -27,10 +27,9 @@ import io.netty.buffer.ByteBufHolder;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.ReferenceCountUtil;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayDeque;
 import java.util.Queue;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Queues up any pending PLAY packets while the client is in the CONFIG state.

@@ -11,9 +11,8 @@ import com.google.common.base.Preconditions;
 import com.velocitypowered.api.event.ResultedEvent;
 import com.velocitypowered.api.event.annotation.AwaitingEvent;
 import com.velocitypowered.api.proxy.Player;
-import net.kyori.adventure.key.Key;
-
 import java.util.Arrays;
+import net.kyori.adventure.key.Key;
 
 /**
  * This event is fired when a cookie should be stored on a player's client. This process can be

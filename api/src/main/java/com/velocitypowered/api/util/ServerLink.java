@@ -8,11 +8,10 @@
 package com.velocitypowered.api.util;
 
 import com.google.common.base.Preconditions;
-import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.Nullable;
-
 import java.net.URI;
 import java.util.Optional;
+import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a custom URL servers can show in player pause menus.

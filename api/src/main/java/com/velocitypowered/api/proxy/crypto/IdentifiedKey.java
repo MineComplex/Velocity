@@ -10,11 +10,10 @@ package com.velocitypowered.api.proxy.crypto;
 import com.google.common.collect.ImmutableSet;
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.api.util.Ordered;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import java.security.PublicKey;
 import java.util.Set;
 import java.util.UUID;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Represents session-server cross-signed dated RSA public key.

@@ -9,12 +9,11 @@ package com.velocitypowered.api.util;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import net.kyori.adventure.text.object.PlayerHeadObjectContents;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import net.kyori.adventure.text.object.PlayerHeadObjectContents;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a Mojang game profile. This class is immutable.
