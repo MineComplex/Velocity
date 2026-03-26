@@ -41,6 +41,8 @@ import static com.velocitypowered.proxy.protocol.util.PluginMessageUtil.transfor
 @ToString
 public class PluginMessagePacket extends DeferredByteBufHolder implements MinecraftPacket {
 
+  private static final int MAX_PAYLOAD_SIZE = Integer.getInteger("velocity.max-plugin-message-payload-size", 32767);
+
   private @Nullable String channel;
 
   public PluginMessagePacket() {
@@ -101,6 +103,16 @@ public class PluginMessagePacket extends DeferredByteBufHolder implements Minecr
     } else {
       ProtocolUtils.writeByteBuf17(content(), buf, true); // True for Forge support
     }
+  }
+
+  @Override
+  public int decodeExpectedMaxLength(ByteBuf buf, Direction direction, ProtocolVersion version) {
+    return ProtocolUtils.DEFAULT_MAX_STRING_BYTES + MAX_PAYLOAD_SIZE;
+  }
+
+  @Override
+  public int decodeExpectedMinLength(ByteBuf buf, Direction direction, ProtocolVersion version) {
+    return 1;
   }
 
   @Override

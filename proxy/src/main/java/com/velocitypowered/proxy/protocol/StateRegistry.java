@@ -17,41 +17,6 @@
 
 package com.velocitypowered.proxy.protocol;
 
-import static com.google.common.collect.Iterables.getLast;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_12;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_12_1;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_13;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_14;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_15;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_16;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_16_2;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_16_4;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_17;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_18;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_18_2;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_19;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_19_1;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_19_3;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_19_4;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_20_2;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_20_3;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_20_5;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_2;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_4;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_5;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_6;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_9;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_7_2;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_8;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_9;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_9_4;
-import static com.velocitypowered.api.network.ProtocolVersion.MINIMUM_VERSION;
-import static com.velocitypowered.api.network.ProtocolVersion.SUPPORTED_VERSIONS;
-import static com.velocitypowered.proxy.protocol.ProtocolUtils.Direction;
-import static com.velocitypowered.proxy.protocol.ProtocolUtils.Direction.CLIENTBOUND;
-import static com.velocitypowered.proxy.protocol.ProtocolUtils.Direction.SERVERBOUND;
-
 import com.velocitypowered.api.network.ProtocolState;
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.protocol.packet.AvailableCommandsPacket;
@@ -88,11 +53,13 @@ import com.velocitypowered.proxy.protocol.packet.ServerLoginSuccessPacket;
 import com.velocitypowered.proxy.protocol.packet.ServerboundCookieResponsePacket;
 import com.velocitypowered.proxy.protocol.packet.ServerboundCustomClickActionPacket;
 import com.velocitypowered.proxy.protocol.packet.SetCompressionPacket;
+import com.velocitypowered.proxy.protocol.packet.SetHeldItemPacket;
 import com.velocitypowered.proxy.protocol.packet.StatusPingPacket;
 import com.velocitypowered.proxy.protocol.packet.StatusRequestPacket;
 import com.velocitypowered.proxy.protocol.packet.StatusResponsePacket;
 import com.velocitypowered.proxy.protocol.packet.TabCompleteRequestPacket;
 import com.velocitypowered.proxy.protocol.packet.TabCompleteResponsePacket;
+import com.velocitypowered.proxy.protocol.packet.TransactionPacket;
 import com.velocitypowered.proxy.protocol.packet.TransferPacket;
 import com.velocitypowered.proxy.protocol.packet.UpsertPlayerInfoPacket;
 import com.velocitypowered.proxy.protocol.packet.chat.ChatAcknowledgementPacket;
@@ -104,6 +71,18 @@ import com.velocitypowered.proxy.protocol.packet.chat.legacy.LegacyChatPacket;
 import com.velocitypowered.proxy.protocol.packet.chat.session.SessionPlayerChatPacket;
 import com.velocitypowered.proxy.protocol.packet.chat.session.SessionPlayerCommandPacket;
 import com.velocitypowered.proxy.protocol.packet.chat.session.UnsignedPlayerCommandPacket;
+import com.velocitypowered.proxy.protocol.packet.client.ClientAnimationPacket;
+import com.velocitypowered.proxy.protocol.packet.client.ClientInteractPacket;
+import com.velocitypowered.proxy.protocol.packet.client.ClientMoveOnGroundOnlyPacket;
+import com.velocitypowered.proxy.protocol.packet.client.ClientMovePacket;
+import com.velocitypowered.proxy.protocol.packet.client.ClientMovePositionOnlyPacket;
+import com.velocitypowered.proxy.protocol.packet.client.ClientMoveRotationOnlyPacket;
+import com.velocitypowered.proxy.protocol.packet.client.ClientPaddleBoatPacket;
+import com.velocitypowered.proxy.protocol.packet.client.ClientPlayerChatSessionPacket;
+import com.velocitypowered.proxy.protocol.packet.client.ClientPlayerInputPacket;
+import com.velocitypowered.proxy.protocol.packet.client.ClientTeleportConfirmPacket;
+import com.velocitypowered.proxy.protocol.packet.client.ClientTickEndPacket;
+import com.velocitypowered.proxy.protocol.packet.client.ClientVehicleMovePacket;
 import com.velocitypowered.proxy.protocol.packet.config.ActiveFeaturesPacket;
 import com.velocitypowered.proxy.protocol.packet.config.ClientboundCustomReportDetailsPacket;
 import com.velocitypowered.proxy.protocol.packet.config.ClientboundServerLinksPacket;
@@ -114,17 +93,37 @@ import com.velocitypowered.proxy.protocol.packet.config.KnownPacksPacket;
 import com.velocitypowered.proxy.protocol.packet.config.RegistrySyncPacket;
 import com.velocitypowered.proxy.protocol.packet.config.StartUpdatePacket;
 import com.velocitypowered.proxy.protocol.packet.config.TagsUpdatePacket;
+import com.velocitypowered.proxy.protocol.packet.server.ServerChunkDataPacket;
+import com.velocitypowered.proxy.protocol.packet.server.ServerDefaultSpawnPositionPacket;
+import com.velocitypowered.proxy.protocol.packet.server.ServerEntityAnimationPacket;
+import com.velocitypowered.proxy.protocol.packet.server.ServerEntityMetadataPacket;
+import com.velocitypowered.proxy.protocol.packet.server.ServerExperiencePacket;
+import com.velocitypowered.proxy.protocol.packet.server.ServerGameStatePacket;
+import com.velocitypowered.proxy.protocol.packet.server.ServerInventorySetSlotPacket;
+import com.velocitypowered.proxy.protocol.packet.server.ServerMapDataPacket;
+import com.velocitypowered.proxy.protocol.packet.server.ServerPlayerAbilitiesPacket;
+import com.velocitypowered.proxy.protocol.packet.server.ServerPositionRotationPacket;
+import com.velocitypowered.proxy.protocol.packet.server.ServerRemoveEntitiesPacket;
+import com.velocitypowered.proxy.protocol.packet.server.ServerSetPassengersPacket;
+import com.velocitypowered.proxy.protocol.packet.server.ServerSpawnEntityPacket;
+import com.velocitypowered.proxy.protocol.packet.server.ServerTagsPacket;
+import com.velocitypowered.proxy.protocol.packet.server.ServerUpdateSectionBlocksPacket;
+import com.velocitypowered.proxy.protocol.packet.server.ServerViewPositionPacket;
+import com.velocitypowered.proxy.protocol.packet.server.ServerWorldTimePacket;
 import com.velocitypowered.proxy.protocol.packet.title.LegacyTitlePacket;
 import com.velocitypowered.proxy.protocol.packet.title.TitleActionbarPacket;
 import com.velocitypowered.proxy.protocol.packet.title.TitleClearPacket;
 import com.velocitypowered.proxy.protocol.packet.title.TitleSubtitlePacket;
 import com.velocitypowered.proxy.protocol.packet.title.TitleTextPacket;
 import com.velocitypowered.proxy.protocol.packet.title.TitleTimesPacket;
+import com.velocitypowered.proxy.util.collect.OverlayIntObjectMap;
+import com.velocitypowered.proxy.util.collect.OverlayObject2IntMap;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.util.collection.IntObjectHashMap;
 import io.netty.util.collection.IntObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.Collections;
 import java.util.EnumMap;
@@ -133,7 +132,42 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
+import static com.google.common.collect.Iterables.getLast;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_12;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_12_1;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_12_2;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_13;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_14;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_15;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_16;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_16_2;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_16_4;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_17;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_18;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_18_2;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_19;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_19_1;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_19_3;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_19_4;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_20_2;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_20_3;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_20_5;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_2;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_4;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_5;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_6;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_9;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_7_2;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_8;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_9;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_9_4;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_26_1;
+import static com.velocitypowered.api.network.ProtocolVersion.MINIMUM_VERSION;
+import static com.velocitypowered.api.network.ProtocolVersion.SUPPORTED_VERSIONS;
+import static com.velocitypowered.proxy.protocol.ProtocolUtils.Direction;
+import static com.velocitypowered.proxy.protocol.ProtocolUtils.Direction.CLIENTBOUND;
+import static com.velocitypowered.proxy.protocol.ProtocolUtils.Direction.SERVERBOUND;
 
 /**
  * Registry of all Minecraft protocol states and the packets for each state.
@@ -418,7 +452,8 @@ public enum StateRegistry {
           map(0x06, MINECRAFT_1_19_4, false),
           map(0x07, MINECRAFT_1_20_5, false),
           map(0x08, MINECRAFT_1_21_2, false),
-          map(0x09, MINECRAFT_1_21_6, false)
+          map(0x09, MINECRAFT_1_21_6, false),
+          map(0x0A, MINECRAFT_26_1, false)
       );
 
       clientbound.register(
@@ -891,6 +926,7 @@ public enum StateRegistry {
       overlayPlayRegistry(this, false);
       overlayPlayRegistry(this, true);
 
+      // minecraft:move_player_status_only
       serverbound.register(ClientMoveOnGroundOnlyPacket.class, ClientMoveOnGroundOnlyPacket::new,
           map(0x03, MINECRAFT_1_7_2, false),
           map(0x0F, MINECRAFT_1_9, false),
@@ -908,7 +944,10 @@ public enum StateRegistry {
           map(0x1A, MINECRAFT_1_20_3, false),
           map(0x1D, MINECRAFT_1_20_5, false),
           map(0x1F, MINECRAFT_1_21_2, false),
-          map(0x20, MINECRAFT_1_21_6, false));
+          map(0x20, MINECRAFT_1_21_6, false),
+          map(0x21, MINECRAFT_26_1, false)
+      );
+      // minecraft:move_player_pos
       serverbound.register(ClientMovePositionOnlyPacket.class, ClientMovePositionOnlyPacket::new,
           map(0x04, MINECRAFT_1_7_2, false),
           map(0x0C, MINECRAFT_1_9, false),
@@ -926,7 +965,10 @@ public enum StateRegistry {
           map(0x17, MINECRAFT_1_20_3, false),
           map(0x1A, MINECRAFT_1_20_5, false),
           map(0x1C, MINECRAFT_1_21_2, false),
-          map(0x1D, MINECRAFT_1_21_6, false));
+          map(0x1D, MINECRAFT_1_21_6, false),
+          map(0x1E, MINECRAFT_26_1, false)
+      );
+      // minecraft:move_player_rot
       serverbound.register(ClientMoveRotationOnlyPacket.class, ClientMoveRotationOnlyPacket::new,
           map(0x05, MINECRAFT_1_7_2, false),
           map(0x0E, MINECRAFT_1_9, false),
@@ -944,7 +986,10 @@ public enum StateRegistry {
           map(0x19, MINECRAFT_1_20_3, false),
           map(0x1C, MINECRAFT_1_20_5, false),
           map(0x1E, MINECRAFT_1_21_2, false),
-          map(0x1F, MINECRAFT_1_21_6, false));
+          map(0x1F, MINECRAFT_1_21_6, false),
+          map(0x20, MINECRAFT_26_1, false)
+      );
+      // minecraft:move_player_pos_rot
       serverbound.register(ClientMovePacket.class, ClientMovePacket::new,
           map(0x06, MINECRAFT_1_7_2, false),
           map(0x0D, MINECRAFT_1_9, false),
@@ -962,10 +1007,14 @@ public enum StateRegistry {
           map(0x18, MINECRAFT_1_20_3, false),
           map(0x1B, MINECRAFT_1_20_5, false),
           map(0x1D, MINECRAFT_1_21_2, false),
-          map(0x1E, MINECRAFT_1_21_6, false));
+          map(0x1E, MINECRAFT_1_21_6, false),
+          map(0x1F, MINECRAFT_26_1, false)
+      );
+      // minecraft:accept_teleportation
       serverbound.register(ClientTeleportConfirmPacket.class, ClientTeleportConfirmPacket::new,
           map(0x00, MINECRAFT_1_9, false));
 
+      // minecraft:update_tags
       clientbound.register(ServerTagsPacket.class, ServerTagsPacket::new,
           map(0x55, MINECRAFT_1_13, true),
           map(0x5B, MINECRAFT_1_14, true),
@@ -981,8 +1030,10 @@ public enum StateRegistry {
           map(0x74, MINECRAFT_1_20_3, true),
           map(0x78, MINECRAFT_1_20_5, true),
           map(0x7F, MINECRAFT_1_21_2, true),
-          map(0x84, MINECRAFT_1_21_9, true)
+          map(0x84, MINECRAFT_1_21_9, true),
+          map(0x86, MINECRAFT_26_1, true)
       );
+      // minecraft:player_position
       clientbound.register(ServerPositionRotationPacket.class, ServerPositionRotationPacket::new,
           map(0x08, MINECRAFT_1_7_2, true),
           map(0x2E, MINECRAFT_1_9, true),
@@ -1001,7 +1052,10 @@ public enum StateRegistry {
           map(0x40, MINECRAFT_1_20_5, true),
           map(0x42, MINECRAFT_1_21_2, true),
           map(0x41, MINECRAFT_1_21_5, true),
-          map(0x46, MINECRAFT_1_21_9, true));
+          map(0x46, MINECRAFT_1_21_9, true),
+          map(0x48, MINECRAFT_26_1, true)
+      );
+      // minecraft:player_abilities
       clientbound.register(ServerPlayerAbilitiesPacket.class, ServerPlayerAbilitiesPacket::new,
           map(0x39, MINECRAFT_1_7_2, true),
           map(0x2B, MINECRAFT_1_9, true),
@@ -1020,7 +1074,10 @@ public enum StateRegistry {
           map(0x38, MINECRAFT_1_20_5, true),
           map(0x3A, MINECRAFT_1_21_2, true),
           map(0x39, MINECRAFT_1_21_5, true),
-          map(0x3E, MINECRAFT_1_21_9, true));
+          map(0x3E, MINECRAFT_1_21_9, true),
+          map(0x40, MINECRAFT_26_1, true)
+      );
+      // minecraft:level_chunk_with_light
       clientbound.register(ServerChunkDataPacket.class, ServerChunkDataPacket::new,
           map(0x21, MINECRAFT_1_7_2, true),
           map(0x20, MINECRAFT_1_9, true),
@@ -1038,7 +1095,9 @@ public enum StateRegistry {
           map(0x27, MINECRAFT_1_20_5, true),
           map(0x28, MINECRAFT_1_21_2, true),
           map(0x27, MINECRAFT_1_21_5, true),
-          map(0x2C, MINECRAFT_1_21_9, true));
+          map(0x2C, MINECRAFT_1_21_9, true),
+          map(0x2D, MINECRAFT_26_1, true));
+      // minecraft:section_blocks_update
       clientbound.register(ServerUpdateSectionBlocksPacket.class, ServerUpdateSectionBlocksPacket::new,
           map(0x22, MINECRAFT_1_7_2, true),
           map(0x10, MINECRAFT_1_9, true),
@@ -1056,7 +1115,10 @@ public enum StateRegistry {
           map(0x49, MINECRAFT_1_20_5, true),
           map(0x4E, MINECRAFT_1_21_2, true),
           map(0x4D, MINECRAFT_1_21_5, true),
-          map(0x52, MINECRAFT_1_21_9, true));
+          map(0x52, MINECRAFT_1_21_9, true),
+          map(0x54, MINECRAFT_26_1, true)
+      );
+      // minecraft:set_default_spawn_position
       clientbound.register(ServerDefaultSpawnPositionPacket.class, ServerDefaultSpawnPositionPacket::new,
           map(0x05, MINECRAFT_1_7_2, true),
           map(0x43, MINECRAFT_1_9, true),
@@ -1076,7 +1138,9 @@ public enum StateRegistry {
           map(0x56, MINECRAFT_1_20_5, true),
           map(0x5B, MINECRAFT_1_21_2, true),
           map(0x5A, MINECRAFT_1_21_5, true),
-          map(0x5F, MINECRAFT_1_21_9, true));
+          map(0x5F, MINECRAFT_1_21_9, true),
+          map(0x61, MINECRAFT_26_1, true));
+      // minecraft:set_experience
       clientbound.register(ServerExperiencePacket.class, ServerExperiencePacket::new,
           map(0x1F, MINECRAFT_1_7_2, true),
           map(0x3D, MINECRAFT_1_9, true),
@@ -1094,7 +1158,10 @@ public enum StateRegistry {
           map(0x5C, MINECRAFT_1_20_5, true),
           map(0x61, MINECRAFT_1_21_2, true),
           map(0x60, MINECRAFT_1_21_5, true),
-          map(0x65, MINECRAFT_1_21_9, true));
+          map(0x65, MINECRAFT_1_21_9, true),
+          map(0x67, MINECRAFT_26_1, true)
+      );
+      // minecraft:map_item_data
       clientbound.register(ServerMapDataPacket.class, ServerMapDataPacket::new,
           map(0x34, MINECRAFT_1_7_2, true),
           map(0x24, MINECRAFT_1_9, true),
@@ -1111,8 +1178,10 @@ public enum StateRegistry {
           map(0x2C, MINECRAFT_1_20_5, true),
           map(0x2D, MINECRAFT_1_21_2, true),
           map(0x2C, MINECRAFT_1_21_5, true),
-          map(0x31, MINECRAFT_1_21_9, true)
+          map(0x31, MINECRAFT_1_21_9, true),
+          map(0x33, MINECRAFT_26_1, true)
       );
+      // minecraft:game_event
       clientbound.register(ServerGameStatePacket.class, ServerGameStatePacket::new,
           map(0x2B, MINECRAFT_1_7_2, true),
           map(0x1E, MINECRAFT_1_9, true),
@@ -1132,6 +1201,7 @@ public enum StateRegistry {
           map(0x23, MINECRAFT_1_21_2, true),
           map(0x22, MINECRAFT_1_21_5, true),
           map(0x26, MINECRAFT_1_21_9, true));
+      // minecraft:set_chunk_cache_center
       clientbound.register(
           ServerViewPositionPacket.class, null,
           map(0x40, MINECRAFT_1_14, true),
@@ -1147,8 +1217,10 @@ public enum StateRegistry {
           map(0x54, MINECRAFT_1_20_5, true),
           map(0x58, MINECRAFT_1_21_2, true),
           map(0x57, MINECRAFT_1_21_5, true),
-          map(0x5C, MINECRAFT_1_21_9, true)
+          map(0x5C, MINECRAFT_1_21_9, true),
+          map(0x5E, MINECRAFT_26_1, true)
       );
+      // minecraft:set_time
       clientbound.register(ServerWorldTimePacket.class, ServerWorldTimePacket::new,
           map(0x03, MINECRAFT_1_7_2, true),
           map(0x44, MINECRAFT_1_9, true),
@@ -1168,7 +1240,9 @@ public enum StateRegistry {
           map(0x64, MINECRAFT_1_20_5, true),
           map(0x6B, MINECRAFT_1_21_2, true),
           map(0x6A, MINECRAFT_1_21_5, true),
-          map(0x6F, MINECRAFT_1_21_9, true));
+          map(0x6F, MINECRAFT_1_21_9, true),
+          map(0x71, MINECRAFT_26_1, true)
+      );
     }
   },
   FILTER {
@@ -1176,9 +1250,13 @@ public enum StateRegistry {
       overlayLimboRegistry(this, false);
       overlayLimboRegistry(this, true);
 
+      // minecraft:client_tick_end
       serverbound.register(ClientTickEndPacket.class, ClientTickEndPacket::new,
           map(0x0B, MINECRAFT_1_21_2, false),
-          map(0x0C, MINECRAFT_1_21_6, false));
+          map(0x0C, MINECRAFT_1_21_6, false),
+          map(0x0D, MINECRAFT_26_1, false)
+      );
+      // minecraft:set_carried_item
       serverbound.register(SetHeldItemPacket.class, SetHeldItemPacket::new,
           map(0x09, MINECRAFT_1_7_2, false),
           map(0x17, MINECRAFT_1_9, false),
@@ -1194,7 +1272,10 @@ public enum StateRegistry {
           map(0x2F, MINECRAFT_1_20_5, false),
           map(0x31, MINECRAFT_1_21_2, false),
           map(0x33, MINECRAFT_1_21_4, false),
-          map(0x34, MINECRAFT_1_21_6, false));
+          map(0x34, MINECRAFT_1_21_6, false),
+          map(0x35, MINECRAFT_26_1, false)
+      );
+      // minecraft:paddle_boat
       serverbound.register(ClientPaddleBoatPacket.class, ClientPaddleBoatPacket::new,
           map(0x11, MINECRAFT_1_9, false),
           map(0x12, MINECRAFT_1_12, false),
@@ -1211,7 +1292,10 @@ public enum StateRegistry {
           map(0x1C, MINECRAFT_1_20_3, false),
           map(0x1F, MINECRAFT_1_20_5, false),
           map(0x21, MINECRAFT_1_21_2, false),
-          map(0x22, MINECRAFT_1_21_6, false));
+          map(0x22, MINECRAFT_1_21_6, false),
+          map(0x23, MINECRAFT_26_1, false)
+      );
+      // minecraft:player_input
       serverbound.register(ClientPlayerInputPacket.class, ClientPlayerInputPacket::new,
           map(0x0C, MINECRAFT_1_7_2, false),
           map(0x15, MINECRAFT_1_9, false),
@@ -1229,7 +1313,10 @@ public enum StateRegistry {
           map(0x26, MINECRAFT_1_20_5, false),
           map(0x28, MINECRAFT_1_21_2, false),
           map(0x29, MINECRAFT_1_21_4, false),
-          map(0x2A, MINECRAFT_1_21_6, false));
+          map(0x2A, MINECRAFT_1_21_6, false),
+          map(0x2B, MINECRAFT_26_1, false)
+      );
+      // minecraft:move_vehicle
       serverbound.register(ClientVehicleMovePacket.class, ClientVehicleMovePacket::new,
           map(0x10, MINECRAFT_1_9, false),
           map(0x11, MINECRAFT_1_12, false),
@@ -1246,7 +1333,9 @@ public enum StateRegistry {
           map(0x1B, MINECRAFT_1_20_3, false),
           map(0x1E, MINECRAFT_1_20_5, false),
           map(0x20, MINECRAFT_1_21_2, false),
-          map(0x21, MINECRAFT_1_21_6, false));
+          map(0x21, MINECRAFT_1_21_6, false),
+          map(0x39, MINECRAFT_26_1, false));
+      // minecraft:pong
       serverbound.register(TransactionPacket.class, TransactionPacket::new,
           map(0x0F, MINECRAFT_1_7_2, false),
           map(0x05, MINECRAFT_1_9, false),
@@ -1264,7 +1353,10 @@ public enum StateRegistry {
           map(0x27, MINECRAFT_1_20_5, false),
           map(0x29, MINECRAFT_1_21_2, false),
           map(0x2B, MINECRAFT_1_21_4, false),
-          map(0x2C, MINECRAFT_1_21_6, false));
+          map(0x2C, MINECRAFT_1_21_6, false),
+          map(0x2D, MINECRAFT_26_1, false)
+      );
+      // minecraft:swing
       serverbound.register(ClientAnimationPacket.class, ClientAnimationPacket::new,
           map(0x0A, MINECRAFT_1_7_2, false),
           map(0x1A, MINECRAFT_1_9, false),
@@ -1281,7 +1373,10 @@ public enum StateRegistry {
           map(0x38, MINECRAFT_1_21_2, false),
           map(0x3A, MINECRAFT_1_21_4, false),
           map(0x3B, MINECRAFT_1_21_5, false),
-          map(0x3C, MINECRAFT_1_21_6, false));
+          map(0x3C, MINECRAFT_1_21_6, false),
+          map(0x3F, MINECRAFT_26_1, false)
+      );
+      // minecraft:interact
       serverbound.register(ClientInteractPacket.class, ClientInteractPacket::new,
           map(0x02, MINECRAFT_1_7_2, false),
           map(0x0A, MINECRAFT_1_9, false),
@@ -1298,8 +1393,11 @@ public enum StateRegistry {
           map(0x13, MINECRAFT_1_20_3, false),
           map(0x16, MINECRAFT_1_20_5, false),
           map(0x18, MINECRAFT_1_21_2, false),
-          map(0x19, MINECRAFT_1_21_6, false));
+          map(0x19, MINECRAFT_1_21_6, false),
+          map(0x1A, MINECRAFT_26_1, false)
+      );
 
+      // minecraft:set_entity_data
       clientbound.register(ServerEntityMetadataPacket.class, null,
           map(0x1C, MINECRAFT_1_7_2, true),
           map(0x39, MINECRAFT_1_9, true),
@@ -1317,8 +1415,10 @@ public enum StateRegistry {
           map(0x58, MINECRAFT_1_20_5, true),
           map(0x5D, MINECRAFT_1_21_2, true),
           map(0x5C, MINECRAFT_1_21_5, true),
-          map(0x61, MINECRAFT_1_21_9, true)
+          map(0x61, MINECRAFT_1_21_9, true),
+          map(0x63, MINECRAFT_26_1, true)
       );
+      // minecraft:ping
       clientbound.register(TransactionPacket.class, TransactionPacket::new,
           map(0x32, MINECRAFT_1_7_2, true),
           map(0x11, MINECRAFT_1_9, true),
@@ -1335,7 +1435,10 @@ public enum StateRegistry {
           map(0x35, MINECRAFT_1_20_5, true),
           map(0x37, MINECRAFT_1_21_2, true),
           map(0x36, MINECRAFT_1_21_5, true),
-          map(0x3B, MINECRAFT_1_21_9, true));
+          map(0x3B, MINECRAFT_1_21_9, true),
+          map(0x3D, MINECRAFT_26_1, true)
+      );
+      // minecraft:remove_entities
       clientbound.register(ServerRemoveEntitiesPacket.class, ServerRemoveEntitiesPacket::new,
           map(0x13, MINECRAFT_1_7_2, true),
           map(0x30, MINECRAFT_1_9, true),
@@ -1355,7 +1458,10 @@ public enum StateRegistry {
           map(0x42, MINECRAFT_1_20_5, true),
           map(0x47, MINECRAFT_1_21_2, true),
           map(0x46, MINECRAFT_1_21_5, true),
-          map(0x4B, MINECRAFT_1_21_9, true));
+          map(0x4B, MINECRAFT_1_21_9, true),
+          map(0x4D, MINECRAFT_26_1, true)
+      );
+      // minecraft:set_passengers
       clientbound.register(ServerSetPassengersPacket.class, ServerSetPassengersPacket::new,
           map(0x1B, MINECRAFT_1_7_2, true),
           map(0x40, MINECRAFT_1_9, true),
@@ -1373,11 +1479,15 @@ public enum StateRegistry {
           map(0x5F, MINECRAFT_1_20_5, true),
           map(0x65, MINECRAFT_1_21_2, true),
           map(0x64, MINECRAFT_1_21_5, true),
-          map(0x69, MINECRAFT_1_21_9, true));
+          map(0x69, MINECRAFT_1_21_9, true),
+          map(0x6b, MINECRAFT_26_1, true)
+      );
       clientbound.register(ServerSpawnEntityPacket.class, ServerSpawnEntityPacket::new,
           map(0x0E, MINECRAFT_1_7_2, true),
           map(0x00, MINECRAFT_1_9, true),
-          map(0x01, MINECRAFT_1_19_4, true));
+          map(0x01, MINECRAFT_1_19_4, true)
+      );
+      // minecraft:container_set_slot
       clientbound.register(ServerInventorySetSlotPacket.class, ServerInventorySetSlotPacket::new,
           map(0x2F, MINECRAFT_1_7_2, true),
           map(0x16, MINECRAFT_1_9, true),
@@ -1391,7 +1501,9 @@ public enum StateRegistry {
           map(0x12, MINECRAFT_1_19_3, true),
           map(0x14, MINECRAFT_1_19_4, true),
           map(0x15, MINECRAFT_1_20_2, true),
-          map(0x14, MINECRAFT_1_21_5, true));
+          map(0x14, MINECRAFT_1_21_5, true)
+      );
+      // minecraft:set_held_slot
       clientbound.register(SetHeldItemPacket.class, SetHeldItemPacket::new,
           map(0x09, MINECRAFT_1_7_2, true),
           map(0x37, MINECRAFT_1_9, true),
@@ -1411,7 +1523,9 @@ public enum StateRegistry {
           map(0x53, MINECRAFT_1_20_5, true),
           map(0x63, MINECRAFT_1_21_2, true),
           map(0x62, MINECRAFT_1_21_5, true),
-          map(0x67, MINECRAFT_1_21_9, true));
+          map(0x67, MINECRAFT_1_21_9, true),
+          map(0x69, MINECRAFT_26_1, true)
+      );
       clientbound.register(ServerEntityAnimationPacket.class, ServerEntityAnimationPacket::new,
           map(0x0B, MINECRAFT_1_7_2, true),
           map(0x06, MINECRAFT_1_9, true),
@@ -1420,7 +1534,8 @@ public enum StateRegistry {
           map(0x03, MINECRAFT_1_19, true),
           map(0x04, MINECRAFT_1_19_4, true),
           map(0x03, MINECRAFT_1_20_2, true),
-          map(0x02, MINECRAFT_1_21_5, true));
+          map(0x02, MINECRAFT_1_21_5, true)
+      );
     }
   };
 

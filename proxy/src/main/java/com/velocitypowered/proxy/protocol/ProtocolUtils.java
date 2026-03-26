@@ -46,7 +46,9 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -251,6 +253,72 @@ public enum ProtocolUtils {
           | ((value >>> 14) & 0x7F | 0x80) << 8 | ((value >>> 21) & 0x7F | 0x80);
       buf.writeInt(w);
       buf.writeByte(value >>> 28);
+    }
+  }
+
+  public static void writeVarLong(final @NotNull ByteBuf byteBuf, final long value) {
+    // Peel the one and two byte count cases explicitly as they are the most common VarLong sizes
+    // that the proxy will write, to improve inlining.
+    if ((value & 0xFFFFFFFFFFFFFF80L) == 0L) {
+      byteBuf.writeByte((byte) value);
+    } else if ((value & 0xFFFFFFFFFFFFC000L) == 0L) {
+      int w = (int) ((value & 0x7FL | 0x80L) << 8 | value >>> 7);
+      byteBuf.writeShort(w);
+    } else {
+      writeVarLongFull(byteBuf, value);
+    }
+  }
+
+  private static void writeVarLongFull(final @NotNull ByteBuf byteBuf, final long value) {
+    if ((value & 0xFFFFFFFFFFFFFF80L) == 0L) {
+      byteBuf.writeByte((byte) value);
+    } else if ((value & 0xFFFFFFFFFFFFC000L) == 0L) {
+      int w = (int) ((value & 0x7FL | 0x80L) << 8 | value >>> 7);
+      byteBuf.writeShort(w);
+    } else if ((value & 0xFFFFFFFFFFE00000L) == 0L) {
+      int w = (int) ((value & 0x7FL | 0x80L) << 16 | (value >>> 7 & 0x7FL | 0x80L) << 8 | value >>> 14);
+      byteBuf.writeMedium(w);
+    } else if ((value & 0xFFFFFFFFF0000000L) == 0L) {
+      int w = (int) ((value & 0x7FL | 0x80L) << 24 | (value >>> 7 & 0x7FL | 0x80L) << 16 |
+          (value >>> 14 & 0x7FL | 0x80L) << 8 | value >>> 21);
+      byteBuf.writeInt(w);
+    } else {
+      long l = (value & 0x7FL | 0x80L) << 24 | (value >>> 7 & 0x7FL | 0x80L) << 16 |
+          (value >>> 14 & 0x7FL | 0x80L) << 8 | (value >>> 21 & 0x7FL | 0x80L);
+      if ((value & 0xFFFFFFF800000000L) == 0L) {
+        int w =
+            (int) l;
+        byteBuf.writeInt(w);
+        byteBuf.writeByte((int) (value >>> 28));
+      } else if ((value & 0xFFFFFC0000000000L) == 0L) {
+        int w =
+            (int) l;
+        int w2 = (int) ((value >>> 28 & 0x7FL | 0x80L) << 8 | value >>> 35);
+        byteBuf.writeInt(w);
+        byteBuf.writeShort(w2);
+      } else if ((value & 0xFFFE000000000000L) == 0L) {
+        int w =
+            (int) l;
+        int w2 = (int) ((value >>> 28 & 0x7FL | 0x80L) << 16 | (value >>> 35 & 0x7FL | 0x80L) << 8 | value >>> 42);
+        byteBuf.writeInt(w);
+        byteBuf.writeMedium(w2);
+      } else {
+        long w = (value & 0x7FL | 0x80L) << 56 | (value >>> 7 & 0x7FL | 0x80L) << 48 |
+            (value >>> 14 & 0x7FL | 0x80L) << 40 | (value >>> 21 & 0x7FL | 0x80L) << 32 |
+            (value >>> 28 & 0x7FL | 0x80L) << 24 |
+            (value >>> 35 & 0x7FL | 0x80L) << 16 |
+            (value >>> 42 & 0x7FL | 0x80L) << 8 | value >>> 49;
+        if ((value & 0xFF00000000000000L) == 0L) {
+          byteBuf.writeLong(w);
+        } else if ((value & Long.MIN_VALUE) == 0L) {
+          byteBuf.writeLong(w);
+          byteBuf.writeByte((byte) (value >>> 56));
+        } else {
+          int w2 = (int) ((value >>> 56 & 0x7FL | 0x80L) << 8 | value >>> 63);
+          byteBuf.writeLong(w);
+          byteBuf.writeShort(w2);
+        }
+      }
     }
   }
 

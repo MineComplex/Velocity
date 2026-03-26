@@ -40,9 +40,13 @@ public class NetworkSection {
   private final Biome[] biomes;
 
   private int blockCount = -1;
+  private int fluidCount = -1;
 
   public int getDataLength(ProtocolVersion version) {
     int dataLength = ensureStorageCreated(version).getDataLength(version) + 2;
+    if (version.compareTo(ProtocolVersion.MINECRAFT_26_1) >= 0) {
+      dataLength += 2; // Fluid count short.
+    }
     if (version.greaterThan(ProtocolVersion.MINECRAFT_1_17_1)) {
       dataLength += ensure118BiomeCreated(version).getDataLength(version);
     }
@@ -76,6 +80,9 @@ public class NetworkSection {
 
   private void write114Data(ByteBuf buf, BlockTypeStorage storage, ProtocolVersion version, int pass) {
     buf.writeShort(blockCount);
+    if (version.noLessThan(ProtocolVersion.MINECRAFT_26_1)) {
+      buf.writeShort(fluidCount);
+    }
     storage.write(buf, version, pass);
   }
 
@@ -116,6 +123,9 @@ public class NetworkSection {
 
     if (blockCount == -1) {
       this.blockCount = blockCount;
+
+      // TODO: properly set fluidCount, as of 26.1 it is used only to guess about fluid in chunks.
+      this.fluidCount = blockCount;
     }
   }
 }

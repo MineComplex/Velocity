@@ -297,8 +297,9 @@ public class ServerChunkDataPacket implements MinecraftPacket {
         dataLength += networkSection.getDataLength(version);
       }
     }
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_18)) {
-      int emptySectionSize = version.noLessThan(ProtocolVersion.MINECRAFT_1_21_5) ? 6 : 8;
+    if (version.compareTo(ProtocolVersion.MINECRAFT_1_18) >= 0) {
+      int emptySectionSize = version.noLessThan(ProtocolVersion.MINECRAFT_26_1) ? 8
+          : (version.noLessThan(ProtocolVersion.MINECRAFT_1_21_5) ? 6 : 8);
       dataLength += (maxSections - nonNullSections) * emptySectionSize;
     }
 
@@ -309,6 +310,9 @@ public class ServerChunkDataPacket implements MinecraftPacket {
           section.writeData(data, pass, version);
         } else if (pass == 0 && version.noLessThan(ProtocolVersion.MINECRAFT_1_18)) {
           data.writeShort(0); // Block count = 0.
+          if (version.noLessThan(ProtocolVersion.MINECRAFT_26_1)) {
+            data.writeShort(0); // Fluid count = 0.
+          }
           data.writeByte(0); // BlockStorage: 0 bit per entry = Single palette.
           ProtocolUtils.writeVarInt(data, Material.AIR.getId()); // Only air block in the palette.
           if (version.lessThan(ProtocolVersion.MINECRAFT_1_21_5)) {

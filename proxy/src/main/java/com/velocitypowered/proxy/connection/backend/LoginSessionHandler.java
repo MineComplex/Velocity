@@ -46,16 +46,13 @@ import com.velocitypowered.proxy.util.except.QuietRuntimeException;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
+import java.util.concurrent.CompletableFuture;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.concurrent.CompletableFuture;
-
-/**
- * Handles a player trying to log into the proxy.
- */
+/** Handles a player trying to log into the proxy. */
 public class LoginSessionHandler implements MinecraftSessionHandler {
 
   private static final Logger logger = LogManager.getLogger(LoginSessionHandler.class);
@@ -68,7 +65,9 @@ public class LoginSessionHandler implements MinecraftSessionHandler {
   private final CompletableFuture<Impl> resultFuture;
   private boolean informationForwarded;
 
-  LoginSessionHandler(VelocityServer server, VelocityServerConnection serverConn,
+  LoginSessionHandler(
+      VelocityServer server,
+      VelocityServerConnection serverConn,
       CompletableFuture<Impl> resultFuture) {
     this.server = server;
     this.serverConn = serverConn;
@@ -93,16 +92,17 @@ public class LoginSessionHandler implements MinecraftSessionHandler {
         requestedForwardingVersion = packet.content().readByte();
       }
       ConnectedPlayer player = serverConn.getPlayer();
-      ByteBuf forwardingData = PlayerDataForwarding.createForwardingData(
-          configuration.getForwardingSecret(),
-          serverConn.getPlayerRemoteAddressAsString(),
-          player.getProtocolVersion(),
-          player.getGameProfile(),
-          player.getIdentifiedKey(),
-          requestedForwardingVersion);
+      ByteBuf forwardingData =
+          PlayerDataForwarding.createForwardingData(
+              configuration.getForwardingSecret(),
+              serverConn.getPlayerRemoteAddressAsString(),
+              player.getProtocolVersion(),
+              player.getGameProfile(),
+              player.getIdentifiedKey(),
+              requestedForwardingVersion);
 
-      LoginPluginResponsePacket response = new LoginPluginResponsePacket(
-              packet.getId(), true, forwardingData);
+      LoginPluginResponsePacket response =
+          new LoginPluginResponsePacket(packet.getId(), true, forwardingData);
       mc.write(response);
       informationForwarded = true;
     } else {
@@ -113,18 +113,25 @@ public class LoginSessionHandler implements MinecraftSessionHandler {
       }
 
       final byte[] contents = ByteBufUtil.getBytes(packet.content());
-      final MinecraftChannelIdentifier identifier = MinecraftChannelIdentifier
-          .from(packet.getChannel());
-      this.server.getEventManager().fire(new ServerLoginPluginMessageEvent(serverConn, identifier,
-              contents, packet.getId()))
-          .thenAcceptAsync(event -> {
-            if (event.getResult().isAllowed()) {
-              mc.write(new LoginPluginResponsePacket(packet.getId(), true, Unpooled
-                  .wrappedBuffer(event.getResult().getResponse())));
-            } else {
-              mc.write(new LoginPluginResponsePacket(packet.getId(), false, Unpooled.EMPTY_BUFFER));
-            }
-          }, mc.eventLoop());
+      final MinecraftChannelIdentifier identifier =
+          MinecraftChannelIdentifier.from(packet.getChannel());
+      this.server
+          .getEventManager()
+          .fire(new ServerLoginPluginMessageEvent(serverConn, identifier, contents, packet.getId()))
+          .thenAcceptAsync(
+              event -> {
+                if (event.getResult().isAllowed()) {
+                  mc.write(
+                      new LoginPluginResponsePacket(
+                          packet.getId(),
+                          true,
+                          Unpooled.wrappedBuffer(event.getResult().getResponse())));
+                } else {
+                  mc.write(
+                      new LoginPluginResponsePacket(packet.getId(), false, Unpooled.EMPTY_BUFFER));
+                }
+              },
+              mc.eventLoop());
     }
     return true;
   }
@@ -144,8 +151,11 @@ public class LoginSessionHandler implements MinecraftSessionHandler {
 
   @Override
   public boolean handle(ServerLoginSuccessPacket packet) {
-    if (server.getConfiguration().getPlayerInfoForwardingMode() == PlayerInfoForwarding.MODERN && !informationForwarded) {
-      resultFuture.complete(ConnectionRequestResults.forDisconnect(MODERN_IP_FORWARDING_FAILURE, serverConn.getServer()));
+    if (server.getConfiguration().getPlayerInfoForwardingMode() == PlayerInfoForwarding.MODERN
+        && !informationForwarded) {
+      resultFuture.complete(
+          ConnectionRequestResults.forDisconnect(
+              MODERN_IP_FORWARDING_FAILURE, serverConn.getServer()));
       serverConn.disconnect();
       return true;
     }
@@ -156,20 +166,27 @@ public class LoginSessionHandler implements MinecraftSessionHandler {
     // Move into the PLAY phase.
     MinecraftConnection smc = serverConn.ensureConnected();
     if (smc.getProtocolVersion().lessThan(ProtocolVersion.MINECRAFT_1_20_2)) {
-      smc.setActiveSessionHandler(StateRegistry.PLAY, new TransitionSessionHandler(server, serverConn, resultFuture));
+      smc.setActiveSessionHandler(
+          StateRegistry.PLAY, new TransitionSessionHandler(server, serverConn, resultFuture));
     } else {
       smc.write(new LoginAcknowledgedPacket());
-      smc.setActiveSessionHandler(StateRegistry.CONFIG, new ConfigSessionHandler(server, serverConn, resultFuture));
+      smc.setActiveSessionHandler(
+          StateRegistry.CONFIG, new ConfigSessionHandler(server, serverConn, resultFuture));
       ConnectedPlayer player = serverConn.getPlayer();
       if (player.getClientSettingsPacket() != null) {
         smc.write(player.getClientSettingsPacket());
       }
-      if (player.getConnection().getActiveSessionHandler() instanceof ClientPlaySessionHandler clientPlaySessionHandler) {
+      if (player.getConnection().getActiveSessionHandler()
+          instanceof ClientPlaySessionHandler clientPlaySessionHandler) {
         smc.setAutoReading(false);
-        clientPlaySessionHandler.doSwitch().thenRunAsync(() -> smc.setAutoReading(true), smc.eventLoop());
+        clientPlaySessionHandler
+            .doSwitch()
+            .thenRunAsync(() -> smc.setAutoReading(true), smc.eventLoop());
       } else {
         // Initial login - the player is already in configuration state.
-        server.getEventManager().fireAndForget(new PlayerEnteredConfigurationEvent(player, serverConn));
+        server
+            .getEventManager()
+            .fireAndForget(new PlayerEnteredConfigurationEvent(player, serverConn));
       }
     }
 
@@ -183,15 +200,24 @@ public class LoginSessionHandler implements MinecraftSessionHandler {
 
   @Override
   public boolean handle(ClientboundCookieRequestPacket packet) {
-    server.getEventManager().fire(new CookieRequestEvent(serverConn.getPlayer(), packet.getKey()))
-        .thenAcceptAsync(event -> {
-          if (event.getResult().isAllowed()) {
-            final Key resultedKey = event.getResult().getKey() == null
-                ? event.getOriginalKey() : event.getResult().getKey();
+    server
+        .getEventManager()
+        .fire(new CookieRequestEvent(serverConn.getPlayer(), packet.getKey()))
+        .thenAcceptAsync(
+            event -> {
+              if (event.getResult().isAllowed()) {
+                final Key resultedKey =
+                    event.getResult().getKey() == null
+                        ? event.getOriginalKey()
+                        : event.getResult().getKey();
 
-            serverConn.getPlayer().getConnection().write(new ClientboundCookieRequestPacket(resultedKey));
-          }
-        }, serverConn.ensureConnected().eventLoop());
+                serverConn
+                    .getPlayer()
+                    .getConnection()
+                    .write(new ClientboundCookieRequestPacket(resultedKey));
+              }
+            },
+            serverConn.ensureConnected().eventLoop());
 
     return true;
   }
@@ -204,7 +230,8 @@ public class LoginSessionHandler implements MinecraftSessionHandler {
   @Override
   public void disconnected() {
     if (server.getConfiguration().getPlayerInfoForwardingMode() == PlayerInfoForwarding.LEGACY) {
-      resultFuture.completeExceptionally(new QuietRuntimeException(
+      resultFuture.completeExceptionally(
+          new QuietRuntimeException(
               """
               The connection to the remote server was unexpectedly closed.
               This is usually because the remote server does not have \
@@ -213,8 +240,8 @@ public class LoginSessionHandler implements MinecraftSessionHandler {
               on how to configure player info forwarding correctly."""));
     } else {
       resultFuture.completeExceptionally(
-          new QuietRuntimeException("The connection to the remote server was unexpectedly closed.")
-      );
+          new QuietRuntimeException(
+              "The connection to the remote server was unexpectedly closed."));
     }
   }
 }

@@ -50,7 +50,7 @@ public class ServerboundCustomClickActionPacket extends DeferredByteBufHolder im
 
   @Override
   public int decodeExpectedMinLength(ByteBuf buf, Direction direction, ProtocolVersion version) {
-    return 1 + 0 + 1 + 0;
+    return 2;
   }
 
   @Override
