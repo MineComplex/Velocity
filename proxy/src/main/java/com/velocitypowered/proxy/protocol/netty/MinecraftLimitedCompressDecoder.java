@@ -35,7 +35,7 @@ public class MinecraftLimitedCompressDecoder extends MinecraftCompressDecoder {
   private int uncompressedCap;
 
   public MinecraftLimitedCompressDecoder(int threshold, int maxPacketLengthToSuppress, int maxSinglePacketLength, VelocityCompressor compressor) {
-    super(threshold, compressor);
+    super(threshold, compressor, ProtocolUtils.Direction.SERVERBOUND);
     this.threshold = threshold;
     this.uncompressedCap = maxPacketLengthToSuppress;
     this.maxSingleLength = maxSinglePacketLength;
