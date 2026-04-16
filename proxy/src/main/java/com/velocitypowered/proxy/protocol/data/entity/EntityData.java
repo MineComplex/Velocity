@@ -132,7 +132,7 @@ public class EntityData {
 
   public EntityMetadata createMapMetadata(ProtocolVersion version, int mapId) {
     return new EntityMetadata(Map.of(
-        getMetadataIndex(version), new EntityMetadata.SlotEntry(Item.fromItem(Material.FILLED_MAP), 1, 0,
+        getMetadataIndex(version), new EntityMetadata.SlotEntry(Item.fromModernId("minecraft:filled_map"), 1, 0,
             CompoundBinaryTag.builder().put("map", IntBinaryTag.intBinaryTag(mapId)).build(),
             new ItemComponentMap().add(MINECRAFT_1_20_5, "minecraft:map_id", mapId))
     ));

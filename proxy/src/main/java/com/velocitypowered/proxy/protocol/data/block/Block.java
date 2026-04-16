@@ -45,7 +45,6 @@ public class Block {
 
   public static final Block AIR = new Block(false, true, false, "minecraft:air", (short) 0, (short) 0);
   private static final Gson GSON = new Gson();
-  private static final ShortObjectHashMap<Block> LEGACY_BLOCK_STATE_IDS_MAP = new ShortObjectHashMap<>();
   private static final Map<ProtocolVersion, ShortObjectMap<Short>> MODERN_BLOCK_STATE_IDS_MAP = new EnumMap<>(ProtocolVersion.class);
   private static final ShortObjectHashMap<String> MODERN_BLOCK_STATE_PROTOCOL_ID_MAP = new ShortObjectHashMap<>();
   private static final Map<String, Map<Set<String>, Short>> MODERN_BLOCK_STATE_STRING_MAP = new HashMap<>();
@@ -154,16 +153,6 @@ public class Block {
         MODERN_BLOCK_STATE_STRING_MAP.get(stringIdArgs[0]).put(new HashSet<>(Arrays.asList(stringIdArgs[1].split(","))), Short.valueOf(value));
       }
     });
-
-    LinkedTreeMap<String, String> legacyBlocks = GSON.fromJson(
-        new InputStreamReader(Objects.requireNonNull(Block.class.getClassLoader().getResourceAsStream("mapping/legacyblocks.json")),
-            StandardCharsets.UTF_8),
-        LinkedTreeMap.class
-    );
-    legacyBlocks.forEach((legacyBlockId, modernId)
-        -> LEGACY_BLOCK_STATE_IDS_MAP.put(Short.valueOf(legacyBlockId), solid(Short.parseShort(modernId))));
-
-    LEGACY_BLOCK_STATE_IDS_MAP.put((short) 0, AIR);
 
     LinkedTreeMap<String, LinkedTreeMap<String, String>> modernMap = GSON.fromJson(
         new InputStreamReader(Objects.requireNonNull(Block.class.getClassLoader().getResourceAsStream("mapping/blockstates_mapping.json")),
@@ -306,16 +295,6 @@ public class Block {
   @NonNull
   public static Block nonSolid(boolean motionBlocking, String modernId, short id) {
     return new Block(false, false, motionBlocking, remapModernId(modernId), id);
-  }
-
-  @NonNull
-  public static Block fromLegacyId(short id) {
-    if (LEGACY_BLOCK_STATE_IDS_MAP.containsKey(id)) {
-      return LEGACY_BLOCK_STATE_IDS_MAP.get(id);
-    } else {
-      System.out.println("Block #" + id + " is not supported, and was replaced with air.");
-      return AIR;
-    }
   }
 
   public short getModernId() {

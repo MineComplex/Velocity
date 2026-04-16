@@ -38,7 +38,6 @@ public class Item {
   private static final Gson GSON = new Gson();
 
   private static final Map<String, Item> MODERN_ID_MAP = new HashMap<>();
-  private static final Map<Integer, Item> LEGACY_ID_MAP = new HashMap<>();
 
   @Getter
   private final String modernId;
@@ -56,13 +55,6 @@ public class Item {
     LinkedTreeMap<String, String> modernItems = GSON.fromJson(
         new InputStreamReader(
             Objects.requireNonNull(Item.class.getClassLoader().getResourceAsStream("mapping/items.json")), StandardCharsets.UTF_8
-        ),
-        LinkedTreeMap.class
-    );
-
-    LinkedTreeMap<String, String> legacyItems = GSON.fromJson(
-        new InputStreamReader(
-            Objects.requireNonNull(Item.class.getClassLoader().getResourceAsStream("mapping/legacyitems.json")), StandardCharsets.UTF_8
         ),
         LinkedTreeMap.class
     );
@@ -88,16 +80,6 @@ public class Item {
         MODERN_ID_MAP.put(remapped, simpleItem);
       }
     });
-
-    legacyItems.forEach((legacyProtocolId, modernId) -> LEGACY_ID_MAP.put(Integer.parseInt(legacyProtocolId), MODERN_ID_MAP.get(modernId)));
-  }
-
-  public static Item fromItem(Material material) {
-    return LEGACY_ID_MAP.get(material.getLegacyId());
-  }
-
-  public static Item fromLegacyId(int id) {
-    return LEGACY_ID_MAP.get(id);
   }
 
   public static Item fromModernId(String id) {
