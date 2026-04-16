@@ -86,8 +86,6 @@ public class VelocityConfiguration implements ProxyConfig {
   private final ForcedHosts forcedHosts;
   @Expose
   private final Advanced advanced;
-  @Expose
-  private final Query query;
   private final Metrics metrics;
   @Expose
   private boolean enablePlayerAddressLogging = true;
@@ -99,11 +97,10 @@ public class VelocityConfiguration implements ProxyConfig {
   private PacketLimiterConfig packetLimiterConfig = PacketLimiterConfig.DEFAULT;
 
   private VelocityConfiguration(Servers servers, ForcedHosts forcedHosts, Advanced advanced,
-      Query query, Metrics metrics) {
+      Metrics metrics) {
     this.servers = servers;
     this.forcedHosts = forcedHosts;
     this.advanced = advanced;
-    this.query = query;
     this.metrics = metrics;
   }
 
@@ -112,7 +109,7 @@ public class VelocityConfiguration implements ProxyConfig {
       PlayerInfoForwarding playerInfoForwardingMode, byte[] forwardingSecret,
       boolean onlineModeKickExistingPlayers, PingPassthroughMode pingPassthrough,
       boolean samplePlayersInPing, boolean enablePlayerAddressLogging, Servers servers,
-      ForcedHosts forcedHosts, Advanced advanced, Query query, Metrics metrics,
+      ForcedHosts forcedHosts, Advanced advanced, Metrics metrics,
       boolean forceKeyAuthentication, PacketLimiterConfig packetLimiterConfig) {
     this.bind = bind;
     this.motd = motd;
@@ -129,7 +126,6 @@ public class VelocityConfiguration implements ProxyConfig {
     this.servers = servers;
     this.forcedHosts = forcedHosts;
     this.advanced = advanced;
-    this.query = query;
     this.metrics = metrics;
     this.forceKeyAuthentication = forceKeyAuthentication;
     this.packetLimiterConfig = packetLimiterConfig;
@@ -259,26 +255,6 @@ public class VelocityConfiguration implements ProxyConfig {
 
   public InetSocketAddress getBind() {
     return AddressUtil.parseAndResolveAddress(bind);
-  }
-
-  @Override
-  public boolean isQueryEnabled() {
-    return query.isQueryEnabled();
-  }
-
-  @Override
-  public int getQueryPort() {
-    return query.getQueryPort();
-  }
-
-  @Override
-  public String getQueryMap() {
-    return query.getQueryMap();
-  }
-
-  @Override
-  public boolean shouldQueryShowPlugins() {
-    return query.shouldQueryShowPlugins();
   }
 
   @Override
@@ -468,7 +444,6 @@ public class VelocityConfiguration implements ProxyConfig {
         .add("servers", servers)
         .add("forcedHosts", forcedHosts)
         .add("advanced", advanced)
-        .add("query", query)
         .add("favicon", favicon)
         .add("enablePlayerAddressLogging", enablePlayerAddressLogging)
         .add("forceKeyAuthentication", forceKeyAuthentication)
@@ -550,7 +525,6 @@ public class VelocityConfiguration implements ProxyConfig {
       final CommentedConfig serversConfig = config.get("servers");
       final CommentedConfig forcedHostsConfig = config.get("forced-hosts");
       final CommentedConfig advancedConfig = config.get("advanced");
-      final CommentedConfig queryConfig = config.get("query");
       final CommentedConfig metricsConfig = config.get("metrics");
       final PlayerInfoForwarding forwardingMode = config.getEnumOrElse(
               "player-info-forwarding-mode", PlayerInfoForwarding.NONE);
@@ -595,7 +569,6 @@ public class VelocityConfiguration implements ProxyConfig {
               new Servers(serversConfig),
               new ForcedHosts(forcedHostsConfig),
               new Advanced(advancedConfig),
-              new Query(queryConfig),
               new Metrics(metricsConfig),
               forceKeyAuthentication,
               packetLimiterConfig
@@ -923,63 +896,6 @@ public class VelocityConfiguration implements ProxyConfig {
           + ", logPlayerConnections=" + logPlayerConnections
           + ", acceptTransfers=" + acceptTransfers
           + ", enableReusePort=" + enableReusePort
-          + '}';
-    }
-  }
-
-  private static class Query {
-
-    @Expose
-    private boolean queryEnabled = false;
-    @Expose
-    private int queryPort = 25565;
-    @Expose
-    private String queryMap = "Velocity";
-    @Expose
-    private boolean showPlugins = false;
-
-    private Query() {
-    }
-
-    private Query(boolean queryEnabled, int queryPort, String queryMap, boolean showPlugins) {
-      this.queryEnabled = queryEnabled;
-      this.queryPort = queryPort;
-      this.queryMap = queryMap;
-      this.showPlugins = showPlugins;
-    }
-
-    private Query(CommentedConfig config) {
-      if (config != null) {
-        this.queryEnabled = config.getOrElse("enabled", false);
-        this.queryPort = config.getIntOrElse("port", 25565);
-        this.queryMap = config.getOrElse("map", "Velocity");
-        this.showPlugins = config.getOrElse("show-plugins", false);
-      }
-    }
-
-    public boolean isQueryEnabled() {
-      return queryEnabled;
-    }
-
-    public int getQueryPort() {
-      return queryPort;
-    }
-
-    public String getQueryMap() {
-      return queryMap;
-    }
-
-    public boolean shouldQueryShowPlugins() {
-      return showPlugins;
-    }
-
-    @Override
-    public String toString() {
-      return "Query{"
-          + "queryEnabled=" + queryEnabled
-          + ", queryPort=" + queryPort
-          + ", queryMap='" + queryMap + '\''
-          + ", showPlugins=" + showPlugins
           + '}';
     }
   }

@@ -340,10 +340,6 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
       logger.debug("Overriding HAProxy protocol to {} from command line option", haproxy);
       configuration.setProxyProtocol(haproxy);
     }
-
-    if (configuration.isQueryEnabled()) {
-      this.cm.queryBind(configuration.getBind().getHostString(), configuration.getQueryPort());
-    }
   }
 
   private void registerTranslations() {
@@ -544,18 +540,6 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
     if (!configuration.getBind().equals(newConfiguration.getBind())) {
       this.cm.bind(newConfiguration.getBind());
       this.cm.close(configuration.getBind());
-    }
-
-    boolean queryPortChanged = newConfiguration.getQueryPort() != configuration.getQueryPort();
-    boolean queryAlreadyEnabled = configuration.isQueryEnabled();
-    boolean queryEnabled = newConfiguration.isQueryEnabled();
-    if (queryAlreadyEnabled && (!queryEnabled || queryPortChanged)) {
-      this.cm.close(new InetSocketAddress(
-          configuration.getBind().getHostString(), configuration.getQueryPort()));
-    }
-    if (queryEnabled && (!queryAlreadyEnabled || queryPortChanged)) {
-      this.cm.queryBind(newConfiguration.getBind().getHostString(),
-          newConfiguration.getQueryPort());
     }
 
     commandManager.setAnnounceProxyCommands(newConfiguration.isAnnounceProxyCommands());

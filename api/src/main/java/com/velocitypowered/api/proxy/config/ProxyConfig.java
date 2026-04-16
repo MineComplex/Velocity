@@ -19,34 +19,6 @@ import java.util.Optional;
 public interface ProxyConfig {
 
   /**
-   * Whether GameSpy 4 queries are accepted by the proxy.
-   *
-   * @return queries enabled
-   */
-  boolean isQueryEnabled();
-
-  /**
-   * Get the port GameSpy 4 queries are accepted on.
-   *
-   * @return the query port
-   */
-  int getQueryPort();
-
-  /**
-   * Get the map name reported to GameSpy 4 query services.
-   *
-   * @return the map name
-   */
-  String getQueryMap();
-
-  /**
-   * Whether GameSpy 4 queries should show plugins installed on Velocity by default.
-   *
-   * @return show plugins in query
-   */
-  boolean shouldQueryShowPlugins();
-
-  /**
    * Get the MOTD component shown in the tab list.
    *
    * @return the motd component

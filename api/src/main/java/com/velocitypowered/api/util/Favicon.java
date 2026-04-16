@@ -16,7 +16,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
 import java.util.Objects;
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
+
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -79,16 +84,26 @@ public final class Favicon {
    */
   public static Favicon create(BufferedImage image) {
     Preconditions.checkNotNull(image, "image");
-    Preconditions.checkArgument(image.getWidth() == 64 && image.getHeight() == 64,
-        "Image is not 64x64 (found %sx%s)", image.getWidth(), image.getHeight());
+    Preconditions.checkArgument(
+              image.getWidth() == 64 && image.getHeight() == 64,
+              "Image is not 64x64 (found %sx%s)", image.getWidth(), image.getHeight());
     ByteArrayOutputStream os = new ByteArrayOutputStream();
     try {
-      ImageIO.write(image, "PNG", os);
+      ImageWriter writer = ImageIO.getImageWritersByFormatName("png").next();
+      ImageWriteParam param = writer.getDefaultWriteParam();
+      if (param.canWriteCompressed()) {
+        param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+        param.setCompressionQuality(0.0f);
+      }
+      try (ImageOutputStream ios = ImageIO.createImageOutputStream(os)) {
+        writer.setOutput(ios);
+        writer.write(null, new IIOImage(image, null, null), param);
+      }
+      writer.dispose();
     } catch (IOException e) {
       throw new AssertionError(e);
     }
-    return new Favicon(
-        "data:image/png;base64," + Base64.getEncoder().encodeToString(os.toByteArray()));
+    return new Favicon("data:image/png;base64," + Base64.getEncoder().encodeToString(os.toByteArray()));
   }
 
   /**

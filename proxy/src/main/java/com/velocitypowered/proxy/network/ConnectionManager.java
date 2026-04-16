@@ -26,7 +26,6 @@ import com.velocitypowered.api.network.ListenerType;
 import com.velocitypowered.natives.util.Natives;
 import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.network.netty.SeparatePoolInetNameResolver;
-import com.velocitypowered.proxy.protocol.netty.GameSpyQueryHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -152,35 +151,6 @@ public final class ConnectionManager {
         break;
       }
     }
-  }
-
-  /**
-   * Binds a GS4 listener to the specified {@code hostname} and {@code port}.
-   *
-   * @param hostname the hostname to bind to
-   * @param port     the port to bind to
-   */
-  public void queryBind(final String hostname, final int port) {
-    InetSocketAddress address = new InetSocketAddress(hostname, port);
-    final Bootstrap bootstrap = new Bootstrap()
-        .channelFactory(this.transportType.datagramChannelFactory)
-        .group(this.workerGroup)
-        .handler(new GameSpyQueryHandler(this.server))
-        .localAddress(address);
-    bootstrap.bind()
-        .addListener((ChannelFutureListener) future -> {
-          final Channel channel = future.channel();
-          if (future.isSuccess()) {
-            this.endpoints.put(address, new Endpoint(channel, ListenerType.QUERY));
-            LOGGER.info("Listening for GS4 query on {}", channel.localAddress());
-
-            // Fire the proxy bound event after the socket is bound
-            server.getEventManager().fireAndForget(
-                new ListenerBoundEvent(address, ListenerType.QUERY));
-          } else {
-            LOGGER.error("Can't bind to {}", bootstrap.config().localAddress(), future.cause());
-          }
-        });
   }
 
   /**

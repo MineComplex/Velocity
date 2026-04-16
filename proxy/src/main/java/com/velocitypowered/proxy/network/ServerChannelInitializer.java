@@ -32,12 +32,7 @@ import com.velocitypowered.proxy.connection.client.HandshakeSessionHandler;
 import com.velocitypowered.proxy.network.limiter.SimpleBytesPerSecondLimiter;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.StateRegistry;
-import com.velocitypowered.proxy.protocol.netty.LegacyPingDecoder;
-import com.velocitypowered.proxy.protocol.netty.LegacyPingEncoder;
-import com.velocitypowered.proxy.protocol.netty.MinecraftDecoder;
-import com.velocitypowered.proxy.protocol.netty.MinecraftEncoder;
-import com.velocitypowered.proxy.protocol.netty.MinecraftVarintFrameDecoder;
-import com.velocitypowered.proxy.protocol.netty.MinecraftVarintLengthEncoder;
+import com.velocitypowered.proxy.protocol.netty.*;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.handler.codec.haproxy.HAProxyMessageDecoder;
@@ -88,5 +83,7 @@ public class ServerChannelInitializer extends ChannelInitializer<Channel> {
     if (this.server.getConfiguration().isProxyProtocol()) {
       ch.pipeline().addFirst(new HAProxyMessageDecoder());
     }
+
+    ch.pipeline().addFirst(BandwidthHandler.INSTANCE);
   }
 }

@@ -18,9 +18,9 @@
 package com.velocitypowered.proxy.util.collect;
 
 import com.google.common.collect.Streams;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntCollection;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.jetbrains.annotations.NotNull;
 
@@ -77,10 +77,10 @@ public class OverlayObject2IntMap<K> extends OverlayMap<K, Integer> implements O
 
   @Override
   public IntCollection values() {
-    return Streams
-        .concat(((Object2IntMap<K>) this.parent).values().intStream(), ((Object2IntMap<K>) this.overlay).values().intStream())
-        .boxed()
-        .collect(Collectors.toCollection(IntArrayList::new));
+    Object2IntOpenHashMap<Object> hashMap = new Object2IntOpenHashMap<>();
+    Streams.concat(((Object2IntMap<K>) parent).values().intStream(), ((Object2IntMap<K>) overlay).values().intStream())
+        .forEach(value -> hashMap.put(new Object(), value));
+    return hashMap.values();
   }
 
   @Override

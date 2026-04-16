@@ -19,6 +19,7 @@ package com.velocitypowered.proxy.tablist.rewriting;
 
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.player.TabListEntry;
+import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.connection.client.ConnectedPlayer;
 import com.velocitypowered.proxy.tablist.KeyedVelocityTabList;
 
@@ -28,7 +29,7 @@ import java.util.UUID;
 public class RewritingKeyedVelocityTabList extends KeyedVelocityTabList implements RewritingTabList {
 
   public RewritingKeyedVelocityTabList(ConnectedPlayer player, ProxyServer proxyServer) {
-    super(player, proxyServer);
+    super(player, (VelocityServer) proxyServer);
   }
 
   @Override
