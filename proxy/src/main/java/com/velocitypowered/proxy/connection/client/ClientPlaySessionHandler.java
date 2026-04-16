@@ -39,6 +39,7 @@ import com.velocitypowered.proxy.connection.forge.legacy.LegacyForgeConstants;
 import com.velocitypowered.proxy.connection.player.resourcepack.ResourcePackResponseBundle;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.StateRegistry;
+import com.velocitypowered.proxy.protocol.netty.MinecraftDecoder;
 import com.velocitypowered.proxy.protocol.packet.BossBarPacket;
 import com.velocitypowered.proxy.protocol.packet.ClientSettingsPacket;
 import com.velocitypowered.proxy.protocol.packet.JoinGamePacket;
@@ -471,7 +472,11 @@ public class ClientPlaySessionHandler implements MinecraftSessionHandler {
     }
 
     MinecraftConnection smc = serverConnection.getConnection();
-    if (smc != null && serverConnection.getPhase().consideredComplete()) {
+    final boolean stateAllowsForward = smc != null
+        && !smc.isClosed()
+        && serverConnection.getPhase().consideredComplete()
+        && smc.getState() == StateRegistry.PLAY;
+    if (stateAllowsForward) {
       if (packet instanceof PluginMessagePacket) {
         ((PluginMessagePacket) packet).retain();
       }
@@ -488,7 +493,11 @@ public class ClientPlaySessionHandler implements MinecraftSessionHandler {
     }
 
     MinecraftConnection smc = serverConnection.getConnection();
-    if (smc != null && !smc.isClosed() && serverConnection.getPhase().consideredComplete()) {
+    final boolean stateAllowsForward = smc != null
+        && !smc.isClosed()
+        && serverConnection.getPhase().consideredComplete()
+        && smc.getState() == StateRegistry.PLAY;
+    if (stateAllowsForward) {
       smc.write(buf.retain());
     }
   }
@@ -502,6 +511,9 @@ public class ClientPlaySessionHandler implements MinecraftSessionHandler {
   public void exception(Throwable throwable) {
     player.disconnect(
         Component.translatable("velocity.error.player-connection-error", NamedTextColor.RED));
+    if (MinecraftDecoder.DEBUG) {
+      logger.info("Exception while handling plugin message packet for {}", player, throwable);
+    }
   }
 
   @Override
