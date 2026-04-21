@@ -17,6 +17,8 @@
 
 package com.velocitypowered.proxy.protocol.packet;
 
+import static com.velocitypowered.proxy.protocol.util.PluginMessageUtil.transformLegacyToModernChannel;
+
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
@@ -30,8 +32,6 @@ import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import static com.velocitypowered.proxy.protocol.util.PluginMessageUtil.transformLegacyToModernChannel;
-
 /**
  * Represents a plugin message packet, which allows for custom communication between
  * a Minecraft server and a client via custom channels.
@@ -41,7 +41,8 @@ import static com.velocitypowered.proxy.protocol.util.PluginMessageUtil.transfor
 @ToString
 public class PluginMessagePacket extends DeferredByteBufHolder implements MinecraftPacket {
 
-  private static final int MAX_PAYLOAD_SIZE = Integer.getInteger("velocity.max-plugin-message-payload-size", 32767);
+  private static final int MAX_PAYLOAD_SIZE_CLIENTBOUND = getPayloadLimit(Direction.CLIENTBOUND);
+  private static final int MAX_PAYLOAD_SIZE_SERVERBOUND = getPayloadLimit(Direction.SERVERBOUND);
 
   private @Nullable String channel;
 
@@ -66,6 +67,27 @@ public class PluginMessagePacket extends DeferredByteBufHolder implements Minecr
       throw new IllegalStateException("Channel is not specified.");
     }
     return channel;
+  }
+
+  private static int getPayloadLimit(Direction direction) {
+    if (System.getProperty("velocity.max-plugin-message-payload-size") != null) {
+      return Integer.getInteger("velocity.max-plugin-message-payload-size");
+    }
+    if (direction == Direction.SERVERBOUND) {
+      return Integer.getInteger("velocity.max-plugin-message-payload-size.serverbound", 32767);
+    } else {
+      // This is the vanilla expected limit, a payload this large feels like a nightmare given the trust
+      // we give to servers...
+      return Integer.getInteger("velocity.max-plugin-message-payload-size.clientbound", 1048576);
+    }
+  }
+
+  @Override
+  public String toString() {
+    return "PluginMessage{"
+        + "channel='" + channel + '\''
+        + ", data=" + super.toString()
+        + '}';
   }
 
   @Override
@@ -103,11 +125,13 @@ public class PluginMessagePacket extends DeferredByteBufHolder implements Minecr
     } else {
       ProtocolUtils.writeByteBuf17(content(), buf, true); // True for Forge support
     }
+
   }
 
   @Override
   public int decodeExpectedMaxLength(ByteBuf buf, Direction direction, ProtocolVersion version) {
-    return ProtocolUtils.DEFAULT_MAX_STRING_BYTES + MAX_PAYLOAD_SIZE;
+    return ProtocolUtils.DEFAULT_MAX_STRING_BYTES +
+        (direction == Direction.CLIENTBOUND ? MAX_PAYLOAD_SIZE_CLIENTBOUND : MAX_PAYLOAD_SIZE_SERVERBOUND);
   }
 
   @Override
