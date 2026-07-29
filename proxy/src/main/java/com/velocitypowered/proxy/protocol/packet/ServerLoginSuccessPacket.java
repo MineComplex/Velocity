@@ -26,13 +26,13 @@ import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.ProtocolUtils.Direction;
 import com.velocitypowered.proxy.util.VelocityProperties;
 import io.netty.buffer.ByteBuf;
+import java.util.List;
+import java.util.UUID;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.Nullable;
-
-import java.util.List;
-import java.util.UUID;
 
 /**
  * Represents the packet sent from the server to the client to indicate successful login.
@@ -46,6 +46,7 @@ public class ServerLoginSuccessPacket implements MinecraftPacket {
   private @Nullable UUID uuid;
   private @Nullable String username;
   private @Nullable List<GameProfile.Property> properties;
+  private @Nullable UUID sessionId;
   private static final boolean strictErrorHandling = VelocityProperties
           .readBoolean("velocity.strictErrorHandling", true);
 
@@ -67,6 +68,10 @@ public class ServerLoginSuccessPacket implements MinecraftPacket {
     }
     if (version == ProtocolVersion.MINECRAFT_1_20_5 || version == ProtocolVersion.MINECRAFT_1_21) {
       buf.readBoolean();
+    }
+
+    if (version.noLessThan(ProtocolVersion.MINECRAFT_26_2)) {
+      this.sessionId = ProtocolUtils.readUuid(buf);
     }
   }
 

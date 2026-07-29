@@ -21,8 +21,7 @@ import com.google.common.collect.ImmutableSet;
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.connection.registry.DimensionInfo;
-import com.velocitypowered.proxy.protocol.MinecraftPacket;
-import com.velocitypowered.proxy.protocol.ProtocolUtils;
+import com.velocitypowered.proxy.protocol.*;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.Pair;
 import lombok.Getter;
@@ -65,11 +64,8 @@ public class JoinGamePacket implements MinecraftPacket {
   private @Nullable Pair<String, Long> lastDeathPosition; // 1.19+
   private int portalCooldown; // 1.20+
   private int seaLevel; // 1.21.2+
+  private boolean onlineMode; // 26.2+
   private boolean enforcesSecureChat; // 1.20.5+
-
-  public void setIsHardcore(boolean isHardcore) {
-    this.isHardcore = isHardcore;
-  }
 
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
@@ -210,6 +206,10 @@ public class JoinGamePacket implements MinecraftPacket {
 
     if (version.noLessThan(ProtocolVersion.MINECRAFT_1_21_2)) {
       this.seaLevel = ProtocolUtils.readVarInt(buf);
+    }
+
+    if (version.noLessThan(ProtocolVersion.MINECRAFT_26_2)) {
+      this.onlineMode = buf.readBoolean();
     }
 
     if (version.noLessThan(ProtocolVersion.MINECRAFT_1_20_5)) {
@@ -362,6 +362,10 @@ public class JoinGamePacket implements MinecraftPacket {
 
     if (version.noLessThan(ProtocolVersion.MINECRAFT_1_21_2)) {
       ProtocolUtils.writeVarInt(buf, seaLevel);
+    }
+
+    if (version.noLessThan(ProtocolVersion.MINECRAFT_26_2)) {
+      buf.writeBoolean(this.onlineMode);
     }
 
     if (version.noLessThan(ProtocolVersion.MINECRAFT_1_20_5)) {

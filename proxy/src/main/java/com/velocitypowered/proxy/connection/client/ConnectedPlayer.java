@@ -17,6 +17,11 @@
 
 package com.velocitypowered.proxy.connection.client;
 
+import static com.velocitypowered.api.proxy.ConnectionRequestBuilder.Status.ALREADY_CONNECTED;
+import static com.velocitypowered.proxy.connection.util.ConnectionRequestResults.plainResult;
+import static java.util.Objects.requireNonNull;
+import static java.util.concurrent.CompletableFuture.completedFuture;
+
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonObject;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
@@ -100,13 +105,16 @@ import com.velocitypowered.proxy.util.TranslatableMapper;
 import com.velocitypowered.proxy.util.collect.CappedSet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import net.kyori.adventure.audience.MessageType;
+import java.net.InetSocketAddress;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.permission.PermissionChecker;
-import net.kyori.adventure.platform.facet.FacetPointers;
-import net.kyori.adventure.platform.facet.FacetPointers.Type;
 import net.kyori.adventure.pointer.Pointers;
 import net.kyori.adventure.pointer.PointersSupplier;
 import net.kyori.adventure.resource.ResourcePackInfoLike;
@@ -128,25 +136,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jetbrains.annotations.NotNull;
 
-import java.net.InetSocketAddress;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
-
-import static com.velocitypowered.api.proxy.ConnectionRequestBuilder.Status.ALREADY_CONNECTED;
-import static com.velocitypowered.proxy.connection.util.ConnectionRequestResults.plainResult;
-import static java.util.Objects.requireNonNull;
-import static java.util.concurrent.CompletableFuture.completedFuture;
-
 /**
  * Represents a player that is connected to the proxy.
  */
@@ -167,7 +156,6 @@ public class ConnectedPlayer implements MinecraftConnectionAssociation, Player, 
                   .resolving(Identity.DISPLAY_NAME, player -> Component.text(player.getUsername()))
                   .resolving(Identity.LOCALE, Player::getEffectiveLocale)
                   .resolving(PermissionChecker.POINTER, Player::getPermissionChecker)
-                  .resolving(FacetPointers.TYPE, player -> Type.PLAYER)
                   .build();
 
   /**
@@ -425,29 +413,16 @@ public class ConnectedPlayer implements MinecraftConnectionAssociation, Player, 
   }
 
   @Override
-  public void sendMessage(@NonNull Identity identity, @NonNull Component message) {
+  public void sendMessage(final @NonNull Component message) {
+    Preconditions.checkNotNull(message, "message");
     final Component translated = translateMessage(message);
 
     connection.write(getChatBuilderFactory().builder()
-        .component(translated).forIdentity(identity).toClient());
+        .component(translated).toClient());
   }
 
   @Override
-  public void sendMessage(@NonNull Identity identity, @NonNull Component message,
-                          @NonNull MessageType type) {
-    Preconditions.checkNotNull(message, "message");
-    Preconditions.checkNotNull(type, "type");
-
-    Component translated = translateMessage(message);
-
-    connection.write(getChatBuilderFactory().builder()
-        .component(translated).forIdentity(identity)
-        .setType(type == MessageType.CHAT ? ChatType.CHAT : ChatType.SYSTEM)
-        .toClient());
-  }
-
-  @Override
-  public void sendActionBar(net.kyori.adventure.text.@NonNull Component message) {
+  public void sendActionBar(@NonNull Component message) {
     Component translated = translateMessage(message);
 
     ProtocolVersion playerVersion = getProtocolVersion();
@@ -646,7 +621,8 @@ public class ConnectedPlayer implements MinecraftConnectionAssociation, Player, 
   }
 
   @Override
-  public void disconnect(Component reason) {
+  public void disconnect(@NotNull Component reason) {
+    Objects.requireNonNull(reason, "reason");
     if (connection.eventLoop().inEventLoop()) {
       disconnect0(reason, false);
     } else {
@@ -1092,7 +1068,7 @@ public class ConnectedPlayer implements MinecraftConnectionAssociation, Player, 
   public void transferToHost(final InetSocketAddress address) {
     Preconditions.checkNotNull(address);
     Preconditions.checkArgument(
-            getProtocolVersion().noLessThan(ProtocolVersion.MINECRAFT_1_20_5),
+        getProtocolVersion().noLessThan(ProtocolVersion.MINECRAFT_1_20_5),
             "Player version must be 1.20.5 to be able to transfer to another host");
 
     server.getEventManager().fire(new PreTransferEvent(this, address)).thenAccept((event) -> {
