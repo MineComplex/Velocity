@@ -17,9 +17,9 @@
 
 package com.velocitypowered.proxy.protocol.data.block;
 
-import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.velocitypowered.api.network.ProtocolVersion;
+import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.protocol.data.world.WorldVersion;
 import io.netty.util.collection.ShortObjectHashMap;
 import io.netty.util.collection.ShortObjectMap;
@@ -44,7 +44,6 @@ import java.util.Set;
 public class Block {
 
   public static final Block AIR = new Block(false, true, false, "minecraft:air", (short) 0, (short) 0);
-  private static final Gson GSON = new Gson();
   private static final Map<ProtocolVersion, ShortObjectMap<Short>> MODERN_BLOCK_STATE_IDS_MAP = new EnumMap<>(ProtocolVersion.class);
   private static final ShortObjectHashMap<String> MODERN_BLOCK_STATE_PROTOCOL_ID_MAP = new ShortObjectHashMap<>();
   private static final Map<String, Map<Set<String>, Short>> MODERN_BLOCK_STATE_STRING_MAP = new HashMap<>();
@@ -109,7 +108,7 @@ public class Block {
 
   @SuppressWarnings("unchecked")
   public static void init() {
-    LinkedTreeMap<String, String> blocks = GSON.fromJson(
+    LinkedTreeMap<String, String> blocks = VelocityServer.GENERAL_GSON.fromJson(
         new InputStreamReader(
             Objects.requireNonNull(Block.class.getClassLoader().getResourceAsStream("mapping/blocks.json")),
             StandardCharsets.UTF_8
@@ -119,7 +118,7 @@ public class Block {
 
     blocks.forEach((modernId, protocolId) -> MODERN_BLOCK_STRING_MAP.put(modernId, Short.valueOf(protocolId)));
 
-    LinkedTreeMap<String, LinkedTreeMap<String, String>> blockVersionMapping = GSON.fromJson(
+    LinkedTreeMap<String, LinkedTreeMap<String, String>> blockVersionMapping = VelocityServer.GENERAL_GSON.fromJson(
         new InputStreamReader(
             Objects.requireNonNull(Block.class.getClassLoader().getResourceAsStream("mapping/blocks_mapping.json")),
             StandardCharsets.UTF_8
@@ -133,7 +132,7 @@ public class Block {
       LEGACY_BLOCK_IDS_MAP.put(Short.valueOf(protocolId), deserializedVersionMap);
     });
 
-    LinkedTreeMap<String, String> blockStates = GSON.fromJson(
+    LinkedTreeMap<String, String> blockStates = VelocityServer.GENERAL_GSON.fromJson(
         new InputStreamReader(Objects.requireNonNull(Block.class.getClassLoader().getResourceAsStream("mapping/blockstates.json")),
             StandardCharsets.UTF_8),
         LinkedTreeMap.class
@@ -154,7 +153,7 @@ public class Block {
       }
     });
 
-    LinkedTreeMap<String, LinkedTreeMap<String, String>> modernMap = GSON.fromJson(
+    LinkedTreeMap<String, LinkedTreeMap<String, String>> modernMap = VelocityServer.GENERAL_GSON.fromJson(
         new InputStreamReader(Objects.requireNonNull(Block.class.getClassLoader().getResourceAsStream("mapping/blockstates_mapping.json")),
             StandardCharsets.UTF_8),
         LinkedTreeMap.class
@@ -162,13 +161,13 @@ public class Block {
 
     modernMap.forEach((modernId, versionMap) -> {
       Short id = null;
-      for (ProtocolVersion version : EnumSet.range(ProtocolVersion.MINECRAFT_1_16_4, ProtocolVersion.MAXIMUM_VERSION)) {
+      for (ProtocolVersion version : EnumSet.range(ProtocolVersion.MINECRAFT_1_21_4, ProtocolVersion.MAXIMUM_VERSION)) {
         id = Short.valueOf(versionMap.getOrDefault(version.toString(), String.valueOf(id)));
         Block.MODERN_BLOCK_STATE_IDS_MAP.computeIfAbsent(version, k -> new ShortObjectHashMap<>()).put(Short.parseShort(modernId), id);
       }
     });
 
-    LinkedTreeMap<String, LinkedTreeMap<String, String>> properties = GSON.fromJson(
+    LinkedTreeMap<String, LinkedTreeMap<String, String>> properties = VelocityServer.GENERAL_GSON.fromJson(
         new InputStreamReader(
             Objects.requireNonNull(Block.class.getClassLoader().getResourceAsStream("mapping/defaultblockproperties.json")),
             StandardCharsets.UTF_8
@@ -177,7 +176,7 @@ public class Block {
     );
     properties.forEach((key, value) -> DEFAULT_PROPERTIES_MAP.put(key, new HashMap<>(value)));
 
-    LinkedTreeMap<String, String> modernIdRemap = GSON.fromJson(
+    LinkedTreeMap<String, String> modernIdRemap = VelocityServer.GENERAL_GSON.fromJson(
         new InputStreamReader(
             Objects.requireNonNull(Block.class.getClassLoader().getResourceAsStream("mapping/modern_block_id_remap.json")),
             StandardCharsets.UTF_8

@@ -49,13 +49,9 @@ import io.netty.buffer.Unpooled;
 import java.util.concurrent.CompletableFuture;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /** Handles a player trying to log into the proxy. */
 public class LoginSessionHandler implements MinecraftSessionHandler {
-
-  private static final Logger logger = LogManager.getLogger(LoginSessionHandler.class);
 
   private static final Component MODERN_IP_FORWARDING_FAILURE =
       Component.translatable("velocity.error.modern-forwarding-failed");

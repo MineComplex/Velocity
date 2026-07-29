@@ -43,16 +43,10 @@ public final class FilterStatistics {
 
   private final AtomicInteger ACTION_COUNTER = new AtomicInteger(Integer.MIN_VALUE);
 
-  /**
-   * Helper methods that make it easier to count new statistics
-   */
-
-  @ApiStatus.Internal
   public void countConnection() {
     CONNECTIONS_PER_SECOND.put(ACTION_COUNTER.getAndIncrement(), (byte) 0);
   }
 
-  @ApiStatus.Internal
   public void countLogin() {
     LOGINS_PER_SECOND.put(ACTION_COUNTER.getAndIncrement(), (byte) 0);
     totalJoinedPlayers++;

@@ -30,6 +30,7 @@ import java.util.Set;
 @Getter
 @AllArgsConstructor
 public enum TileEntityVersion {
+  /*
   LEGACY(EnumSet.range(ProtocolVersion.MINECRAFT_1_16_4, ProtocolVersion.MINECRAFT_1_18_2)),
   MINECRAFT_1_19(EnumSet.of(ProtocolVersion.MINECRAFT_1_19)),
   MINECRAFT_1_19_1(EnumSet.of(ProtocolVersion.MINECRAFT_1_19_1)),
@@ -41,6 +42,7 @@ public enum TileEntityVersion {
   MINECRAFT_1_20_5(EnumSet.of(ProtocolVersion.MINECRAFT_1_20_5)),
   MINECRAFT_1_21(EnumSet.of(ProtocolVersion.MINECRAFT_1_21)),
   MINECRAFT_1_21_2(EnumSet.of(ProtocolVersion.MINECRAFT_1_21_2)),
+  */
   MINECRAFT_1_21_4(EnumSet.of(ProtocolVersion.MINECRAFT_1_21_4)),
   MINECRAFT_1_21_5(EnumSet.of(ProtocolVersion.MINECRAFT_1_21_5)),
   MINECRAFT_1_21_6(EnumSet.of(ProtocolVersion.MINECRAFT_1_21_6)),
@@ -63,7 +65,8 @@ public enum TileEntityVersion {
   private final Set<ProtocolVersion> versions;
 
   public static TileEntityVersion parse(String from) {
-    return KEY_LOOKUP.getOrDefault(from, LEGACY);
+    //return KEY_LOOKUP.getOrDefault(from, LEGACY);
+    return KEY_LOOKUP.getOrDefault(from, MINECRAFT_1_21_4);
   }
 
   public static TileEntityVersion from(ProtocolVersion protocolVersion) {

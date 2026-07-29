@@ -17,10 +17,9 @@
 
 package com.velocitypowered.proxy.protocol.data.item;
 
-import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.velocitypowered.api.network.ProtocolVersion;
-import com.velocitypowered.proxy.protocol.data.material.Material;
+import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.protocol.data.world.WorldVersion;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -35,8 +34,6 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class Item {
 
-  private static final Gson GSON = new Gson();
-
   private static final Map<String, Item> MODERN_ID_MAP = new HashMap<>();
 
   @Getter
@@ -45,21 +42,21 @@ public class Item {
 
   @SuppressWarnings("unchecked")
   public static void init() {
-    LinkedTreeMap<String, LinkedTreeMap<String, String>> itemsMapping = GSON.fromJson(
+    LinkedTreeMap<String, LinkedTreeMap<String, String>> itemsMapping = VelocityServer.GENERAL_GSON.fromJson(
         new InputStreamReader(
             Objects.requireNonNull(Item.class.getClassLoader().getResourceAsStream("mapping/items_mapping.json")), StandardCharsets.UTF_8
         ),
         LinkedTreeMap.class
     );
 
-    LinkedTreeMap<String, String> modernItems = GSON.fromJson(
+    LinkedTreeMap<String, String> modernItems = VelocityServer.GENERAL_GSON.fromJson(
         new InputStreamReader(
             Objects.requireNonNull(Item.class.getClassLoader().getResourceAsStream("mapping/items.json")), StandardCharsets.UTF_8
         ),
         LinkedTreeMap.class
     );
 
-    LinkedTreeMap<String, String> modernIdRemap = GSON.fromJson(
+    LinkedTreeMap<String, String> modernIdRemap = VelocityServer.GENERAL_GSON.fromJson(
         new InputStreamReader(
             Objects.requireNonNull(Item.class.getClassLoader().getResourceAsStream("mapping/modern_item_id_remap.json")), StandardCharsets.UTF_8
         ),

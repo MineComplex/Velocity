@@ -54,16 +54,15 @@ public class EntityMetadata {
     private final boolean present;
     private final Item item;
     private final int count;
-    private final int data;
     private final CompoundBinaryTag nbt;
     private final ItemComponentMap map;
 
-    public SlotEntry(Item item, int count, int data, CompoundBinaryTag nbt, ItemComponentMap map) {
-      this(true, item, count, data, nbt, map);
+    public SlotEntry(Item item, int count, CompoundBinaryTag nbt, ItemComponentMap map) {
+      this(true, item, count, nbt, map);
     }
 
     public SlotEntry() {
-      this(false, null, 0, 0, null, null);
+      this(false, null, 0, null, null);
     }
 
     @Override

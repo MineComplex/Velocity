@@ -1314,7 +1314,7 @@ public enum StateRegistry {
           map(0x28, MINECRAFT_1_21_2, false),
           map(0x29, MINECRAFT_1_21_4, false),
           map(0x2A, MINECRAFT_1_21_6, false),
-          map(0x2B, MINECRAFT_26_1, false)
+          map(0x26, MINECRAFT_26_1, false)
       );
       // minecraft:move_vehicle
       serverbound.register(ClientVehicleMovePacket.class, ClientVehicleMovePacket::new,
@@ -1334,7 +1334,7 @@ public enum StateRegistry {
           map(0x1E, MINECRAFT_1_20_5, false),
           map(0x20, MINECRAFT_1_21_2, false),
           map(0x21, MINECRAFT_1_21_6, false),
-          map(0x39, MINECRAFT_26_1, false));
+          map(0x22, MINECRAFT_26_1, false));
       // minecraft:pong
       serverbound.register(TransactionPacket.class, TransactionPacket::new,
           map(0x0F, MINECRAFT_1_7_2, false),
@@ -1480,7 +1480,7 @@ public enum StateRegistry {
           map(0x65, MINECRAFT_1_21_2, true),
           map(0x64, MINECRAFT_1_21_5, true),
           map(0x69, MINECRAFT_1_21_9, true),
-          map(0x6b, MINECRAFT_26_1, true)
+          map(0x6B, MINECRAFT_26_1, true)
       );
       clientbound.register(ServerSpawnEntityPacket.class, ServerSpawnEntityPacket::new,
           map(0x0E, MINECRAFT_1_7_2, true),

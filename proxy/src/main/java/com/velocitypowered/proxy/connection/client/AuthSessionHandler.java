@@ -91,10 +91,10 @@ public class AuthSessionHandler implements MinecraftSessionHandler {
         onlineMode);
     final GameProfile finalProfile = profile;
 
-    server.getEventManager().fire(profileRequestEvent).thenComposeAsync(profileEvent -> {
+    server.getEventManager().fire(profileRequestEvent).thenAcceptAsync(profileEvent -> {
       if (mcConnection.isClosed()) {
         // The player disconnected after we authenticated them.
-        return CompletableFuture.completedFuture(null);
+        return;
       }
 
       // Initiate a regular connection and move over to it.
@@ -106,14 +106,14 @@ public class AuthSessionHandler implements MinecraftSessionHandler {
         player.disconnect0(
             Component.translatable("velocity.error.already-connected-proxy", NamedTextColor.RED),
             true);
-        return CompletableFuture.completedFuture(null);
+        return;
       }
 
       if (server.getConfiguration().isLogPlayerConnections()) {
         logger.info("{} has connected", player);
       }
 
-      return server.getEventManager()
+      server.getEventManager()
           .fire(new PermissionsSetupEvent(player, ConnectedPlayer.DEFAULT_PERMISSIONS))
           .thenAcceptAsync(event -> {
             if (!mcConnection.isClosed()) {

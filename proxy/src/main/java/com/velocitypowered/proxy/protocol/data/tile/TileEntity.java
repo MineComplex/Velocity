@@ -17,9 +17,9 @@
 
 package com.velocitypowered.proxy.protocol.data.tile;
 
-import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.velocitypowered.api.network.ProtocolVersion;
+import com.velocitypowered.proxy.VelocityServer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -35,8 +35,6 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class TileEntity {
 
-  private static final Gson GSON = new Gson();
-
   private static final Map<String, TileEntity> MODERN_ID_MAP = new HashMap<>();
 
   @Getter
@@ -45,7 +43,7 @@ public class TileEntity {
 
   @SuppressWarnings("unchecked")
   public static void init() {
-    LinkedTreeMap<String, LinkedTreeMap<String, String>> blockEntitiesMapping = GSON.fromJson(
+    LinkedTreeMap<String, LinkedTreeMap<String, String>> blockEntitiesMapping = VelocityServer.GENERAL_GSON.fromJson(
         new InputStreamReader(
             Objects.requireNonNull(TileEntity.class.getClassLoader().getResourceAsStream("mapping/blockentities_mapping.json")),
             StandardCharsets.UTF_8

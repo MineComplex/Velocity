@@ -36,7 +36,6 @@ dependencies {
     api("net.kyori:adventure-text-logger-slf4j")
     api("net.kyori:adventure-text-serializer-ansi")
     api("net.kyori:adventure-text-serializer-bungeecord:4.4.0")
-    api("net.md-5:bungeecord-chat:1.16-R0.4")
 
     api(libs.snakeyaml)
 
@@ -46,6 +45,12 @@ dependencies {
     api(libs.brigadier)
     api(libs.bundles.configurate4)
     api(libs.caffeine)
+
+    api(platform("ru.minecomplex.libs:core:NEW"))
+    api("org.mongodb:mongodb-driver-sync")
+    api("org.redisson:redisson")
+    api("org.apache.commons:commons-lang3")
+    api("net.md-5:bungeecord-chat")
 
     compileOnly(libs.auto.service.annotations)
     annotationProcessor(libs.auto.service)

@@ -17,9 +17,9 @@
 
 package com.velocitypowered.proxy.protocol.data.tag;
 
-import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.velocitypowered.api.network.ProtocolVersion;
+import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.protocol.data.block.Block;
 import com.velocitypowered.proxy.protocol.data.item.Item;
 import com.velocitypowered.proxy.protocol.data.world.WorldVersion;
@@ -43,25 +43,22 @@ public class TagManager {
 
   @SuppressWarnings("unchecked")
   public void init() {
-    Gson gson = new Gson();
-    LinkedTreeMap<String, String> fluids = gson.fromJson(
+    LinkedTreeMap<String, String> fluids = VelocityServer.GENERAL_GSON.fromJson(
         new InputStreamReader(
             Objects.requireNonNull(TagManager.class.getClassLoader().getResourceAsStream("mapping/fluids.json")),
             StandardCharsets.UTF_8
         ),
         LinkedTreeMap.class
     );
-
     fluids.forEach((id, protocolId) -> FLUIDS.put(id, Integer.valueOf(protocolId)));
 
-    LinkedTreeMap<String, LinkedTreeMap<String, List<String>>> tags = gson.fromJson(
+    LinkedTreeMap<String, LinkedTreeMap<String, List<String>>> tags = VelocityServer.GENERAL_GSON.fromJson(
         new InputStreamReader(
             Objects.requireNonNull(TagManager.class.getClassLoader().getResourceAsStream("mapping/tags.json")),
             StandardCharsets.UTF_8
         ),
         LinkedTreeMap.class
     );
-
     for (WorldVersion version : WorldVersion.values()) {
       VERSION_MAP.put(version, localGetTagsForVersion(tags, version));
     }

@@ -181,11 +181,15 @@ public class MinecraftConnection extends ChannelInboundHandlerAdapter {
     if (ctx.channel().isActive()) {
       if (activeSessionHandler != null) {
         try {
-          activeSessionHandler.exception(cause);
+          // Fix long message while player disconnect unexpectedly
+          if (cause instanceof ReadTimeoutException && association instanceof ConnectedPlayer) {
+            logger.info("{} may have disconnect by closing minecraft.", association);
+          } else {
+            activeSessionHandler.exception(cause);
+          }
         } catch (Exception ex) {
           logger.error("{}: exception handling exception in {}",
-              (association != null ? association : channel.remoteAddress()), activeSessionHandler,
-              cause);
+              (association != null ? association : channel.remoteAddress()), activeSessionHandler, cause);
         }
       }
 

@@ -92,7 +92,7 @@ public class HandshakeSessionHandler implements MinecraftSessionHandler {
   public boolean handle(final HandshakePacket handshake) {
     final StateRegistry nextState = getStateForProtocol(handshake.getNextStatus());
     if (nextState == null) {
-      LOGGER.error("{} provided invalid protocol {}", this, handshake.getNextStatus());
+      //LOGGER.error("{} provided invalid protocol {}", this, handshake.getNextStatus());
       connection.close(true);
     } else {
       final InitialInboundConnection ic = new InitialInboundConnection(connection,

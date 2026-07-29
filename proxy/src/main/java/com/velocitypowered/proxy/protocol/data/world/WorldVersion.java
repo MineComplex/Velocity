@@ -29,6 +29,7 @@ import java.util.Set;
 
 @AllArgsConstructor
 public enum WorldVersion {
+  /*
   MINECRAFT_1_16_4(EnumSet.of(ProtocolVersion.MINECRAFT_1_16_4)),
   MINECRAFT_1_17(EnumSet.range(ProtocolVersion.MINECRAFT_1_17, ProtocolVersion.MINECRAFT_1_18_2)),
   MINECRAFT_1_19(EnumSet.range(ProtocolVersion.MINECRAFT_1_19, ProtocolVersion.MINECRAFT_1_19_1)),
@@ -38,6 +39,7 @@ public enum WorldVersion {
   MINECRAFT_1_20_3(ProtocolVersion.MINECRAFT_1_20_3),
   MINECRAFT_1_20_5(EnumSet.range(ProtocolVersion.MINECRAFT_1_20_5, ProtocolVersion.MINECRAFT_1_21)),
   MINECRAFT_1_21_2(ProtocolVersion.MINECRAFT_1_21_2),
+  */
   MINECRAFT_1_21_4(ProtocolVersion.MINECRAFT_1_21_4),
   MINECRAFT_1_21_5(ProtocolVersion.MINECRAFT_1_21_5),
   MINECRAFT_1_21_6(ProtocolVersion.MINECRAFT_1_21_6),
@@ -64,7 +66,8 @@ public enum WorldVersion {
   }
 
   public static WorldVersion parse(String from) {
-    return KEY_LOOKUP.getOrDefault(from, MINECRAFT_1_16_4);
+    //return KEY_LOOKUP.getOrDefault(from, MINECRAFT_1_16_4);
+    return KEY_LOOKUP.getOrDefault(from, MINECRAFT_1_21_4);
   }
 
   public static WorldVersion from(ProtocolVersion protocolVersion) {

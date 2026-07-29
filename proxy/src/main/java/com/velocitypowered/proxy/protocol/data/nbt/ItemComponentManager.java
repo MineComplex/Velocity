@@ -17,9 +17,9 @@
 
 package com.velocitypowered.proxy.protocol.data.nbt;
 
-import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.velocitypowered.api.network.ProtocolVersion;
+import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.protocol.data.nbt.type.BooleanItemComponent;
 import com.velocitypowered.proxy.protocol.data.nbt.type.ComponentItemComponent;
 import com.velocitypowered.proxy.protocol.data.nbt.type.ComponentsItemComponent;
@@ -46,13 +46,11 @@ import java.util.Objects;
 @UtilityClass
 public class ItemComponentManager {
 
-  private final Gson GSON = new Gson();
-
   private final Map<ProtocolVersion, Object2IntMap<String>> id = new HashMap<>();
   private final Map<String, Function<ProtocolVersion, ItemComponent<?>>> factory = new HashMap<>();
 
   static {
-    LinkedTreeMap<String, LinkedTreeMap<String, String>> mapping = GSON.fromJson(
+    LinkedTreeMap<String, LinkedTreeMap<String, String>> mapping = VelocityServer.GENERAL_GSON.fromJson(
         new InputStreamReader(
             Objects.requireNonNull(ItemComponentManager.class.getClassLoader().getResourceAsStream("mapping/data_component_types_mapping.json")),
             StandardCharsets.UTF_8
@@ -60,7 +58,7 @@ public class ItemComponentManager {
         LinkedTreeMap.class
     );
 
-    LinkedTreeMap<String, String> components = GSON.fromJson(
+    LinkedTreeMap<String, String> components = VelocityServer.GENERAL_GSON.fromJson(
         new InputStreamReader(
             Objects.requireNonNull(ItemComponentManager.class.getClassLoader().getResourceAsStream("mapping/data_component_types.json")),
             StandardCharsets.UTF_8

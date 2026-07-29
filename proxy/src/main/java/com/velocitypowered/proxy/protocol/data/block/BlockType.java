@@ -23,16 +23,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.function.Function;
 
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_16_4;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_18_2;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_19_1;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_19_3;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_19_4;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_20;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_2;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_4;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_7;
+import static com.velocitypowered.api.network.ProtocolVersion.*;
 
 // TODO: load mappings from a separate file
 @Getter
@@ -45,120 +36,42 @@ public enum BlockType {
   // - https://github.com/ViaVersion/Mappings/tree/main/mappings
   //STONE(protocolVersion -> 1, 1),
   ENCHANTMENT_TABLE(protocolVersion -> {
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_16_4)) {
-      return 5136;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_18_2)) {
-      return 5333;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_19_1)) {
-      return 5719;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_19_3)) {
-      return 7159;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_19_4)) {
-      return 7385;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_21)) {
-      return 7389;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_21_2)) {
-      return 7619;
-    }
     if (protocolVersion.noGreaterThan(MINECRAFT_1_21_4)) {
       return 8163;
     }
     if (protocolVersion.noGreaterThan(MINECRAFT_1_21_7)) {
       return 8173;
     }
-    return 9250;
+    if (protocolVersion.noGreaterThan(MINECRAFT_1_21_11)) {
+      return 9250;
+    }
+    return 9451;
   }, protocolVersion -> (double) 0.75f),
   TRAPDOOR(protocolVersion -> {
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_16_4)) {
-      return 7556;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_18_2)) {
-      return 7802;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_19_1)) {
-      return 8293;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_19_3)) {
-      return 9937;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_19_4)) {
-      return 10269;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_20)) {
-      return 10273;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_21)) {
-      return 10414;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_21_2)) {
-      return 10749;
-    }
     if (protocolVersion.noGreaterThan(MINECRAFT_1_21_4)) {
       return 11293;
     }
     if (protocolVersion.noGreaterThan(MINECRAFT_1_21_7)) {
       return 11303;
     }
-    return 12380;
+    if (protocolVersion.noGreaterThan(MINECRAFT_1_21_11)) {
+      return 12380;
+    }
+    return 12582;
   }, protocolVersion -> 0.1875),
   END_PORTAL_FRAME(protocolVersion -> {
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_16_4)) {
-      return 5157;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_18_2)) {
-      return 5358;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_19_1)) {
-      return 5744;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_19_3)) {
-      return 7184;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_19_4)) {
-      return 7410;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_21)) {
-      return 7414;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_21_2)) {
-      return 7644;
-    }
     if (protocolVersion.noGreaterThan(MINECRAFT_1_21_4)) {
       return 8185;
     }
     if (protocolVersion.noGreaterThan(MINECRAFT_1_21_7)) {
       return 8195;
     }
-    return 9272;
+    if (protocolVersion.noGreaterThan(MINECRAFT_1_21_11)) {
+      return 9272;
+    }
+    return 9473;
   }, protocolVersion -> 0.8125),
   DAYLIGHT_SENSOR(protocolVersion -> {
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_16_4)) {
-      return 6698;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_18_2)) {
-      return 6916;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_19_1)) {
-      return 7327;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_19_3)) {
-      return 8811;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_19_4)) {
-      return 9063;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_20)) {
-      return 9067;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_21)) {
-      return 9207;
-    }
     if (protocolVersion.noGreaterThan(MINECRAFT_1_21_2)) {
       return 9462;
     }
@@ -168,103 +81,46 @@ public enum BlockType {
     if (protocolVersion.noGreaterThan(MINECRAFT_1_21_7)) {
       return 10016;
     }
-    return 11093;
+    if (protocolVersion.noGreaterThan(MINECRAFT_1_21_11)) {
+      return 11093;
+    }
+    return 11295;
   }, protocolVersion -> 0.375),
   COBBLESTONE_WALL(protocolVersion -> {
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_16_4)) {
-      return 5664;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_18_2)) {
-      return 5866;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_19_1)) {
-      return 6252;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_19_3)) {
-      return 7692;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_19_4)) {
-      return 7918;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_21)) {
-      return 7922;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_21_2)) {
-      return 8152;
-    }
     if (protocolVersion.noGreaterThan(MINECRAFT_1_21_4)) {
       return 8696;
     }
     if (protocolVersion.noGreaterThan(MINECRAFT_1_21_7)) {
       return 8706;
     }
-    return 9783;
+    if (protocolVersion.noGreaterThan(MINECRAFT_1_21_11)) {
+      return 9783;
+    }
+    return 9984;
   }, protocolVersion -> 1.5),
   STONE_SLABS(protocolVersion -> {
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_16_4)) {
-      return 8349;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_18_2)) {
-      return 8595;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_19_1)) {
-      return 9092;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_19_3)) {
-      return 10748;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_19_4)) {
-      return 11086;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_20)) {
-      return 11090;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_21)) {
-      return 11231;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_21_2)) {
-      return 11566;
-    }
     if (protocolVersion.noGreaterThan(MINECRAFT_1_21_4)) {
       return 12110;
     }
     if (protocolVersion.noGreaterThan(MINECRAFT_1_21_7)) {
       return 12120;
     }
-    return 13197;
+    if (protocolVersion.noGreaterThan(MINECRAFT_1_21_11)) {
+      return 13197;
+    }
+    return 13399;
   }, protocolVersion -> 0.5),
   WHITE_CARPET(protocolVersion -> {
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_16_4)) {
-      return 7870;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_18_2)) {
-      return 8116;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_19_1)) {
-      return 8607;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_19_3)) {
-      return 10251;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_19_4)) {
-      return 10583;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_20)) {
-      return 10587;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_21)) {
-      return 10728;
-    }
-    if (protocolVersion.noGreaterThan(MINECRAFT_1_21_2)) {
-      return 11063;
-    }
     if (protocolVersion.noGreaterThan(MINECRAFT_1_21_4)) {
       return 11607;
     }
     if (protocolVersion.noGreaterThan(MINECRAFT_1_21_7)) {
       return 11617;
     }
-    return 12694;
+    if (protocolVersion.noGreaterThan(MINECRAFT_1_21_11)) {
+      return 12694;
+    }
+    return 12896;
   }, protocolVersion -> 0.0625);
 
   private final Function<ProtocolVersion, Integer> id;

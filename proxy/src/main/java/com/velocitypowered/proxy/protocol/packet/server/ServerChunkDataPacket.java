@@ -28,7 +28,6 @@ import com.velocitypowered.proxy.protocol.data.chunk.ChunkSnapshot;
 import com.velocitypowered.proxy.protocol.data.chunk.section.BlockSection;
 import com.velocitypowered.proxy.protocol.data.chunk.section.LightSection;
 import com.velocitypowered.proxy.protocol.data.chunk.section.NetworkSection;
-import com.velocitypowered.proxy.protocol.data.material.Material;
 import com.velocitypowered.proxy.protocol.data.storage.BitStorage;
 import com.velocitypowered.proxy.protocol.data.tile.TileEntity;
 import com.velocitypowered.proxy.protocol.data.world.Biome;
@@ -314,7 +313,7 @@ public class ServerChunkDataPacket implements MinecraftPacket {
             data.writeShort(0); // Fluid count = 0.
           }
           data.writeByte(0); // BlockStorage: 0 bit per entry = Single palette.
-          ProtocolUtils.writeVarInt(data, Material.AIR.getId()); // Only air block in the palette.
+          ProtocolUtils.writeVarInt(data, 0); // Only air block in the palette.
           if (version.lessThan(ProtocolVersion.MINECRAFT_1_21_5)) {
             ProtocolUtils.writeVarInt(data, 0); // BlockStorage: 0 entries.
           }

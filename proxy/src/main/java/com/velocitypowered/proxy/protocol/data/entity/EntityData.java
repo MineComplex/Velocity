@@ -19,7 +19,6 @@ package com.velocitypowered.proxy.protocol.data.entity;
 
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.protocol.data.item.Item;
-import com.velocitypowered.proxy.protocol.data.material.Material;
 import com.velocitypowered.proxy.protocol.data.nbt.ItemComponentMap;
 import lombok.experimental.UtilityClass;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
@@ -27,40 +26,13 @@ import net.kyori.adventure.nbt.IntBinaryTag;
 
 import java.util.Map;
 
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_16_4;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_18_2;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_19_1;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_19_3;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_20_2;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_20_3;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_20_5;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_2;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_5;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_7;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_9;
+import static com.velocitypowered.api.network.ProtocolVersion.*;
 
 @UtilityClass
 public class EntityData {
 
   public int getFrameId(ProtocolVersion version) {
-    if (version.noGreaterThan(MINECRAFT_1_16_4)) {
-      return 38;
-    } else if (version.noGreaterThan(MINECRAFT_1_18_2)) {
-      return 42;
-    } else if (version.noGreaterThan(MINECRAFT_1_19_1)) {
-      return 45;
-    } else if (version.noGreaterThan(MINECRAFT_1_19_3)) {
-      return 46;
-    } else if (version.noGreaterThan(MINECRAFT_1_20_2)) {
-      return 56;
-    } else if (version.noGreaterThan(MINECRAFT_1_20_3)) {
-      return 57;
-    } else if (version.noGreaterThan(MINECRAFT_1_21)) {
-      return 60;
-    } else if (version.noGreaterThan(MINECRAFT_1_21_2)) {
-      return 71;
-    } else if (version.noGreaterThan(MINECRAFT_1_21_5)) {
+    if (version.noGreaterThan(MINECRAFT_1_21_5)) {
       return 70;
     } else if (version.noGreaterThan(MINECRAFT_1_21_7)) {
       return 71;
@@ -72,19 +44,7 @@ public class EntityData {
   }
 
   public int getBoatId(ProtocolVersion version) {
-    if (version.noGreaterThan(MINECRAFT_1_16_4)) {
-      return 6;
-    } else if (version.noGreaterThan(MINECRAFT_1_18_2)) {
-      return 7;
-    } else if (version.noGreaterThan(MINECRAFT_1_19_3)) {
-      return 8;
-    } else if (version.noGreaterThan(MINECRAFT_1_20_3)) {
-      return 9;
-    } else if (version.noGreaterThan(MINECRAFT_1_21)) {
-      return 10;
-    } else if (version.noGreaterThan(MINECRAFT_1_21_2)) { // 1.21.2 split the boat type in id registries.
-      return 85;
-    } else if (version.noGreaterThan(MINECRAFT_1_21_5)) {
+    if (version.noGreaterThan(MINECRAFT_1_21_5)) {
       return 84;
     } else if (version.noGreaterThan(MINECRAFT_1_21_7)) {
       return 85;
@@ -95,23 +55,7 @@ public class EntityData {
   }
 
   public int getMinecartId(ProtocolVersion version) {
-    if (version.noGreaterThan(MINECRAFT_1_16_4)) {
-      return 45;
-    } else if (version.noGreaterThan(MINECRAFT_1_18_2)) {
-      return 50;
-    } else if (version.noGreaterThan(MINECRAFT_1_19_1)) {
-      return 53;
-    } else if (version.noGreaterThan(MINECRAFT_1_19_3)) {
-      return 54;
-    } else if (version.noGreaterThan(MINECRAFT_1_20_2)) {
-      return 64;
-    } else if (version.noGreaterThan(MINECRAFT_1_20_3)) {
-      return 65;
-    } else if (version.noGreaterThan(MINECRAFT_1_21)) {
-      return 69;
-    } else if (version.noGreaterThan(MINECRAFT_1_21_2)) {
-      return 82;
-    } else if (version.noGreaterThan(MINECRAFT_1_21_5)) {
+    if (version.noGreaterThan(MINECRAFT_1_21_5)) {
       return 81;
     } else if (version.noGreaterThan(MINECRAFT_1_21_7)) {
       return 82;
@@ -122,9 +66,7 @@ public class EntityData {
   }
 
   public byte getMetadataIndex(ProtocolVersion version) {
-    if (version.noGreaterThan(MINECRAFT_1_16_4)) {
-      return 7;
-    } else if (version.noGreaterThan(MINECRAFT_1_21_5)) {
+    if (version.noGreaterThan(MINECRAFT_1_21_5)) {
       return 8;
     }
     return 9;
@@ -132,7 +74,7 @@ public class EntityData {
 
   public EntityMetadata createMapMetadata(ProtocolVersion version, int mapId) {
     return new EntityMetadata(Map.of(
-        getMetadataIndex(version), new EntityMetadata.SlotEntry(Item.fromModernId("minecraft:filled_map"), 1, 0,
+        getMetadataIndex(version), new EntityMetadata.SlotEntry(Item.fromModernId("minecraft:filled_map"), 1,
             CompoundBinaryTag.builder().put("map", IntBinaryTag.intBinaryTag(mapId)).build(),
             new ItemComponentMap().add(MINECRAFT_1_20_5, "minecraft:map_id", mapId))
     ));
