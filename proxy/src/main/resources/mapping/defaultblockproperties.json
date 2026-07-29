@@ -653,6 +653,42 @@
         "up": "false",
         "west": "false"
     },
+    "minecraft:cinnabar_brick_slab": {
+        "type": "bottom",
+        "waterlogged": "false"
+    },
+    "minecraft:cinnabar_brick_stairs": {
+        "facing": "north",
+        "half": "bottom",
+        "shape": "straight",
+        "waterlogged": "false"
+    },
+    "minecraft:cinnabar_brick_wall": {
+        "east": "none",
+        "north": "none",
+        "south": "none",
+        "up": "true",
+        "waterlogged": "false",
+        "west": "none"
+    },
+    "minecraft:cinnabar_slab": {
+        "type": "bottom",
+        "waterlogged": "false"
+    },
+    "minecraft:cinnabar_stairs": {
+        "facing": "north",
+        "half": "bottom",
+        "shape": "straight",
+        "waterlogged": "false"
+    },
+    "minecraft:cinnabar_wall": {
+        "east": "none",
+        "north": "none",
+        "south": "none",
+        "up": "true",
+        "waterlogged": "false",
+        "west": "none"
+    },
     "minecraft:cobbled_deepslate_slab": {
         "type": "bottom",
         "waterlogged": "false"
@@ -2313,6 +2349,24 @@
         "waterlogged": "false",
         "west": "none"
     },
+    "minecraft:polished_cinnabar_slab": {
+        "type": "bottom",
+        "waterlogged": "false"
+    },
+    "minecraft:polished_cinnabar_stairs": {
+        "facing": "north",
+        "half": "bottom",
+        "shape": "straight",
+        "waterlogged": "false"
+    },
+    "minecraft:polished_cinnabar_wall": {
+        "east": "none",
+        "north": "none",
+        "south": "none",
+        "up": "true",
+        "waterlogged": "false",
+        "west": "none"
+    },
     "minecraft:polished_deepslate_slab": {
         "type": "bottom",
         "waterlogged": "false"
@@ -2351,6 +2405,24 @@
         "shape": "straight",
         "waterlogged": "false"
     },
+    "minecraft:polished_sulfur_slab": {
+        "type": "bottom",
+        "waterlogged": "false"
+    },
+    "minecraft:polished_sulfur_stairs": {
+        "facing": "north",
+        "half": "bottom",
+        "shape": "straight",
+        "waterlogged": "false"
+    },
+    "minecraft:polished_sulfur_wall": {
+        "east": "none",
+        "north": "none",
+        "south": "none",
+        "up": "true",
+        "waterlogged": "false",
+        "west": "none"
+    },
     "minecraft:polished_tuff_slab": {
         "type": "bottom",
         "waterlogged": "false"
@@ -2371,6 +2443,9 @@
     },
     "minecraft:potatoes": {
         "age": "0"
+    },
+    "minecraft:potent_sulfur": {
+        "potent_sulfur_state": "dry"
     },
     "minecraft:powder_snow_cauldron": {
         "level": "1"
@@ -2937,6 +3012,47 @@
     },
     "minecraft:sugar_cane": {
         "age": "0"
+    },
+    "minecraft:sulfur_brick_slab": {
+        "type": "bottom",
+        "waterlogged": "false"
+    },
+    "minecraft:sulfur_brick_stairs": {
+        "facing": "north",
+        "half": "bottom",
+        "shape": "straight",
+        "waterlogged": "false"
+    },
+    "minecraft:sulfur_brick_wall": {
+        "east": "none",
+        "north": "none",
+        "south": "none",
+        "up": "true",
+        "waterlogged": "false",
+        "west": "none"
+    },
+    "minecraft:sulfur_slab": {
+        "type": "bottom",
+        "waterlogged": "false"
+    },
+    "minecraft:sulfur_spike": {
+        "thickness": "tip",
+        "vertical_direction": "up",
+        "waterlogged": "false"
+    },
+    "minecraft:sulfur_stairs": {
+        "facing": "north",
+        "half": "bottom",
+        "shape": "straight",
+        "waterlogged": "false"
+    },
+    "minecraft:sulfur_wall": {
+        "east": "none",
+        "north": "none",
+        "south": "none",
+        "up": "true",
+        "waterlogged": "false",
+        "west": "none"
     },
     "minecraft:sunflower": {
         "half": "lower"
