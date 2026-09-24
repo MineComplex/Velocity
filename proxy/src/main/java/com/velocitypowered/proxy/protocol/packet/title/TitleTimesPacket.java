@@ -24,6 +24,7 @@ import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * The {@code TitleTimesPacket} class represents a packet that handles the timing settings for a title in
@@ -43,8 +44,9 @@ public class TitleTimesPacket extends GenericTitlePacket {
   private int stay;
   private int fadeOut;
 
-  public TitleTimesPacket() {
-    setAction(ActionType.SET_TIMES);
+  @Override
+  public @NotNull ActionType getAction() {
+    return ActionType.SET_TIMES;
   }
 
   @Override

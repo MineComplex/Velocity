@@ -245,7 +245,7 @@ public interface Player extends
    * Gets the {@link ResourcePackInfo} of the currently applied
    * resource-pack or null if none.
    *
-   * <p> Note that since 1.20.3 it is no longer recommended to use
+   * <p>Note that since 1.20.3 it is no longer recommended to use
    * this method as it will only return the last applied
    * resource pack. To get all applied resource packs, use
    * {@link #getAppliedResourcePacks()} instead. </p>
@@ -261,7 +261,7 @@ public interface Player extends
    * the user is currently downloading or is currently
    * prompted to install or null if none.
    *
-   * <p> Note that since 1.20.3 it is no longer recommended to use
+   * <p>Note that since 1.20.3 it is no longer recommended to use
    * this method as it will only return the last pending
    * resource pack. To get all pending resource packs, use
    * {@link #getPendingResourcePacks()} instead. </p>
@@ -316,6 +316,7 @@ public interface Player extends
 
   /**
    * {@inheritDoc}
+   *
    * <p><strong>Note that this method does not send a plugin message to the server the player
    * is connected to.</strong> You should only use this method if you are trying to communicate
    * with a mod that is installed on the player's client.</p>
@@ -401,7 +402,7 @@ public interface Player extends
    *     and will not perform any actions.</b>
    * @see #playSound(Sound, Sound.Emitter)
    * @see <a href="https://docs.papermc.io/velocity/dev/pitfalls/#audience-operations-are-not-fully-supported">
-   *   Unsupported Adventure Operations</a>
+   *     Unsupported Adventure Operations</a>
    */
   @Override
   default void playSound(@NotNull Sound sound) {
@@ -414,7 +415,7 @@ public interface Player extends
    *     and will not perform any actions.</b>
    * @see #playSound(Sound, Sound.Emitter)
    * @see <a href="https://docs.papermc.io/velocity/dev/pitfalls/#audience-operations-are-not-fully-supported">
-   *   Unsupported Adventure Operations</a>
+   *     Unsupported Adventure Operations</a>
    */
   @Override
   default void playSound(@NotNull Sound sound, double x, double y, double z) {
@@ -457,7 +458,7 @@ public interface Player extends
    * and will not perform any actions.</b>
    *
    * @see <a href="https://docs.papermc.io/velocity/dev/pitfalls/#audience-operations-are-not-fully-supported">
-   *   Unsupported Adventure Operations</a>
+   *     Unsupported Adventure Operations</a>
    */
   @Override
   default void openBook(@NotNull Book book) {
@@ -470,7 +471,7 @@ public interface Player extends
    * and will not perform any actions.</b>
    *
    * @see <a href="https://docs.papermc.io/velocity/dev/pitfalls/#audience-operations-are-not-fully-supported">
-   *   Unsupported Adventure Operations</a>
+   *     Unsupported Adventure Operations</a>
    */
   @Override
   default void showDialog(@NotNull DialogLike dialog) {
@@ -483,7 +484,7 @@ public interface Player extends
    * and will not perform any actions.</b>
    *
    * @see <a href="https://docs.papermc.io/velocity/dev/pitfalls/#audience-operations-are-not-fully-supported">
-   *   Unsupported Adventure Operations</a>
+   *     Unsupported Adventure Operations</a>
    */
   @Override
   default void closeDialog() {

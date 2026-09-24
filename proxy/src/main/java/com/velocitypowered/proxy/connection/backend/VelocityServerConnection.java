@@ -17,6 +17,10 @@
 
 package com.velocitypowered.proxy.connection.backend;
 
+import static com.velocitypowered.proxy.connection.forge.legacy.LegacyForgeConstants.HANDSHAKE_HOSTNAME_TOKEN;
+import static com.velocitypowered.proxy.network.Connections.HANDLER;
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import com.velocitypowered.api.network.HandshakeIntent;
 import com.velocitypowered.api.network.ProtocolVersion;
@@ -45,18 +49,13 @@ import com.velocitypowered.proxy.server.VelocityRegisteredServer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-
-import static com.velocitypowered.proxy.connection.forge.legacy.LegacyForgeConstants.HANDSHAKE_HOSTNAME_TOKEN;
-import static com.velocitypowered.proxy.network.Connections.HANDLER;
-import static java.util.Objects.requireNonNull;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Handles a connection from the proxy to some backend server.
@@ -69,6 +68,7 @@ public class VelocityServerConnection implements MinecraftConnectionAssociation,
   private final VelocityServer server;
   private @Nullable MinecraftConnection connection;
   private boolean hasCompletedJoin = false;
+  public boolean clientLoaded = false; // 1.21.4+
   public boolean gracefulDisconnect = false;
   private BackendConnectionPhase connectionPhase = BackendConnectionPhases.UNKNOWN;
   private final Map<Long, Long> pendingPings = new HashMap<>();
@@ -316,6 +316,15 @@ public class VelocityServerConnection implements MinecraftConnectionAssociation,
         }
       }
     }
+  }
+
+  public void setClientLoaded(boolean clientLoaded) {
+    this.clientLoaded = clientLoaded;
+  }
+
+  @Override
+  public boolean isClientLoaded() {
+    return clientLoaded;
   }
 
   boolean isGracefulDisconnect() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Velocity Contributors
+ * Copyright (C) 2025 Velocity Contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,42 +15,32 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.velocitypowered.proxy.protocol.packet.title;
+package com.velocitypowered.proxy.protocol.packet;
 
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
+import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
-import com.velocitypowered.proxy.protocol.packet.chat.ComponentHolder;
 import io.netty.buffer.ByteBuf;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 
-/**
- * The {@code TitleSubtitlePacket} class represents a packet that handles the subtitle content for a title
- * displayed to the player in Minecraft.
- *
- * <p>This packet is used to send the subtitle text that appears below the main title on the player's screen.</p>
- *
- * <p>It extends the {@link GenericTitlePacket}, inheriting basic title properties and focusing
- * on the subtitle content of the title.</p>
- */
-@Getter
-@Setter
-@ToString
-public class TitleSubtitlePacket extends GenericTitlePacket {
+public class ServerboundPlayerLoadedPacket implements MinecraftPacket {
 
-  private ComponentHolder component;
+  public static final ServerboundPlayerLoadedPacket INSTANCE = new ServerboundPlayerLoadedPacket();
+
+  private ServerboundPlayerLoadedPacket() {
+  }
 
   @Override
-  public @NotNull ActionType getAction() {
-    return ActionType.SET_SUBTITLE;
+  public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
   }
 
   @Override
   public void encode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
-    component.write(buf);
+  }
+
+  @Override
+  public int decodeExpectedMaxLength(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
+    return 0;
   }
 
   @Override
