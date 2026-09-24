@@ -36,10 +36,22 @@ import lombok.ToString;
 public class ClientTeleportConfirmPacket implements MinecraftPacket {
 
   private int teleportId;
+  private double posX;
+  private double posY;
+  private double posZ;
+  private float yaw;
+  private float pitch;
 
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion protocolVersion) {
     teleportId = ProtocolUtils.readVarInt(buf);
+    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_26_3)) {
+      posX = buf.readDouble();
+      posY = buf.readDouble();
+      posZ = buf.readDouble();
+      yaw = buf.readFloat();
+      pitch = buf.readFloat();
+    }
   }
 
   @Override
@@ -55,12 +67,12 @@ public class ClientTeleportConfirmPacket implements MinecraftPacket {
 
   @Override
   public int decodeExpectedMaxLength(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
-    return 5;
+    return 5 + (version.noLessThan(ProtocolVersion.MINECRAFT_26_3) ? 32 : 0);
   }
 
   @Override
   public int decodeExpectedMinLength(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
-    return 1;
+    return 1 + (version.noLessThan(ProtocolVersion.MINECRAFT_26_3) ? 32 : 0);
   }
 
 }

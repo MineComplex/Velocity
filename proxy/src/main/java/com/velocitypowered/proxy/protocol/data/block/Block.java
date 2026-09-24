@@ -116,7 +116,7 @@ public class Block {
         LinkedTreeMap.class
     );
 
-    blocks.forEach((modernId, protocolId) -> MODERN_BLOCK_STRING_MAP.put(modernId, Short.valueOf(protocolId)));
+    blocks.forEach((modernId, protocolId) -> MODERN_BLOCK_STRING_MAP.put(modernId, parseNumericId(protocolId)));
 
     LinkedTreeMap<String, LinkedTreeMap<String, String>> blockVersionMapping = VelocityServer.GENERAL_GSON.fromJson(
         new InputStreamReader(
@@ -128,8 +128,8 @@ public class Block {
 
     blockVersionMapping.forEach((protocolId, versionMap) -> {
       EnumMap<WorldVersion, Short> deserializedVersionMap = new EnumMap<>(WorldVersion.class);
-      versionMap.forEach((version, id) -> deserializedVersionMap.put(WorldVersion.parse(version), Short.valueOf(id)));
-      LEGACY_BLOCK_IDS_MAP.put(Short.valueOf(protocolId), deserializedVersionMap);
+      versionMap.forEach((version, id) -> deserializedVersionMap.put(WorldVersion.parse(version), parseNumericId(id)));
+      LEGACY_BLOCK_IDS_MAP.put(parseNumericId(protocolId), deserializedVersionMap);
     });
 
     LinkedTreeMap<String, String> blockStates = VelocityServer.GENERAL_GSON.fromJson(
@@ -138,7 +138,7 @@ public class Block {
         LinkedTreeMap.class
     );
     blockStates.forEach((key, value) -> {
-      MODERN_BLOCK_STATE_PROTOCOL_ID_MAP.put(Short.valueOf(value), key);
+      MODERN_BLOCK_STATE_PROTOCOL_ID_MAP.put(parseNumericId(value), key);
 
       String[] stringIdArgs = key.split("\\[");
       if (!MODERN_BLOCK_STATE_STRING_MAP.containsKey(stringIdArgs[0])) {
@@ -146,10 +146,10 @@ public class Block {
       }
 
       if (stringIdArgs.length == 1) {
-        MODERN_BLOCK_STATE_STRING_MAP.get(stringIdArgs[0]).put(null, Short.valueOf(value));
+        MODERN_BLOCK_STATE_STRING_MAP.get(stringIdArgs[0]).put(null, parseNumericId(value));
       } else {
         stringIdArgs[1] = stringIdArgs[1].substring(0, stringIdArgs[1].length() - 1);
-        MODERN_BLOCK_STATE_STRING_MAP.get(stringIdArgs[0]).put(new HashSet<>(Arrays.asList(stringIdArgs[1].split(","))), Short.valueOf(value));
+        MODERN_BLOCK_STATE_STRING_MAP.get(stringIdArgs[0]).put(new HashSet<>(Arrays.asList(stringIdArgs[1].split(","))), parseNumericId(value));
       }
     });
 
@@ -162,7 +162,7 @@ public class Block {
     modernMap.forEach((modernId, versionMap) -> {
       Short id = null;
       for (ProtocolVersion version : EnumSet.range(ProtocolVersion.MINECRAFT_1_21_4, ProtocolVersion.MAXIMUM_VERSION)) {
-        id = Short.valueOf(versionMap.getOrDefault(version.toString(), String.valueOf(id)));
+        id = parseNumericId(versionMap.getOrDefault(version.toString(), String.valueOf(id)));
         Block.MODERN_BLOCK_STATE_IDS_MAP.computeIfAbsent(version, k -> new ShortObjectHashMap<>()).put(Short.parseShort(modernId), id);
       }
     });
@@ -199,6 +199,15 @@ public class Block {
 
       return fromModernId(deserializedModernId[0], properties);
     }
+  }
+
+  private static short parseNumericId(String id) {
+    int identifier = Integer.parseInt(id);
+    short sixteenBits = (short) identifier;
+    if ((sixteenBits & 0xFFFF) != identifier) {
+      throw new IllegalStateException("id overflow: " + identifier);
+    }
+    return sixteenBits;
   }
 
   public static Block fromModernId(String modernId, Map<String, String> properties) {

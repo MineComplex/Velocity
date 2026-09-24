@@ -38,8 +38,10 @@ public class EntityData {
       return 71;
     } else if (version.noGreaterThan(MINECRAFT_1_21_9)) {
       return 72;
-    } else {
+    } else if (version.noGreaterThan(ProtocolVersion.MINECRAFT_26_2)) {
       return 73;
+    } else {
+      return 74;
     }
   }
 
@@ -50,8 +52,10 @@ public class EntityData {
       return 85;
     } else if (version.noGreaterThan(MINECRAFT_1_21_9)) {
       return 87;
+    } else if (version.noGreaterThan(MINECRAFT_26_2)) {
+      return 89;
     }
-    return 89;
+    return 90;
   }
 
   public int getMinecartId(ProtocolVersion version) {
@@ -61,8 +65,10 @@ public class EntityData {
       return 82;
     } else if (version.noGreaterThan(MINECRAFT_1_21_9)) {
       return 84;
+    } else if (version.noGreaterThan(MINECRAFT_26_2)) {
+      return 85;
     }
-    return 85;
+    return 86;
   }
 
   public byte getMetadataIndex(ProtocolVersion version) {

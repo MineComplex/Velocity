@@ -265,14 +265,8 @@ public class ServerChunkDataPacket implements MinecraftPacket {
         if (version.lessThan(ProtocolVersion.MINECRAFT_1_20)) {
           buf.writeBoolean(true); // Trust edges.
         }
-        ProtocolUtils.writeVarInt(buf, mask.length); // Skylight mask.
-        for (long m : mask) {
-          buf.writeLong(m);
-        }
-        ProtocolUtils.writeVarInt(buf, mask.length); // BlockLight mask.
-        for (long m : mask) {
-          buf.writeLong(m);
-        }
+        ProtocolUtils.writeBitSet(buf, version, mask); // Skylight mask.
+        ProtocolUtils.writeBitSet(buf, version, mask); // BlockLight mask.
         ProtocolUtils.writeVarInt(buf, 0); // EmptySkylight mask.
         ProtocolUtils.writeVarInt(buf, 0); // EmptyBlockLight mask.
         ProtocolUtils.writeVarInt(buf, chunk.light().length);

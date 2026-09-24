@@ -48,6 +48,10 @@ public class ClientAnimationPacket implements MinecraftPacket {
 
   @Override
   public void decode(@NotNull ByteBuf bytebuf, ProtocolUtils.Direction direction, @NotNull ProtocolVersion version) {
+    if (version.noLessThan(ProtocolVersion.MINECRAFT_26_3)) {
+      hand = MAIN_HAND;
+      return;
+    }
     hand = ProtocolUtils.readVarInt(bytebuf);
   }
 

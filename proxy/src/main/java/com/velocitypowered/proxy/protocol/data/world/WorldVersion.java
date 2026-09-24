@@ -29,17 +29,7 @@ import java.util.Set;
 
 @AllArgsConstructor
 public enum WorldVersion {
-  /*
-  MINECRAFT_1_16_4(EnumSet.of(ProtocolVersion.MINECRAFT_1_16_4)),
-  MINECRAFT_1_17(EnumSet.range(ProtocolVersion.MINECRAFT_1_17, ProtocolVersion.MINECRAFT_1_18_2)),
-  MINECRAFT_1_19(EnumSet.range(ProtocolVersion.MINECRAFT_1_19, ProtocolVersion.MINECRAFT_1_19_1)),
-  MINECRAFT_1_19_3(ProtocolVersion.MINECRAFT_1_19_3),
-  MINECRAFT_1_19_4(EnumSet.range(ProtocolVersion.MINECRAFT_1_19_4, ProtocolVersion.MINECRAFT_1_20)),
-  MINECRAFT_1_20(EnumSet.range(ProtocolVersion.MINECRAFT_1_20, ProtocolVersion.MINECRAFT_1_20_2)),
-  MINECRAFT_1_20_3(ProtocolVersion.MINECRAFT_1_20_3),
-  MINECRAFT_1_20_5(EnumSet.range(ProtocolVersion.MINECRAFT_1_20_5, ProtocolVersion.MINECRAFT_1_21)),
-  MINECRAFT_1_21_2(ProtocolVersion.MINECRAFT_1_21_2),
-  */
+
   MINECRAFT_1_21_4(ProtocolVersion.MINECRAFT_1_21_4),
   MINECRAFT_1_21_5(ProtocolVersion.MINECRAFT_1_21_5),
   MINECRAFT_1_21_6(ProtocolVersion.MINECRAFT_1_21_6),
@@ -47,7 +37,8 @@ public enum WorldVersion {
   MINECRAFT_1_21_9(ProtocolVersion.MINECRAFT_1_21_9),
   MINECRAFT_1_21_11(ProtocolVersion.MINECRAFT_1_21_11),
   MINECRAFT_26_1(ProtocolVersion.MINECRAFT_26_1),
-  MINECRAFT_26_2(EnumSet.range(ProtocolVersion.MINECRAFT_26_2, ProtocolVersion.MAXIMUM_VERSION));
+  MINECRAFT_26_2(ProtocolVersion.MINECRAFT_26_2),
+  MINECRAFT_26_3(EnumSet.range(ProtocolVersion.MINECRAFT_26_3, ProtocolVersion.MAXIMUM_VERSION));
 
   private static final EnumMap<ProtocolVersion, WorldVersion> MC_VERSION_TO_ITEM_VERSIONS = new EnumMap<>(ProtocolVersion.class);
   private static final Map<String, WorldVersion> KEY_LOOKUP = Map.copyOf(EnumUniverse.createProtocolLookup(values()));

@@ -62,7 +62,7 @@ public class BlockStorage implements BlockTypeStorage {
     if (storage.getBitsPerEntry() <= 8) {
       ProtocolUtils.writeVarInt(buf, palette.size());
       for (Block state : palette) {
-        ProtocolUtils.writeVarInt(buf, state.getBlockStateId(this.version));
+        ProtocolUtils.writeVarInt(buf, state.getBlockStateId(this.version) & 0xFFFF);
       }
     }
 
@@ -79,7 +79,7 @@ public class BlockStorage implements BlockTypeStorage {
     if (storage.getBitsPerEntry() > 8) {
       short raw = block.getBlockStateId(version);
       rawToBlock.put(raw, block);
-      return raw;
+      return raw & 0xFFFF;
     } else {
       int id = palette.indexOf(block);
       if (id == -1) {
@@ -87,7 +87,7 @@ public class BlockStorage implements BlockTypeStorage {
           int bitsPerEntry = BitStorage.fixBitsPerEntry(version, storage.getBitsPerEntry() + 1);
           BitStorage newStorage = createStorage(bitsPerEntry);
           for (int i = 0; i < Chunk.MAX_BLOCKS_PER_SECTION; ++i) {
-            newStorage.set(i, bitsPerEntry > 8 ? palette.get(storage.get(i)).getBlockStateId(version) : storage.get(i));
+            newStorage.set(i, bitsPerEntry > 8 ? palette.get(storage.get(i)).getBlockStateId(version) & 0xFFFF : storage.get(i));
           }
 
           storage = newStorage;
@@ -124,7 +124,7 @@ public class BlockStorage implements BlockTypeStorage {
     if (storage.getBitsPerEntry() <= 8) {
       length += ProtocolUtils.varIntBytes(palette.size());
       for (Block state : palette) {
-        length += ProtocolUtils.varIntBytes(state.getBlockStateId(this.version));
+        length += ProtocolUtils.varIntBytes(state.getBlockStateId(this.version) & 0xFFFF);
       }
     }
 

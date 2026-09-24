@@ -45,11 +45,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.velocitypowered.proxy.protocol.util.NettyPreconditions.checkFrame;
@@ -228,6 +224,19 @@ public enum ProtocolUtils {
       buf.writeShort(w);
     } else {
       writeVarIntFull(buf, value);
+    }
+  }
+
+  public static void writeBitSet(ByteBuf buf, ProtocolVersion version, long[] bits) {
+    if (version.noLessThan(ProtocolVersion.MINECRAFT_26_3)) {
+      byte[] bytes = BitSet.valueOf(bits).toByteArray();
+      ProtocolUtils.writeVarInt(buf, bytes.length);
+      buf.writeBytes(bytes);
+    } else {
+      ProtocolUtils.writeVarInt(buf, bits.length);
+      for (long value : bits) {
+        buf.writeLong(value);
+      }
     }
   }
 

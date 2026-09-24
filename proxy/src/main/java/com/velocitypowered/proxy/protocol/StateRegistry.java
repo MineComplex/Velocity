@@ -280,7 +280,8 @@ public enum StateRegistry {
       clientbound.register(TagsUpdatePacket.class, TagsUpdatePacket::new,
           map(0x08, MINECRAFT_1_20_2, false),
           map(0x09, MINECRAFT_1_20_3, false),
-          map(0x0D, MINECRAFT_1_20_5, false));
+          map(0x0D, MINECRAFT_1_20_5, false),
+          map(0x0E, MINECRAFT_26_3, true));
       clientbound.register(KnownPacksPacket.class, KnownPacksPacket::new,
           map(0x0E, MINECRAFT_1_20_5, false));
       clientbound.register(ClientboundCustomReportDetailsPacket.class, ClientboundCustomReportDetailsPacket::new,
@@ -585,7 +586,8 @@ public enum StateRegistry {
           map(0x27, MINECRAFT_1_21_2, false),
           map(0x26, MINECRAFT_1_21_5, false),
           map(0x2B, MINECRAFT_1_21_9, false),
-          map(0x2C, MINECRAFT_26_1, false));
+          map(0x2C, MINECRAFT_26_1, false),
+          map(0x2D, MINECRAFT_26_3, false));
       clientbound.register(
           JoinGamePacket.class,
           JoinGamePacket::new,
@@ -606,7 +608,8 @@ public enum StateRegistry {
           map(0x2C, MINECRAFT_1_21_2, false),
           map(0x2B, MINECRAFT_1_21_5, false),
           map(0x30, MINECRAFT_1_21_9, false),
-          map(0x31, MINECRAFT_26_1, false));
+          map(0x31, MINECRAFT_26_1, false),
+          map(0x32, MINECRAFT_26_3, true));
       clientbound.register(
           RespawnPacket.class,
           RespawnPacket::new,
@@ -1031,7 +1034,8 @@ public enum StateRegistry {
           map(0x78, MINECRAFT_1_20_5, true),
           map(0x7F, MINECRAFT_1_21_2, true),
           map(0x84, MINECRAFT_1_21_9, true),
-          map(0x86, MINECRAFT_26_1, true)
+          map(0x86, MINECRAFT_26_1, true),
+          map(0x89, MINECRAFT_26_3, true)
       );
       // minecraft:player_position
       clientbound.register(ServerPositionRotationPacket.class, ServerPositionRotationPacket::new,
@@ -1053,7 +1057,8 @@ public enum StateRegistry {
           map(0x42, MINECRAFT_1_21_2, true),
           map(0x41, MINECRAFT_1_21_5, true),
           map(0x46, MINECRAFT_1_21_9, true),
-          map(0x48, MINECRAFT_26_1, true)
+          map(0x48, MINECRAFT_26_1, true),
+          map(0x49, MINECRAFT_26_3, true)
       );
       // minecraft:player_abilities
       clientbound.register(ServerPlayerAbilitiesPacket.class, ServerPlayerAbilitiesPacket::new,
@@ -1075,7 +1080,8 @@ public enum StateRegistry {
           map(0x3A, MINECRAFT_1_21_2, true),
           map(0x39, MINECRAFT_1_21_5, true),
           map(0x3E, MINECRAFT_1_21_9, true),
-          map(0x40, MINECRAFT_26_1, true)
+          map(0x40, MINECRAFT_26_1, true),
+          map(0x41, MINECRAFT_26_3, true)
       );
       // minecraft:level_chunk_with_light
       clientbound.register(ServerChunkDataPacket.class, ServerChunkDataPacket::new,
@@ -1096,7 +1102,8 @@ public enum StateRegistry {
           map(0x28, MINECRAFT_1_21_2, true),
           map(0x27, MINECRAFT_1_21_5, true),
           map(0x2C, MINECRAFT_1_21_9, true),
-          map(0x2D, MINECRAFT_26_1, true));
+          map(0x2D, MINECRAFT_26_1, true),
+          map(0x2E, MINECRAFT_26_3, true));
       // minecraft:section_blocks_update
       clientbound.register(ServerUpdateSectionBlocksPacket.class, ServerUpdateSectionBlocksPacket::new,
           map(0x22, MINECRAFT_1_7_2, true),
@@ -1116,7 +1123,8 @@ public enum StateRegistry {
           map(0x4E, MINECRAFT_1_21_2, true),
           map(0x4D, MINECRAFT_1_21_5, true),
           map(0x52, MINECRAFT_1_21_9, true),
-          map(0x54, MINECRAFT_26_1, true)
+          map(0x54, MINECRAFT_26_1, true),
+          map(0x56, MINECRAFT_26_3, true)
       );
       // minecraft:set_default_spawn_position
       clientbound.register(ServerDefaultSpawnPositionPacket.class, ServerDefaultSpawnPositionPacket::new,
@@ -1139,7 +1147,8 @@ public enum StateRegistry {
           map(0x5B, MINECRAFT_1_21_2, true),
           map(0x5A, MINECRAFT_1_21_5, true),
           map(0x5F, MINECRAFT_1_21_9, true),
-          map(0x61, MINECRAFT_26_1, true));
+          map(0x61, MINECRAFT_26_1, true),
+          map(0x63, MINECRAFT_26_3, true));
       // minecraft:set_experience
       clientbound.register(ServerExperiencePacket.class, ServerExperiencePacket::new,
           map(0x1F, MINECRAFT_1_7_2, true),
@@ -1159,7 +1168,8 @@ public enum StateRegistry {
           map(0x61, MINECRAFT_1_21_2, true),
           map(0x60, MINECRAFT_1_21_5, true),
           map(0x65, MINECRAFT_1_21_9, true),
-          map(0x67, MINECRAFT_26_1, true)
+          map(0x67, MINECRAFT_26_1, true),
+          map(0x69, MINECRAFT_26_3, true)
       );
       // minecraft:map_item_data
       clientbound.register(ServerMapDataPacket.class, ServerMapDataPacket::new,
@@ -1179,7 +1189,8 @@ public enum StateRegistry {
           map(0x2D, MINECRAFT_1_21_2, true),
           map(0x2C, MINECRAFT_1_21_5, true),
           map(0x31, MINECRAFT_1_21_9, true),
-          map(0x33, MINECRAFT_26_1, true)
+          map(0x33, MINECRAFT_26_1, true),
+          map(0x34, MINECRAFT_26_3, true)
       );
       // minecraft:game_event
       clientbound.register(ServerGameStatePacket.class, ServerGameStatePacket::new,
@@ -1200,7 +1211,8 @@ public enum StateRegistry {
           map(0x22, MINECRAFT_1_20_5, true),
           map(0x23, MINECRAFT_1_21_2, true),
           map(0x22, MINECRAFT_1_21_5, true),
-          map(0x26, MINECRAFT_1_21_9, true));
+          map(0x26, MINECRAFT_1_21_9, true),
+          map(0x27, MINECRAFT_26_3, true));
       // minecraft:set_chunk_cache_center
       clientbound.register(
           ServerViewPositionPacket.class, null,
@@ -1218,7 +1230,8 @@ public enum StateRegistry {
           map(0x58, MINECRAFT_1_21_2, true),
           map(0x57, MINECRAFT_1_21_5, true),
           map(0x5C, MINECRAFT_1_21_9, true),
-          map(0x5E, MINECRAFT_26_1, true)
+          map(0x5E, MINECRAFT_26_1, true),
+          map(0x60, MINECRAFT_26_3, true)
       );
       // minecraft:set_time
       clientbound.register(ServerWorldTimePacket.class, ServerWorldTimePacket::new,
@@ -1241,7 +1254,8 @@ public enum StateRegistry {
           map(0x6B, MINECRAFT_1_21_2, true),
           map(0x6A, MINECRAFT_1_21_5, true),
           map(0x6F, MINECRAFT_1_21_9, true),
-          map(0x71, MINECRAFT_26_1, true)
+          map(0x71, MINECRAFT_26_1, true),
+          map(0x73, MINECRAFT_26_3, true)
       );
     }
   },
@@ -1273,7 +1287,8 @@ public enum StateRegistry {
           map(0x31, MINECRAFT_1_21_2, false),
           map(0x33, MINECRAFT_1_21_4, false),
           map(0x34, MINECRAFT_1_21_6, false),
-          map(0x35, MINECRAFT_26_1, false)
+          map(0x35, MINECRAFT_26_1, false),
+          map(0x36, MINECRAFT_26_3, false)
       );
       // minecraft:paddle_boat
       serverbound.register(ClientPaddleBoatPacket.class, ClientPaddleBoatPacket::new,
@@ -1314,7 +1329,8 @@ public enum StateRegistry {
           map(0x28, MINECRAFT_1_21_2, false),
           map(0x29, MINECRAFT_1_21_4, false),
           map(0x2A, MINECRAFT_1_21_6, false),
-          map(0x26, MINECRAFT_26_1, false)
+          map(0x26, MINECRAFT_26_1, false),
+          map(0x2B, MINECRAFT_26_3, false)
       );
       // minecraft:move_vehicle
       serverbound.register(ClientVehicleMovePacket.class, ClientVehicleMovePacket::new,
@@ -1374,7 +1390,8 @@ public enum StateRegistry {
           map(0x3A, MINECRAFT_1_21_4, false),
           map(0x3B, MINECRAFT_1_21_5, false),
           map(0x3C, MINECRAFT_1_21_6, false),
-          map(0x3F, MINECRAFT_26_1, false)
+          map(0x3F, MINECRAFT_26_1, false),
+          map(0x2E, MINECRAFT_26_3, false)
       );
       // minecraft:interact
       serverbound.register(ClientInteractPacket.class, ClientInteractPacket::new,
@@ -1416,7 +1433,8 @@ public enum StateRegistry {
           map(0x5D, MINECRAFT_1_21_2, true),
           map(0x5C, MINECRAFT_1_21_5, true),
           map(0x61, MINECRAFT_1_21_9, true),
-          map(0x63, MINECRAFT_26_1, true)
+          map(0x63, MINECRAFT_26_1, true),
+          map(0x65, MINECRAFT_26_3, true)
       );
       // minecraft:ping
       clientbound.register(TransactionPacket.class, TransactionPacket::new,
@@ -1436,7 +1454,8 @@ public enum StateRegistry {
           map(0x37, MINECRAFT_1_21_2, true),
           map(0x36, MINECRAFT_1_21_5, true),
           map(0x3B, MINECRAFT_1_21_9, true),
-          map(0x3D, MINECRAFT_26_1, true)
+          map(0x3D, MINECRAFT_26_1, true),
+          map(0x3E, MINECRAFT_26_3, true)
       );
       // minecraft:remove_entities
       clientbound.register(ServerRemoveEntitiesPacket.class, ServerRemoveEntitiesPacket::new,
@@ -1459,7 +1478,8 @@ public enum StateRegistry {
           map(0x47, MINECRAFT_1_21_2, true),
           map(0x46, MINECRAFT_1_21_5, true),
           map(0x4B, MINECRAFT_1_21_9, true),
-          map(0x4D, MINECRAFT_26_1, true)
+          map(0x4D, MINECRAFT_26_1, true),
+          map(0x4E, MINECRAFT_26_3, true)
       );
       // minecraft:set_passengers
       clientbound.register(ServerSetPassengersPacket.class, ServerSetPassengersPacket::new,
@@ -1480,7 +1500,8 @@ public enum StateRegistry {
           map(0x65, MINECRAFT_1_21_2, true),
           map(0x64, MINECRAFT_1_21_5, true),
           map(0x69, MINECRAFT_1_21_9, true),
-          map(0x6B, MINECRAFT_26_1, true)
+          map(0x6B, MINECRAFT_26_1, true),
+          map(0x6D, MINECRAFT_26_3, true)
       );
       clientbound.register(ServerSpawnEntityPacket.class, ServerSpawnEntityPacket::new,
           map(0x0E, MINECRAFT_1_7_2, true),

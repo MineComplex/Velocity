@@ -24,6 +24,9 @@
         "minecraft:bypasses_armor": [
             
         ],
+        "minecraft:bypasses_cooldown": [
+            
+        ],
         "minecraft:bypasses_effects": [
             
         ],
@@ -85,6 +88,9 @@
             
         ],
         "minecraft:no_knockback": [
+            
+        ],
+        "minecraft:no_wolf_retaliation": [
             
         ],
         "minecraft:panic_causes": [
