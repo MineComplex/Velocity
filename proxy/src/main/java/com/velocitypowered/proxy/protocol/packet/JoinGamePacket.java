@@ -43,7 +43,7 @@ public class JoinGamePacket implements MinecraftPacket {
 
   private static final BinaryTagIO.Reader JOINGAME_READER = BinaryTagIO.reader(4 * 1024 * 1024);
   private int entityId;
-  private short gamemode;
+  private int gamemode;
   private int dimension;
   private long partialHashedSeed; // 1.15+
   private short difficulty;
@@ -59,7 +59,7 @@ public class JoinGamePacket implements MinecraftPacket {
   private CompoundBinaryTag registry; // 1.16+
   private DimensionInfo dimensionInfo; // 1.16+
   private CompoundBinaryTag currentDimensionData; // 1.16.2+
-  private short previousGamemode; // 1.16+
+  private int previousGamemode; // 1.16+
   private int simulationDistance; // 1.18+
   private @Nullable Pair<String, Long> lastDeathPosition; // 1.19+
   private int portalCooldown; // 1.20+
@@ -190,8 +190,13 @@ public class JoinGamePacket implements MinecraftPacket {
     String levelName = ProtocolUtils.readString(buf);
     this.partialHashedSeed = buf.readLong();
 
-    this.gamemode = buf.readByte();
-    this.previousGamemode = buf.readByte();
+    if (version.noLessThan(ProtocolVersion.MINECRAFT_26_3)) {
+      this.gamemode = ProtocolUtils.readVarInt(buf);
+      this.previousGamemode = ProtocolUtils.readVarInt(buf); // game mode + 1 or 0
+    } else {
+      this.gamemode = buf.readByte();
+      this.previousGamemode = buf.readByte(); // game mode or -1
+    }
 
     boolean isDebug = buf.readBoolean();
     boolean isFlat = buf.readBoolean();
@@ -343,8 +348,13 @@ public class JoinGamePacket implements MinecraftPacket {
     ProtocolUtils.writeString(buf, dimensionInfo.getLevelName());
     buf.writeLong(partialHashedSeed);
 
-    buf.writeByte(gamemode);
-    buf.writeByte(previousGamemode);
+    if (version.noLessThan(ProtocolVersion.MINECRAFT_26_3)) {
+      ProtocolUtils.writeVarInt(buf, this.gamemode);
+      ProtocolUtils.writeVarInt(buf, this.previousGamemode);
+    } else {
+      buf.writeByte(this.gamemode);
+      buf.writeByte(this.previousGamemode);
+    }
 
     buf.writeBoolean(dimensionInfo.isDebugType());
     buf.writeBoolean(dimensionInfo.isFlat());

@@ -243,7 +243,7 @@ public class VelocityEventManager implements EventManager {
     } else {
       type = untargetedVoidHandlerType;
     }
-    return LambdaFactory.create(type.defineClassesWith(lookup), methodHandle);
+    return LambdaFactory.create(type.defineClassesWith(methodHandlesLookup), methodHandle);
   }
 
   static final class MethodHandlerInfo {
@@ -546,7 +546,7 @@ public class VelocityEventManager implements EventManager {
   }
 
   public static  <E> void fire(final @Nullable CompletableFuture<E> future, final E event,
-      final int offset, final boolean currentlyAsync, final HandlerRegistration[] registrations) {
+                               final int offset, final boolean currentlyAsync, final HandlerRegistration[] registrations) {
     for (int i = offset; i < registrations.length; i++) {
       final HandlerRegistration registration = registrations[i];
       try {
@@ -593,7 +593,7 @@ public class VelocityEventManager implements EventManager {
     }
   }
 
-  public static class ContinuationTask<E> implements Continuation, Runnable {
+  public static final class ContinuationTask<E> implements Continuation, Runnable {
 
     private final EventTask task;
     private final int index;

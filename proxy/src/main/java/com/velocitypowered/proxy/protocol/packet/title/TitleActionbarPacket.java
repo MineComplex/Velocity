@@ -25,6 +25,7 @@ import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * The {@code TitleActionbarPacket} class represents a packet that handles the content of an action bar
@@ -43,8 +44,9 @@ public class TitleActionbarPacket extends GenericTitlePacket {
 
   private ComponentHolder component;
 
-  public TitleActionbarPacket() {
-    setAction(ActionType.SET_TITLE);
+  @Override
+  public @NotNull ActionType getAction() {
+    return ActionType.SET_ACTION_BAR;
   }
 
   @Override

@@ -201,6 +201,11 @@ public class Block {
     }
   }
 
+  public static Block fromModernId(String modernId, Map<String, String> properties) {
+    modernId = remapModernId(modernId);
+    return solid(modernId, transformId(modernId, properties));
+  }
+
   private static short parseNumericId(String id) {
     int identifier = Integer.parseInt(id);
     short sixteenBits = (short) identifier;
@@ -208,11 +213,6 @@ public class Block {
       throw new IllegalStateException("id overflow: " + identifier);
     }
     return sixteenBits;
-  }
-
-  public static Block fromModernId(String modernId, Map<String, String> properties) {
-    modernId = remapModernId(modernId);
-    return solid(modernId, transformId(modernId, properties));
   }
 
   private static short transformId(String modernId, Map<String, String> properties) {
