@@ -163,7 +163,7 @@ public class Block {
       Short id = null;
       for (ProtocolVersion version : EnumSet.range(ProtocolVersion.MINECRAFT_1_21_4, ProtocolVersion.MAXIMUM_VERSION)) {
         id = parseNumericId(versionMap.getOrDefault(version.toString(), String.valueOf(id)));
-        Block.MODERN_BLOCK_STATE_IDS_MAP.computeIfAbsent(version, k -> new ShortObjectHashMap<>()).put(Short.parseShort(modernId), id);
+        Block.MODERN_BLOCK_STATE_IDS_MAP.computeIfAbsent(version, k -> new ShortObjectHashMap<>()).put(parseNumericId(modernId), id);
       }
     });
 

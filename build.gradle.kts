@@ -17,7 +17,9 @@ subprojects {
     }
 
     dependencies {
+        testImplementation(platform("org.junit:junit-bom:6.1.3"))
         testImplementation(rootProject.libs.junit)
+        testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     }
 
     testing.suites.named<JvmTestSuite>("test") {
