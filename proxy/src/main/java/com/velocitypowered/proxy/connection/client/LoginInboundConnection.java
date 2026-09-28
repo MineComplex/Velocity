@@ -37,6 +37,7 @@ import space.vectrix.flare.fastutil.Int2ObjectSyncMap;
 import java.net.InetSocketAddress;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
@@ -183,5 +184,10 @@ public class LoginInboundConnection implements LoginPhaseConnection, KeyIdentifi
   @Override
   public HandshakeIntent getHandshakeIntent() {
     return delegate.getHandshakeIntent();
+  }
+
+  @Override
+  public UUID getSessionId() {
+    return delegate.getSessionId();
   }
 }

@@ -36,6 +36,7 @@ import com.velocitypowered.proxy.config.migration.PingPassthroughMigration;
 import com.velocitypowered.proxy.config.migration.TransferIntegrationMigration;
 import com.velocitypowered.proxy.util.AddressUtil;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -88,31 +89,28 @@ public class VelocityConfiguration implements ProxyConfig {
   private final ForcedHosts forcedHosts;
   @Expose
   private final Advanced advanced;
-  private final Metrics metrics;
   @Expose
   private boolean enablePlayerAddressLogging = true;
-  private net.kyori.adventure.text.@MonotonicNonNull Component motdAsComponent;
+  private @MonotonicNonNull Component motdAsComponent;
   private @Nullable Favicon favicon;
   @Expose
   private boolean forceKeyAuthentication = true; // Added in 1.19
   @Expose
   private PacketLimiterConfig packetLimiterConfig = PacketLimiterConfig.DEFAULT;
 
-  private VelocityConfiguration(Servers servers, ForcedHosts forcedHosts, Advanced advanced,
-      Metrics metrics) {
+  private VelocityConfiguration(Servers servers, ForcedHosts forcedHosts, Advanced advanced) {
     this.servers = servers;
     this.forcedHosts = forcedHosts;
     this.advanced = advanced;
-    this.metrics = metrics;
   }
 
   private VelocityConfiguration(String bind, String motd, int showMaxPlayers, boolean onlineMode,
-      boolean preventClientProxyConnections, boolean announceForge,
-      PlayerInfoForwarding playerInfoForwardingMode, byte[] forwardingSecret,
-      boolean onlineModeKickExistingPlayers, PingPassthroughMode pingPassthrough,
-      boolean samplePlayersInPing, boolean enablePlayerAddressLogging, Servers servers,
-      ForcedHosts forcedHosts, Advanced advanced, Metrics metrics,
-      boolean forceKeyAuthentication, PacketLimiterConfig packetLimiterConfig) {
+                                boolean preventClientProxyConnections, boolean announceForge,
+                                PlayerInfoForwarding playerInfoForwardingMode, byte[] forwardingSecret,
+                                boolean onlineModeKickExistingPlayers, PingPassthroughMode pingPassthrough,
+                                boolean samplePlayersInPing, boolean enablePlayerAddressLogging, Servers servers,
+                                ForcedHosts forcedHosts, Advanced advanced,
+                                boolean forceKeyAuthentication, PacketLimiterConfig packetLimiterConfig) {
     this.bind = bind;
     this.motd = motd;
     this.showMaxPlayers = showMaxPlayers;
@@ -128,7 +126,6 @@ public class VelocityConfiguration implements ProxyConfig {
     this.servers = servers;
     this.forcedHosts = forcedHosts;
     this.advanced = advanced;
-    this.metrics = metrics;
     this.forceKeyAuthentication = forceKeyAuthentication;
     this.packetLimiterConfig = packetLimiterConfig;
   }
@@ -160,7 +157,7 @@ public class VelocityConfiguration implements ProxyConfig {
 
     switch (playerInfoForwardingMode) {
       case NONE -> logger.warn("Player info forwarding is disabled! All players will appear to be connecting "
-            + "from the proxy and will have offline-mode UUIDs.");
+          + "from the proxy and will have offline-mode UUIDs.");
       case MODERN, BUNGEEGUARD -> {
         if (forwardingSecret == null || forwardingSecret.length == 0) {
           logger.error("You don't have a forwarding secret set. This is required for security.");
@@ -260,7 +257,7 @@ public class VelocityConfiguration implements ProxyConfig {
   }
 
   @Override
-  public net.kyori.adventure.text.Component getMotd() {
+  public Component getMotd() {
     if (motdAsComponent == null) {
       motdAsComponent = MiniMessage.miniMessage().deserialize(motd);
     }
@@ -377,10 +374,6 @@ public class VelocityConfiguration implements ProxyConfig {
     return advanced.isTcpFastOpen();
   }
 
-  public Metrics getMetrics() {
-    return metrics;
-  }
-
   public PingPassthroughMode getPingPassthrough() {
     return pingPassthrough;
   }
@@ -476,11 +469,11 @@ public class VelocityConfiguration implements ProxyConfig {
     }
 
     try (final CommentedFileConfig config = CommentedFileConfig.builder(path)
-            .defaultData(defaultConfigLocation)
-            .autosave()
-            .preserveInsertionOrder()
-            .sync()
-            .build()
+        .defaultData(defaultConfigLocation)
+        .autosave()
+        .preserveInsertionOrder()
+        .sync()
+        .build()
     ) {
       config.load();
 
@@ -501,18 +494,18 @@ public class VelocityConfiguration implements ProxyConfig {
       }
 
       String forwardingSecretString = System.getenv().getOrDefault(
-              "VELOCITY_FORWARDING_SECRET", "");
+          "VELOCITY_FORWARDING_SECRET", "");
       if (forwardingSecretString.isBlank()) {
         final String forwardSecretFile = config.get("forwarding-secret-file");
         final Path secretPath = forwardSecretFile == null
-                ? defaultForwardingSecretPath
-                : Path.of(forwardSecretFile);
+            ? defaultForwardingSecretPath
+            : Path.of(forwardSecretFile);
         if (Files.exists(secretPath)) {
           if (Files.isRegularFile(secretPath)) {
             forwardingSecretString = String.join("", Files.readAllLines(secretPath));
           } else {
             throw new RuntimeException(
-                    "The file " + forwardSecretFile + " is not a valid file or it is a directory.");
+                "The file " + forwardSecretFile + " is not a valid file or it is a directory.");
           }
         } else {
           Files.createFile(secretPath);
@@ -529,9 +522,8 @@ public class VelocityConfiguration implements ProxyConfig {
       final CommentedConfig serversConfig = config.get("servers");
       final CommentedConfig forcedHostsConfig = config.get("forced-hosts");
       final CommentedConfig advancedConfig = config.get("advanced");
-      final CommentedConfig metricsConfig = config.get("metrics");
       final PlayerInfoForwarding forwardingMode = config.getEnumOrElse(
-              "player-info-forwarding-mode", PlayerInfoForwarding.NONE);
+          "player-info-forwarding-mode", PlayerInfoForwarding.NONE);
       final PingPassthroughMode pingPassthrough = PingPassthroughMode.fromConfig(config.get("ping-passthrough"));
       final boolean samplePlayersInPing = config.getOrElse("sample-players-in-ping", false);
 
@@ -541,39 +533,38 @@ public class VelocityConfiguration implements ProxyConfig {
       final boolean forceKeyAuthentication = config.getOrElse("force-key-authentication", true);
       final boolean announceForge = config.getOrElse("announce-forge", true);
       final boolean preventClientProxyConnections = config.getOrElse(
-              "prevent-client-proxy-connections", false);
+          "prevent-client-proxy-connections", false);
       final boolean kickExisting = config.getOrElse("kick-existing-players", false);
       final boolean enablePlayerAddressLogging = config.getOrElse(
-              "enable-player-address-logging", true);
+          "enable-player-address-logging", true);
       final PacketLimiterConfig packetLimiterConfig = PacketLimiterConfig.fromConfig(config.get("packet-limiter"));
 
       // Throw an exception if the forwarding-secret file is empty and the proxy is using a
       // forwarding mode that requires it.
       if (forwardingSecret.length == 0
-              && (forwardingMode == PlayerInfoForwarding.MODERN
-              || forwardingMode == PlayerInfoForwarding.BUNGEEGUARD)) {
+          && (forwardingMode == PlayerInfoForwarding.MODERN
+          || forwardingMode == PlayerInfoForwarding.BUNGEEGUARD)) {
         throw new RuntimeException("The forwarding-secret file must not be empty.");
       }
 
       return new VelocityConfiguration(
-              bind,
-              motd,
-              maxPlayers,
-              onlineMode,
-              preventClientProxyConnections,
-              announceForge,
-              forwardingMode,
-              forwardingSecret,
-              kickExisting,
-              pingPassthrough,
-              samplePlayersInPing,
-              enablePlayerAddressLogging,
-              new Servers(serversConfig),
-              new ForcedHosts(forcedHostsConfig),
-              new Advanced(advancedConfig),
-              new Metrics(metricsConfig),
-              forceKeyAuthentication,
-              packetLimiterConfig
+          bind,
+          motd,
+          maxPlayers,
+          onlineMode,
+          preventClientProxyConnections,
+          announceForge,
+          forwardingMode,
+          forwardingSecret,
+          kickExisting,
+          pingPassthrough,
+          samplePlayersInPing,
+          enablePlayerAddressLogging,
+          new Servers(serversConfig),
+          new ForcedHosts(forcedHostsConfig),
+          new Advanced(advancedConfig),
+          forceKeyAuthentication,
+          packetLimiterConfig
       );
     }
   }
@@ -899,24 +890,6 @@ public class VelocityConfiguration implements ProxyConfig {
           + ", acceptTransfers=" + acceptTransfers
           + ", enableReusePort=" + enableReusePort
           + '}';
-    }
-  }
-
-  /**
-   * Configuration for metrics.
-   */
-  public static class Metrics {
-
-    private boolean enabled = true;
-
-    private Metrics(CommentedConfig toml) {
-      if (toml != null) {
-        this.enabled = toml.getOrElse("enabled", true);
-      }
-    }
-
-    public boolean isEnabled() {
-      return enabled;
     }
   }
 
