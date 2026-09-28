@@ -30,13 +30,13 @@ import com.velocitypowered.proxy.config.VelocityConfiguration;
 import com.velocitypowered.proxy.connection.MinecraftConnection;
 import com.velocitypowered.proxy.connection.client.HandshakeSessionHandler;
 import com.velocitypowered.proxy.network.limiter.SimpleBytesPerSecondLimiter;
+import com.velocitypowered.proxy.network.netty.IdleTimeoutHandler;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.StateRegistry;
 import com.velocitypowered.proxy.protocol.netty.*;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.handler.codec.haproxy.HAProxyMessageDecoder;
-import io.netty.handler.timeout.ReadTimeoutHandler;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -57,8 +57,10 @@ public class ServerChannelInitializer extends ChannelInitializer<Channel> {
     ch.pipeline()
         .addLast(LEGACY_PING_DECODER, new LegacyPingDecoder())
         .addLast(FRAME_DECODER, new MinecraftVarintFrameDecoder(ProtocolUtils.Direction.SERVERBOUND))
+        // Silent clients are closed without an error in the log, there can be thousands of them
+        // during an attack
         .addLast(READ_TIMEOUT,
-            new ReadTimeoutHandler(this.server.getConfiguration().getReadTimeout(),
+            new IdleTimeoutHandler(this.server.getConfiguration().getReadTimeout(), 0,
                 TimeUnit.MILLISECONDS))
         .addLast(LEGACY_PING_ENCODER, LegacyPingEncoder.INSTANCE)
         .addLast(FRAME_ENCODER, MinecraftVarintLengthEncoder.INSTANCE)

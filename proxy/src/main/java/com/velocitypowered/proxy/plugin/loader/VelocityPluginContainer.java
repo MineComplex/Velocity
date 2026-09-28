@@ -17,7 +17,6 @@
 
 package com.velocitypowered.proxy.plugin.loader;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.velocitypowered.api.plugin.PluginContainer;
 import com.velocitypowered.api.plugin.PluginDescription;
 import java.util.Optional;
@@ -57,12 +56,11 @@ public class VelocityPluginContainer implements PluginContainer {
       synchronized (this) {
         if (this.service == null) {
           String name = this.description.getName().orElse(this.description.getId());
+          // Tasks and async event handlers of plugins mostly wait for the network or a database,
+          // a virtual thread per task makes the waiting cheap even when thousands of them wait
           this.service = Executors.unconfigurableExecutorService(
-              Executors.newCachedThreadPool(
-                new ThreadFactoryBuilder().setDaemon(true)
-                    .setNameFormat(name + " - Task Executor #%d")
-                    .setDaemon(true)
-                    .build()
+              Executors.newThreadPerTaskExecutor(
+                Thread.ofVirtual().name(name + " - Task Executor #", 0).factory()
               )
           );
         }

@@ -125,5 +125,6 @@ dependencies {
     testImplementation(libs.mockito)
 
     annotationProcessor(libs.auto.service)
+    annotationProcessor(libs.log4j.core)
     annotationProcessor("org.projectlombok:lombok:1.18.42")
 }
