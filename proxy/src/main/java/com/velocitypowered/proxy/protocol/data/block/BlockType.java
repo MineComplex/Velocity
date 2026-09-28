@@ -45,7 +45,10 @@ public enum BlockType {
     if (protocolVersion.noGreaterThan(MINECRAFT_1_21_11)) {
       return 9250;
     }
-    return 9451;
+    if (protocolVersion.noGreaterThan(MINECRAFT_26_2)) {
+      return 9451;
+    }
+    return 11185;
   }, protocolVersion -> (double) 0.75f),
   TRAPDOOR(protocolVersion -> {
     if (protocolVersion.noGreaterThan(MINECRAFT_1_21_4)) {

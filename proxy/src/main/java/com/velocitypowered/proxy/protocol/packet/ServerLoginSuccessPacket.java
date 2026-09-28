@@ -104,6 +104,10 @@ public class ServerLoginSuccessPacket implements MinecraftPacket {
     if (version == ProtocolVersion.MINECRAFT_1_20_5 || version == ProtocolVersion.MINECRAFT_1_21) {
       buf.writeBoolean(strictErrorHandling);
     }
+
+    if (version.noLessThan(ProtocolVersion.MINECRAFT_26_2)) {
+      ProtocolUtils.writeUuid(buf, this.sessionId);
+    }
   }
 
   @Override

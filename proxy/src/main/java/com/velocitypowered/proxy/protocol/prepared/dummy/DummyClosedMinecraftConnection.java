@@ -24,7 +24,7 @@ import io.netty.channel.Channel;
 public class DummyClosedMinecraftConnection extends MinecraftConnection {
 
   public DummyClosedMinecraftConnection(Channel channel, VelocityServer server) {
-    super(channel, server);
+    super(channel, server, null);
   }
 
   @Override
