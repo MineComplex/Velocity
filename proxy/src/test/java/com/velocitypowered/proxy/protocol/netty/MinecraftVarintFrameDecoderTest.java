@@ -69,14 +69,14 @@ class MinecraftVarintFrameDecoderTest {
 
   @Test
   void statusRejectsOversizedFrameFromHeader() {
-    EmbeddedChannel channel = channel(StateRegistry.STATUS, ProtocolVersion.MINECRAFT_1_21_9, false);
+    EmbeddedChannel channel = channel(StateRegistry.STATUS, ProtocolVersion.MINECRAFT_26_3, false);
     assertThrows(DecoderException.class, () -> channel.writeInbound(header(MAX_FRAME_LENGTH, 0x00)));
     channel.finishAndReleaseAll();
   }
 
   @Test
   void statusAcceptsRequestAndPing() {
-    EmbeddedChannel channel = channel(StateRegistry.STATUS, ProtocolVersion.MINECRAFT_1_21_9, false);
+    EmbeddedChannel channel = channel(StateRegistry.STATUS, ProtocolVersion.MINECRAFT_26_3, false);
     channel.writeInbound(frame(0x00, 0), frame(0x01, 8));
     ByteBuf request = channel.readInbound();
     ByteBuf ping = channel.readInbound();
@@ -89,7 +89,7 @@ class MinecraftVarintFrameDecoderTest {
 
   @Test
   void statusRejectsUnknownPacket() {
-    EmbeddedChannel channel = channel(StateRegistry.STATUS, ProtocolVersion.MINECRAFT_1_21_9, false);
+    EmbeddedChannel channel = channel(StateRegistry.STATUS, ProtocolVersion.MINECRAFT_26_3, false);
     assertThrows(DecoderException.class, () -> channel.writeInbound(header(16, 0x05)));
     channel.finishAndReleaseAll();
   }
@@ -98,14 +98,14 @@ class MinecraftVarintFrameDecoderTest {
   void loginPluginResponseBoundedByVanillaLimit() {
     int idBytes = ProtocolUtils.varIntBytes(LOGIN_PLUGIN_RESPONSE_ID);
 
-    EmbeddedChannel accepted = channel(StateRegistry.LOGIN, ProtocolVersion.MINECRAFT_1_21_9, false);
+    EmbeddedChannel accepted = channel(StateRegistry.LOGIN, ProtocolVersion.MINECRAFT_26_3, false);
     accepted.writeInbound(frame(LOGIN_PLUGIN_RESPONSE_ID, LOGIN_PLUGIN_RESPONSE_MAX));
     ByteBuf decoded = accepted.readInbound();
     assertEquals(idBytes + LOGIN_PLUGIN_RESPONSE_MAX, decoded.readableBytes());
     decoded.release();
     accepted.finishAndReleaseAll();
 
-    EmbeddedChannel rejected = channel(StateRegistry.LOGIN, ProtocolVersion.MINECRAFT_1_21_9, false);
+    EmbeddedChannel rejected = channel(StateRegistry.LOGIN, ProtocolVersion.MINECRAFT_26_3, false);
     assertThrows(DecoderException.class, () -> rejected.writeInbound(
         header(idBytes + LOGIN_PLUGIN_RESPONSE_MAX + 1, LOGIN_PLUGIN_RESPONSE_ID)));
     rejected.finishAndReleaseAll();
@@ -113,21 +113,26 @@ class MinecraftVarintFrameDecoderTest {
 
   @Test
   void loginUsesConnectionProtocolVersion() {
-    // The cookie response packet only exists in the login state from 1.20.5 onwards.
-    EmbeddedChannel modern = channel(StateRegistry.LOGIN, ProtocolVersion.MINECRAFT_1_20_5, false);
+    EmbeddedChannel modern = channel(StateRegistry.LOGIN, ProtocolVersion.MINECRAFT_26_3, false);
     modern.writeInbound(frame(COOKIE_RESPONSE_ID, 2));
     ByteBuf decoded = modern.readInbound();
     decoded.release();
     modern.finishAndReleaseAll();
+  }
 
+  @Test
+  void unsupportedVersionsAreValidatedAgainstSupportedPackets() {
+    // Only 26.3 has its own registry, older clients fall back to it until they are kicked.
     EmbeddedChannel old = channel(StateRegistry.LOGIN, ProtocolVersion.MINECRAFT_1_20_3, false);
-    assertThrows(DecoderException.class, () -> old.writeInbound(frame(COOKIE_RESPONSE_ID, 2)));
+    old.writeInbound(frame(COOKIE_RESPONSE_ID, 2));
+    ByteBuf decoded = old.readInbound();
+    decoded.release();
     old.finishAndReleaseAll();
   }
 
   @Test
   void loginWithCompressionValidatesUncompressedFrames() {
-    EmbeddedChannel channel = channel(StateRegistry.LOGIN, ProtocolVersion.MINECRAFT_1_21_9, true);
+    EmbeddedChannel channel = channel(StateRegistry.LOGIN, ProtocolVersion.MINECRAFT_26_3, true);
     // data length 0 means the packet is not compressed, so its id is visible
     assertThrows(DecoderException.class, () -> channel.writeInbound(
         header(MAX_FRAME_LENGTH, 0, LOGIN_PLUGIN_RESPONSE_ID)));
@@ -136,7 +141,7 @@ class MinecraftVarintFrameDecoderTest {
 
   @Test
   void loginWithCompressionPassesCompressedFrames() {
-    EmbeddedChannel channel = channel(StateRegistry.LOGIN, ProtocolVersion.MINECRAFT_1_21_9, true);
+    EmbeddedChannel channel = channel(StateRegistry.LOGIN, ProtocolVersion.MINECRAFT_26_3, true);
     // a compressed frame is left to the compression decoder's limits
     channel.writeInbound(header(1024, 4096));
     assertNull(channel.readInbound());
@@ -145,7 +150,7 @@ class MinecraftVarintFrameDecoderTest {
 
   @Test
   void playIsNotValidatedByFrameDecoder() {
-    EmbeddedChannel channel = channel(StateRegistry.PLAY, ProtocolVersion.MINECRAFT_1_21_9, false);
+    EmbeddedChannel channel = channel(StateRegistry.PLAY, ProtocolVersion.MINECRAFT_26_3, false);
     channel.writeInbound(header(MAX_FRAME_LENGTH, 0x00));
     assertNull(channel.readInbound());
     channel.finishAndReleaseAll();
