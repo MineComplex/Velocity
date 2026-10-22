@@ -69,7 +69,7 @@ public class MinecraftVarintFrameDecoder extends ByteToMessageDecoder {
   public MinecraftVarintFrameDecoder(ProtocolUtils.Direction direction) {
     this.direction = direction;
     this.state = StateRegistry.HANDSHAKE;
-    this.protocolVersion = ProtocolVersion.MINIMUM_VERSION;
+    this.protocolVersion = ProtocolVersion.MINECRAFT_26_3;
   }
 
   @Override

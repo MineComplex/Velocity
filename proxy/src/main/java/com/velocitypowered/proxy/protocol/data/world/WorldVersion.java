@@ -19,54 +19,19 @@ package com.velocitypowered.proxy.protocol.data.world;
 
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.util.EnumUniverse;
-import lombok.AllArgsConstructor;
-
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.EnumSet;
 import java.util.Map;
-import java.util.Set;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-@AllArgsConstructor
 public enum WorldVersion {
+  MINECRAFT_26_3;
 
-  MINECRAFT_26_3(EnumSet.range(ProtocolVersion.MINIMUM_VERSION, ProtocolVersion.MAXIMUM_VERSION));
-
-  private static final EnumMap<ProtocolVersion, WorldVersion> MC_VERSION_TO_ITEM_VERSIONS = new EnumMap<>(ProtocolVersion.class);
   private static final Map<String, WorldVersion> KEY_LOOKUP = Map.copyOf(EnumUniverse.createProtocolLookup(values()));
 
-  static {
-    for (WorldVersion version : WorldVersion.values()) {
-      for (ProtocolVersion protocolVersion : version.getVersions()) {
-        MC_VERSION_TO_ITEM_VERSIONS.put(protocolVersion, version);
-      }
-    }
+  public static @Nullable WorldVersion parse(String key) {
+    return KEY_LOOKUP.get(key);
   }
 
-  private final Set<ProtocolVersion> versions;
-
-  WorldVersion(ProtocolVersion... versions) {
-    this.versions = EnumSet.copyOf(Arrays.asList(versions));
-  }
-
-  /**
-   * Returns the version for a key from the mapping files, or {@code null} for versions that
-   * are no longer supported.
-   */
-  public static @Nullable WorldVersion parse(String from) {
-    return KEY_LOOKUP.get(from);
-  }
-
-  public static WorldVersion from(ProtocolVersion protocolVersion) {
-    return MC_VERSION_TO_ITEM_VERSIONS.get(protocolVersion);
-  }
-
-  public ProtocolVersion getMinSupportedVersion() {
-    return this.versions.iterator().next();
-  }
-
-  public Set<ProtocolVersion> getVersions() {
-    return this.versions;
+  public static @Nullable WorldVersion from(ProtocolVersion version) {
+    return version == ProtocolVersion.MINECRAFT_26_3 ? MINECRAFT_26_3 : null;
   }
 }

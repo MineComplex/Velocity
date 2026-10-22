@@ -42,7 +42,7 @@ public class ServerListPingHandler {
 
   private ServerPing constructLocalPing(ProtocolVersion version) {
     if (version == ProtocolVersion.UNKNOWN) {
-      version = ProtocolVersion.MAXIMUM_VERSION;
+      version = ProtocolVersion.MINECRAFT_26_3;
     }
     VelocityConfiguration configuration = server.getConfiguration();
     List<ServerPing.SamplePlayer> samplePlayers;
@@ -80,7 +80,7 @@ public class ServerListPingHandler {
    */
   public CompletableFuture<ServerPing> getInitialPing(VelocityInboundConnection connection) {
     ProtocolVersion shownVersion = connection.getProtocolVersion().isSupported()
-        ? connection.getProtocolVersion() : ProtocolVersion.MAXIMUM_VERSION;
+        ? connection.getProtocolVersion() : ProtocolVersion.MINECRAFT_26_3;
     return CompletableFuture.completedFuture(constructLocalPing(shownVersion));
   }
 }

@@ -61,7 +61,6 @@ import com.velocitypowered.proxy.plugin.virtual.VelocityVirtualPlugin;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.data.block.Block;
 import com.velocitypowered.proxy.protocol.data.item.Item;
-import com.velocitypowered.proxy.protocol.data.map.MapPalette;
 import com.velocitypowered.proxy.protocol.data.tag.TagManager;
 import com.velocitypowered.proxy.protocol.data.tile.TileEntity;
 import com.velocitypowered.proxy.protocol.util.FaviconSerializer;
@@ -256,7 +255,6 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
     TileEntity.init();
     Item.init();
     TagManager.init();
-    MapPalette.init();
 
     // Yes, you're reading that correctly. We're generating a 1024-bit RSA keypair. Sounds
     // dangerous, right? We're well within the realm of factoring such a key...

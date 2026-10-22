@@ -17,7 +17,6 @@
 
 package com.velocitypowered.proxy.protocol.prepared.handler;
 
-import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.prepared.PreparedPacket;
@@ -36,20 +35,17 @@ import java.util.function.Function;
 @Setter
 public class PreparedPacketEncoder extends ChannelOutboundHandlerAdapter {
 
-  private final ProtocolVersion protocolVersion;
   private final Function<ByteBuf, ByteBuf> duplicateFunction;
   private PreparedPacketFactory factory;
   private boolean shouldSendUncompressed = true;
 
-  public PreparedPacketEncoder(PreparedPacketFactory factory, ProtocolVersion protocolVersion, boolean shouldCopy) {
+  public PreparedPacketEncoder(PreparedPacketFactory factory, boolean shouldCopy) {
     this.factory = factory;
-    this.protocolVersion = protocolVersion;
     this.duplicateFunction = shouldCopy ? ByteBuf::copy : ByteBuf::retainedDuplicate;
   }
 
-  public PreparedPacketEncoder(PreparedPacketFactory factory, ProtocolVersion protocolVersion, Function<ByteBuf, ByteBuf> duplicateFunction) {
+  public PreparedPacketEncoder(PreparedPacketFactory factory, Function<ByteBuf, ByteBuf> duplicateFunction) {
     this.factory = factory;
-    this.protocolVersion = protocolVersion;
     this.duplicateFunction = duplicateFunction;
   }
 
@@ -61,9 +57,9 @@ public class PreparedPacketEncoder extends ChannelOutboundHandlerAdapter {
 
     if (msg instanceof PreparedPacket preparedPacket) {
       if (factory.isCompatibilityMode()) {
-        ByteBuf uncompressedPacket = preparedPacket.getUncompressedPackets(protocolVersion);
+        ByteBuf uncompressedPacket = preparedPacket.getUncompressedPackets();
         if (uncompressedPacket == null) {
-          throw new IllegalStateException("Failed to find compatible uncompressed packet for " + protocolVersion);
+          throw new IllegalStateException("Failed to find compatible uncompressed packet for 26.3");
         }
         ByteBuf uncompressed = uncompressedPacket.slice();
         while (uncompressed.isReadable()) {
@@ -75,16 +71,16 @@ public class PreparedPacketEncoder extends ChannelOutboundHandlerAdapter {
         return;
       }
       ByteBuf cachedPacket =
-          isSendUncompressed() ? preparedPacket.getUncompressedPackets(protocolVersion) : preparedPacket.getPackets(protocolVersion);
+          isSendUncompressed() ? preparedPacket.getUncompressedPackets() : preparedPacket.getPackets();
       if (cachedPacket == null) {
-        throw new IllegalStateException("Current PreparedPacket is not prepared for " + protocolVersion);
+        throw new IllegalStateException("Current PreparedPacket is not prepared for 26.3");
       }
       ctx.write(duplicateFunction.apply(cachedPacket), promise);
     } else if (msg instanceof MinecraftPacket && !factory.isCompatibilityMode()) {
       if (isSendUncompressed()) {
-        ctx.write(factory.encodeSingle((MinecraftPacket) msg, protocolVersion, false, ctx.alloc()), promise);
+        ctx.write(factory.encodeSingle((MinecraftPacket) msg, false, ctx.alloc()), promise);
       } else {
-        ctx.write(factory.encodeSingle((MinecraftPacket) msg, protocolVersion, ctx.alloc()), promise);
+        ctx.write(factory.encodeSingle((MinecraftPacket) msg, ctx.alloc()), promise);
       }
     } else {
       ctx.write(msg, promise);

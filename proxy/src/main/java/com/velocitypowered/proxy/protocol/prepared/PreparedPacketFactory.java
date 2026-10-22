@@ -136,15 +136,15 @@ public class PreparedPacketFactory {
         key -> new MinecraftCompressorAndLengthEncoder(compressionThreshold, Natives.compress.get().create(compressionLevel)));
   }
 
-  public PreparedPacket createPreparedPacket(ProtocolVersion minVersion, ProtocolVersion maxVersion) {
-    return constructor.construct(minVersion, maxVersion, this);
+  public PreparedPacket createPreparedPacket() {
+    return constructor.construct(this);
   }
 
-  public void encodeId(MinecraftPacket packet, ByteBuf out, ProtocolVersion version) {
+  public void encodeId(MinecraftPacket packet, ByteBuf out) {
     int packetId = Integer.MIN_VALUE;
     for (StateRegistry stateRegistry : stateRegistries) {
       StateRegistry.PacketRegistry packetRegistry = stateRegistry.clientbound;
-      StateRegistry.PacketRegistry.ProtocolRegistry protocolRegistry = packetRegistry.getProtocolRegistry(version);
+      StateRegistry.PacketRegistry.ProtocolRegistry protocolRegistry = packetRegistry.getProtocolRegistry(ProtocolVersion.MINECRAFT_26_3);
       packetId = protocolRegistry.packetClassToId.getInt(packet.getClass());
       if (packetId != Integer.MIN_VALUE) {
         break;
@@ -152,10 +152,10 @@ public class PreparedPacketFactory {
     }
     if (packetId == Integer.MIN_VALUE) {
       throw new IllegalArgumentException(String.format("Unable to find id for packet of type %s in clientbound protocol %s.", packet
-          .getClass().getName(), version));
+          .getClass().getName(), ProtocolVersion.MINECRAFT_26_3));
     }
     ProtocolUtils.writeVarInt(out, packetId);
-    packet.encode(out, ProtocolUtils.Direction.CLIENTBOUND, version);
+    packet.encode(out, ProtocolUtils.Direction.CLIENTBOUND, ProtocolVersion.MINECRAFT_26_3);
   }
 
   public ByteBuf compress(ByteBuf packetData, boolean enableCompression) {
@@ -178,27 +178,27 @@ public class PreparedPacketFactory {
     return networkPacket;
   }
 
-  public ByteBuf encodeSingle(MinecraftPacket packet, ProtocolVersion version) {
-    return encodeSingle(packet, version, enableCompression);
+  public ByteBuf encodeSingle(MinecraftPacket packet) {
+    return encodeSingle(packet, enableCompression);
   }
 
-  public ByteBuf encodeSingle(MinecraftPacket packet, ProtocolVersion version, ByteBufAllocator alloc) {
-    return encodeSingle(packet, version, enableCompression, releaseReferenceCounted, alloc);
+  public ByteBuf encodeSingle(MinecraftPacket packet, ByteBufAllocator alloc) {
+    return encodeSingle(packet, enableCompression, releaseReferenceCounted, alloc);
   }
 
-  public ByteBuf encodeSingle(MinecraftPacket packet, ProtocolVersion version, boolean enableCompression) {
-    return encodeSingle(packet, version, enableCompression, releaseReferenceCounted, preparedPacketAllocator);
+  public ByteBuf encodeSingle(MinecraftPacket packet, boolean enableCompression) {
+    return encodeSingle(packet, enableCompression, releaseReferenceCounted, preparedPacketAllocator);
   }
 
-  public ByteBuf encodeSingle(MinecraftPacket packet, ProtocolVersion version, boolean enableCompression, boolean releaseReferenceCounted) {
-    return encodeSingle(packet, version, enableCompression, releaseReferenceCounted, preparedPacketAllocator);
+  public ByteBuf encodeSingle(MinecraftPacket packet, boolean enableCompression, boolean releaseReferenceCounted) {
+    return encodeSingle(packet, enableCompression, releaseReferenceCounted, preparedPacketAllocator);
   }
 
-  public ByteBuf encodeSingle(MinecraftPacket packet, ProtocolVersion version, boolean enableCompression, ByteBufAllocator alloc) {
-    return encodeSingle(packet, version, enableCompression, releaseReferenceCounted, alloc);
+  public ByteBuf encodeSingle(MinecraftPacket packet, boolean enableCompression, ByteBufAllocator alloc) {
+    return encodeSingle(packet, enableCompression, releaseReferenceCounted, alloc);
   }
 
-  public ByteBuf encodeSingle(MinecraftPacket packet, ProtocolVersion version, boolean enableCompression, boolean releaseReferenceCounted,
+  public ByteBuf encodeSingle(MinecraftPacket packet, boolean enableCompression, boolean releaseReferenceCounted,
                               ByteBufAllocator alloc) {
     ByteBuf packetData;
     if (enableCompression) {
@@ -206,7 +206,7 @@ public class PreparedPacketFactory {
     } else {
       packetData = alloc.directBuffer();
     }
-    encodeId(packet, packetData, version);
+    encodeId(packet, packetData);
     if (releaseReferenceCounted && packet instanceof ReferenceCounted referenceCounted) {
       referenceCounted.release();
     }
@@ -218,8 +218,7 @@ public class PreparedPacketFactory {
   }
 
   public void inject(boolean onlineMode, MinecraftConnection connection, ChannelPipeline pipeline) {
-    pipeline.addAfter("minecraft-encoder", PREPARED_ENCODER, new PreparedPacketEncoder(this, connection
-        .getProtocolVersion(), onlineMode));
+    pipeline.addAfter("minecraft-encoder", PREPARED_ENCODER, new PreparedPacketEncoder(this, onlineMode));
     pipeline.addFirst(COMPRESSION_HANDLER, new CompressionEventHandler(this));
   }
 

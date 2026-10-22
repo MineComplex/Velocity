@@ -38,13 +38,13 @@ class PacketRegistryTest {
     StateRegistry.PacketRegistry registry = new StateRegistry.PacketRegistry(
         ProtocolUtils.Direction.CLIENTBOUND, StateRegistry.PLAY);
     registry.register(HandshakePacket.class, HandshakePacket::new,
-        new StateRegistry.PacketMapping(0x01, MINECRAFT_26_3, null, false));
+        new StateRegistry.PacketMapping(0x01, false));
     return registry;
   }
 
   @Test
   void onlySupportedVersionsAreKnown() {
-    assertEquals(MINECRAFT_26_3, ProtocolVersion.MINIMUM_VERSION);
+    assertEquals(java.util.Set.of(MINECRAFT_26_3), ProtocolVersion.SUPPORTED_VERSIONS);
     assertTrue(MINECRAFT_26_3.isSupported());
     assertFalse(MINECRAFT_1_8.isSupported());
     assertFalse(ProtocolVersion.SUPPORTED_VERSIONS.contains(MINECRAFT_1_8));
@@ -88,28 +88,16 @@ class PacketRegistryTest {
   }
 
   @Test
-  void failOnUnsupportedVersionMapping() {
-    StateRegistry.PacketRegistry registry = new StateRegistry.PacketRegistry(
-        ProtocolUtils.Direction.CLIENTBOUND, StateRegistry.PLAY);
-    assertThrows(IllegalArgumentException.class,
-        () -> registry.register(HandshakePacket.class, HandshakePacket::new,
-            new StateRegistry.PacketMapping(0x00, MINECRAFT_1_8, null, false)));
-    assertThrows(IllegalArgumentException.class,
-        () -> registry.register(HandshakePacket.class, HandshakePacket::new,
-            new StateRegistry.PacketMapping(0x00, MINECRAFT_26_3, MINECRAFT_1_8, false)));
-  }
-
-  @Test
   void failOnDuplicate() {
     StateRegistry.PacketRegistry registry = new StateRegistry.PacketRegistry(
         ProtocolUtils.Direction.CLIENTBOUND, StateRegistry.PLAY);
     registry.register(HandshakePacket.class, HandshakePacket::new,
-        new StateRegistry.PacketMapping(0x00, MINECRAFT_26_3, null, false));
+        new StateRegistry.PacketMapping(0x00, false));
     assertThrows(IllegalArgumentException.class,
         () -> registry.register(HandshakePacket.class, HandshakePacket::new,
-            new StateRegistry.PacketMapping(0x01, MINECRAFT_26_3, null, false)));
+            new StateRegistry.PacketMapping(0x01, false)));
     assertThrows(IllegalArgumentException.class,
         () -> registry.register(StatusPingPacket.class, StatusPingPacket::new,
-            new StateRegistry.PacketMapping(0x00, MINECRAFT_26_3, null, false)));
+            new StateRegistry.PacketMapping(0x00, false)));
   }
 }

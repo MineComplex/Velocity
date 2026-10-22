@@ -9,10 +9,8 @@ package com.velocitypowered.api.network;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
 import com.velocitypowered.api.util.Ordered;
 
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +42,7 @@ public enum ProtocolVersion implements Ordered<ProtocolVersion> {
       return false;
     }
   },
-  // Versions below MINIMUM_VERSION are kept only to recognise old clients (for example when they
+  // Historic versions are kept only to recognise old clients (for example when they
   // ping the server). They cannot log in.
   MINECRAFT_1_7_2(4,
       "1.7.2", "1.7.3", "1.7.4", "1.7.5"),
@@ -109,22 +107,9 @@ public enum ProtocolVersion implements Ordered<ProtocolVersion> {
   private final String[] names;
 
   /**
-   * Represents the lowest supported version.
+   * The user-friendly representation of the supported version.
    */
-  public static final ProtocolVersion MINIMUM_VERSION = MINECRAFT_26_3;
-  /**
-   * Represents the highest supported version.
-   */
-  public static final ProtocolVersion MAXIMUM_VERSION = values()[values().length - 1];
-
-  /**
-   * The user-friendly representation of the lowest and highest supported versions.
-   */
-  public static final String SUPPORTED_VERSION_STRING =
-      MINIMUM_VERSION.getVersionIntroducedIn().equals(MAXIMUM_VERSION.getMostRecentSupportedVersion())
-          ? MINIMUM_VERSION.getVersionIntroducedIn()
-          : String.format("%s-%s", MINIMUM_VERSION.getVersionIntroducedIn(),
-              MAXIMUM_VERSION.getMostRecentSupportedVersion());
+  public static final String SUPPORTED_VERSION_STRING = MINECRAFT_26_3.getVersionIntroducedIn();
 
   /**
    * A map linking the protocol version number to its {@link ProtocolVersion} representation.
@@ -150,18 +135,7 @@ public enum ProtocolVersion implements Ordered<ProtocolVersion> {
    * A set containing all the protocols that the proxy actually supports, excluding special-purpose
    * "versions" like {@link #LEGACY} and {@link #UNKNOWN}.
    */
-  public static final Set<ProtocolVersion> SUPPORTED_VERSIONS;
-
-  static {
-    Set<ProtocolVersion> versions = EnumSet.noneOf(ProtocolVersion.class);
-    for (ProtocolVersion value : values()) {
-      if (value.isSupported()) {
-        versions.add(value);
-      }
-    }
-
-    SUPPORTED_VERSIONS = Sets.immutableEnumSet(versions);
-  }
+  public static final Set<ProtocolVersion> SUPPORTED_VERSIONS = Set.of(MINECRAFT_26_3);
 
   ProtocolVersion(int protocol, String... names) {
     this(protocol, -1, names);
@@ -234,7 +208,7 @@ public enum ProtocolVersion implements Ordered<ProtocolVersion> {
    * @return if the protocol supported
    */
   public boolean isSupported() {
-    return noLessThan(MINIMUM_VERSION);
+    return this == MINECRAFT_26_3;
   }
 
   /**

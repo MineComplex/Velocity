@@ -19,49 +19,19 @@ package com.velocitypowered.proxy.protocol.data.tile;
 
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.util.EnumUniverse;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-import java.util.*;
+import java.util.Map;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-@Getter
-@AllArgsConstructor
 public enum TileEntityVersion {
+  MINECRAFT_26_3;
 
-  MINECRAFT_26_3(EnumSet.range(ProtocolVersion.MINIMUM_VERSION, ProtocolVersion.MAXIMUM_VERSION));
-
-  private static final EnumMap<ProtocolVersion, TileEntityVersion> MC_VERSION_TO_ITEM_VERSIONS = new EnumMap<>(ProtocolVersion.class);
   private static final Map<String, TileEntityVersion> KEY_LOOKUP = Map.copyOf(EnumUniverse.createProtocolLookup(values()));
 
-  static {
-    for (TileEntityVersion version : TileEntityVersion.values()) {
-      for (ProtocolVersion protocolVersion : version.getVersions()) {
-        MC_VERSION_TO_ITEM_VERSIONS.put(protocolVersion, version);
-      }
-    }
+  public static @Nullable TileEntityVersion parse(String key) {
+    return KEY_LOOKUP.get(key);
   }
 
-  TileEntityVersion(ProtocolVersion... versions) {
-    this.versions = EnumSet.copyOf(Arrays.asList(versions));
+  public static @Nullable TileEntityVersion from(ProtocolVersion version) {
+    return version == ProtocolVersion.MINECRAFT_26_3 ? MINECRAFT_26_3 : null;
   }
-
-  private final Set<ProtocolVersion> versions;
-
-  /**
-   * Returns the version for a key from the mapping files, or {@code null} for versions that
-   * are no longer supported.
-   */
-  public static @Nullable TileEntityVersion parse(String from) {
-    return KEY_LOOKUP.get(from);
-  }
-
-  public static TileEntityVersion from(ProtocolVersion protocolVersion) {
-    return MC_VERSION_TO_ITEM_VERSIONS.get(protocolVersion);
-  }
-
-  public ProtocolVersion getMinSupportedVersion() {
-    return versions.iterator().next();
-  }
-
 }

@@ -66,9 +66,9 @@ public class MapCanvas {
     }
   }
 
-  public MapData getMapData(int index, MapPalette.MapVersion version) {
+  public MapData getMapData(int index) {
     byte[] convertedCanvas = new byte[MapData.MAP_SIZE];
-    return new MapData(MapPalette.convertImage(canvas[index], convertedCanvas, version));
+    return new MapData(MapPalette.convertImage(canvas[index], convertedCanvas));
   }
 
 }

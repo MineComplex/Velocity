@@ -17,18 +17,11 @@
 
 package com.velocitypowered.proxy.protocol.data.map;
 
-import com.velocitypowered.api.network.ProtocolVersion;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 import java.awt.image.BufferedImage;
 import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 
 public class MapPalette {
@@ -39,14 +32,8 @@ public class MapPalette {
   @Deprecated
   public static final byte WHITE = 34;
   public static final byte TRANSPARENT = 0;
-  private static final Map<MapVersion, byte[]> REMAP_BUFFERS = new EnumMap<>(MapVersion.class);
   private static final byte[] MAIN_BUFFER = readBuffer("/mapping/colors_main_map");
-
-  public static void init() {
-    for (MapVersion version : MapVersion.values()) {
-      REMAP_BUFFERS.put(version, readBuffer("/mapping/colors_" + version.toString().toLowerCase(Locale.ROOT) + "_map"));
-    }
-  }
+  private static final byte[] REMAP_BUFFER = readBuffer("/mapping/colors_minecraft_1_17_map");
 
   private static byte[] readBuffer(String filename) {
     try (InputStream stream = MapPalette.class.getResourceAsStream(filename)) {
@@ -57,37 +44,24 @@ public class MapPalette {
   }
 
   /**
-   * Convert an Image to a byte[] using the palette.
-   * Uses reduced set of colors, to support more colors use {@link MapPalette#imageToBytes(BufferedImage, ProtocolVersion)}
+   * Convert an image to palette indices for 26.3.
    *
-   * @param image The image to convert.
-   * @return A byte[] containing the pixels of the image.
+   * @param image the image to convert
+   * @return the palette indices
    */
   public static int[] imageToBytes(BufferedImage image) {
-    return imageToBytes(image, ProtocolVersion.MAXIMUM_VERSION);
-  }
-
-  /**
-   * Convert an Image to a byte[] using the palette.
-   *
-   * @param image   The image to convert.
-   * @param version The ProtocolVersion to support more colors.
-   * @return A byte[] containing the pixels of the image.
-   */
-  public static int[] imageToBytes(BufferedImage image, ProtocolVersion version) {
     int[] result = image.getRGB(0, 0, image.getWidth(), image.getHeight(), null, 0, image.getWidth());
-    return imageToBytes(result, result, version);
+    return imageToBytes(result, result);
   }
 
   /**
    * Convert an image to a byte[] using the palette.
    *
    * @param image   The image to convert.
-   * @param version The ProtocolVersion to support more colors.
    * @return A byte[] containing the pixels of the image.
    */
-  public static int[] imageToBytes(int[] image, ProtocolVersion version) {
-    return imageToBytes(image, new int[image.length], version);
+  public static int[] imageToBytes(int[] image) {
+    return imageToBytes(image, new int[image.length]);
   }
 
   /**
@@ -95,12 +69,11 @@ public class MapPalette {
    *
    * @param from    The image to convert.
    * @param to      Output image.
-   * @param version The ProtocolVersion to support more colors.
    * @return A byte[] containing the pixels of the image.
    */
-  public static int[] imageToBytes(int[] from, int[] to, ProtocolVersion version) {
+  public static int[] imageToBytes(int[] from, int[] to) {
     for (int i = 0; i < from.length; ++i) {
-      to[i] = tryFastMatchColor(from[i], version);
+      to[i] = tryFastMatchColor(from[i]);
     }
 
     return to;
@@ -111,12 +84,11 @@ public class MapPalette {
    *
    * @param from    The image to convert.
    * @param to      Output image.
-   * @param version The ProtocolVersion to support more colors.
    * @return A byte[] containing the pixels of the image.
    */
-  public static byte[] imageToBytes(int[] from, byte[] to, ProtocolVersion version) {
+  public static byte[] imageToBytes(int[] from, byte[] to) {
     for (int i = 0; i < from.length; ++i) {
-      to[i] = tryFastMatchColor(from[i], version);
+      to[i] = tryFastMatchColor(from[i]);
     }
 
     return to;
@@ -129,18 +101,11 @@ public class MapPalette {
    * @param rgb The Color to match.
    * @return The index in the palette.
    */
-  public static byte tryFastMatchColor(int rgb, ProtocolVersion version) {
+  public static byte tryFastMatchColor(int rgb) {
     if (getAlpha(rgb) < 128) {
       return TRANSPARENT;
-    } else {
-      MapVersion mapVersion = MapVersion.fromProtocolVersion(version);
-      byte originalColorID = MAIN_BUFFER[rgb & 0xFFFFFF];
-      if (mapVersion == MapVersion.MAXIMUM_VERSION) {
-        return originalColorID;
-      } else {
-        return remapByte(REMAP_BUFFERS.get(mapVersion), originalColorID);
-      }
     }
+    return MAIN_BUFFER[rgb & 0xFFFFFF];
   }
 
   private static int getAlpha(int rgb) {
@@ -148,26 +113,24 @@ public class MapPalette {
   }
 
   /**
-   * Convert an image from MapVersion.MAXIMUM_VERSION to the desired version
+   * Copy palette indices to the 26.3 canvas palette
    *
    * @param image   The image to convert.
-   * @param version The ProtocolVersion to support more colors.
    * @return A byte[] containing the pixels of the image.
    */
-  public static int[] convertImage(int[] image, MapVersion version) {
-    return convertImage(image, new int[image.length], version);
+  public static int[] convertImage(int[] image) {
+    return convertImage(image, new int[image.length]);
   }
 
   /**
-   * Convert an image from MapVersion.MAXIMUM_VERSION to the desired version
+   * Copy palette indices to the 26.3 canvas palette
    *
    * @param from    The image to convert.
    * @param to      Output image.
-   * @param version The ProtocolVersion to support more colors.
    * @return A byte[] containing the pixels of the image.
    */
-  public static int[] convertImage(int[] from, int[] to, MapVersion version) {
-    byte[] remapBuffer = REMAP_BUFFERS.get(version);
+  public static int[] convertImage(int[] from, int[] to) {
+    byte[] remapBuffer = REMAP_BUFFER;
     for (int i = 0; i < from.length; ++i) {
       to[i] = remapByte(remapBuffer, (byte) from[i]);
     }
@@ -176,15 +139,14 @@ public class MapPalette {
   }
 
   /**
-   * Convert an image from MapVersion.MAXIMUM_VERSION to the desired version
+   * Copy palette indices to the 26.3 canvas palette
    *
    * @param from    The image to convert.
    * @param to      Output image.
-   * @param version The ProtocolVersion to support more colors.
    * @return A byte[] containing the pixels of the image.
    */
-  public static byte[] convertImage(byte[] from, byte[] to, MapVersion version) {
-    byte[] remapBuffer = REMAP_BUFFERS.get(version);
+  public static byte[] convertImage(byte[] from, byte[] to) {
+    byte[] remapBuffer = REMAP_BUFFER;
     for (int i = 0; i < from.length; ++i) {
       to[i] = remapByte(remapBuffer, from[i]);
     }
@@ -193,15 +155,14 @@ public class MapPalette {
   }
 
   /**
-   * Convert an image from MapVersion.MAXIMUM_VERSION to the desired version
+   * Copy palette indices to the 26.3 canvas palette
    *
    * @param from    The image to convert.
    * @param to      Output image.
-   * @param version The ProtocolVersion to support more colors.
    * @return A byte[] containing the pixels of the image.
    */
-  public static byte[] convertImage(int[] from, byte[] to, MapVersion version) {
-    byte[] remapBuffer = REMAP_BUFFERS.get(version);
+  public static byte[] convertImage(int[] from, byte[] to) {
+    byte[] remapBuffer = REMAP_BUFFER;
     for (int i = 0; i < from.length; ++i) {
       to[i] = remapByte(remapBuffer, (byte) from[i]);
     }
@@ -213,24 +174,4 @@ public class MapPalette {
     return remapBuffer[Byte.toUnsignedInt(oldByte)];
   }
 
-  @Getter
-  @AllArgsConstructor
-  public enum MapVersion {
-    MINECRAFT_1_17(EnumSet.range(ProtocolVersion.MINIMUM_VERSION, ProtocolVersion.MAXIMUM_VERSION));
-
-    public static final MapVersion MAXIMUM_VERSION = MINECRAFT_1_17;
-    private static final EnumMap<ProtocolVersion, MapVersion> VERSIONS_MAP = new EnumMap<>(ProtocolVersion.class);
-
-    static {
-      for (MapVersion value : MapVersion.values()) {
-        value.versions.forEach(version -> VERSIONS_MAP.put(version, value));
-      }
-    }
-
-    private final EnumSet<ProtocolVersion> versions;
-
-    public static MapVersion fromProtocolVersion(ProtocolVersion version) {
-      return VERSIONS_MAP.get(version);
-    }
-  }
 }

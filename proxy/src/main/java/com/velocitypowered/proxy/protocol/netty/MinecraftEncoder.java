@@ -43,7 +43,7 @@ public class MinecraftEncoder extends MessageToByteEncoder<MinecraftPacket> {
   public MinecraftEncoder(ProtocolUtils.Direction direction) {
     this.direction = Preconditions.checkNotNull(direction, "direction");
     this.registry = StateRegistry.HANDSHAKE.getProtocolRegistry(
-        direction, ProtocolVersion.MINIMUM_VERSION);
+        direction, ProtocolVersion.MINECRAFT_26_3);
     this.state = StateRegistry.HANDSHAKE;
   }
 

@@ -36,7 +36,7 @@ class ModArgumentPropertySerializer implements ArgumentPropertySerializer<ModArg
     int idx = ProtocolUtils.readVarInt(buf);
     ArgumentIdentifier identifier = ArgumentIdentifier.id(
         "crossstitch:identified_" + (idx < 0 ? "n" + (-idx) : idx),
-        ArgumentIdentifier.mapSet(version, idx));
+        idx);
 
     byte[] extraData = ProtocolUtils.readByteArray(buf);
     return new ModArgumentProperty(identifier, Unpooled.wrappedBuffer(extraData));
