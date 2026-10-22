@@ -1,6 +1,3 @@
-# Config version. Do not change this
-config-version = "2.9"
-
 # What port should the proxy be bound to? By default, we'll bind to all addresses on port 25565.
 bind = "0.0.0.0:25565"
 
@@ -15,36 +12,17 @@ show-max-players = 500
 # Should we authenticate players with Mojang? By default, this is on.
 online-mode = true
 
-# Should the proxy enforce the new public key security standard? By default, this is on.
-force-key-authentication = true
-
 # If client's ISP/AS sent from this proxy is different from the one from Mojang's
 # authentication server, the player is kicked. This disallows some VPN and proxy
 # connections but is a weak form of protection.
 prevent-client-proxy-connections = false
 
-# Should we forward IP addresses and other data to backend servers?
-# Available options:
-# - "none":        No forwarding will be done. All players will appear to be connecting
-#                  from the proxy and will have offline-mode UUIDs.
-# - "legacy":      Forward player IPs and UUIDs in a BungeeCord-compatible format. Use this
-#                  if you run servers using Minecraft 1.12 or lower.
-# - "bungeeguard": Forward player IPs and UUIDs in a format supported by the BungeeGuard
-#                  plugin. Use this if you run servers using Minecraft 1.12 or lower, and are
-#                  unable to implement network level firewalling (on a shared host).
-# - "modern":      Forward player IPs and UUIDs as part of the login process using
-#                  Velocity's native forwarding. Only applicable for Minecraft 1.13 or higher.
-player-info-forwarding-mode = "NONE"
-
-# If you are using modern or BungeeGuard IP forwarding, configure a file that contains a unique secret here.
+# File containing the shared secret for Velocity modern forwarding.
 # The file is expected to be UTF-8 encoded and not empty.
 forwarding-secret-file = "forwarding.secret"
 
 # Announce whether or not your server supports Forge. If you run a modded server, we
 # suggest turning this on.
-# 
-# If your network runs one modpack consistently, consider using ping-passthrough.modinfo = true
-# instead for a nicer display in the server list.
 announce-forge = false
 
 # If enabled (default is false) and the proxy is in online mode, Velocity will kick
@@ -53,23 +31,10 @@ kick-existing-players = false
 
 # If enabled (default is false), then a sample of the online players on the proxy will be visible
 # when hovering over the player count in the server list.
-# This doesn't have any effect when ping passthrough is set to either "description" or "all".
 sample-players-in-ping = false
 
 # If not enabled (default is true) player IP addresses will be replaced by <ip address withheld> in logs
 enable-player-address-logging = true
-
-[ping-passthrough]
-# Should Velocity pass the version number from the backend server when responding to server list ping requests?
-version = false
-# Should Velocity pass the player count from the backend server when responding to server list ping requests?
-players = false
-# Should Velocity pass the description from the backend server when responding to server list ping requests?
-description = false
-# Should Velocity pass the favicon (also known as the server icon) from the backend server when responding to server list ping requests?
-favicon = false
-# Should Velocity pass the mod list from the backend server when responding to server list ping requests?
-modinfo = false
 
 [packet-limiter]
 # Size of the moving time window in seconds used to calculate average rates.
@@ -134,9 +99,6 @@ haproxy-protocol = false
 # Enables TCP fast open support on the proxy. Requires the proxy to run on Linux.
 tcp-fast-open = false
 
-# Enables BungeeCord plugin messaging channel support on Velocity.
-bungee-plugin-message-channel = true
-
 # Shows ping requests to the proxy from clients.
 show-ping-requests = false
 
@@ -155,10 +117,6 @@ log-command-executions = false
 # Enables logging of player connections when connecting to the proxy, switching servers
 # and disconnecting from the proxy.
 log-player-connections = true
-
-# Allows players transferred from other hosts via the
-# Transfer packet (Minecraft 1.20.5) to be received.
-accepts-transfers = false
 
 # Enables support for SO_REUSEPORT. This may help the proxy scale better on multicore systems
 # with a lot of incoming connections, and provide better CPU utilization than the existing

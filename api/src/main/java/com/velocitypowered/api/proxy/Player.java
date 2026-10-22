@@ -17,7 +17,6 @@ import com.velocitypowered.api.proxy.messages.ChannelMessageSource;
 import com.velocitypowered.api.proxy.messages.PluginMessageEncoder;
 import com.velocitypowered.api.proxy.player.PlayerSettings;
 import com.velocitypowered.api.proxy.player.ResourcePackInfo;
-import com.velocitypowered.api.proxy.player.TabList;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.util.GameProfile;
 import com.velocitypowered.api.util.ModInfo;
@@ -155,42 +154,6 @@ public interface Player extends
    * Returns the player's game profile.
    */
   GameProfile getGameProfile();
-
-  /**
-   * Clears the tab list header and footer for the player.
-   *
-   * @deprecated Use {@link Player#clearPlayerListHeaderAndFooter()}.
-   */
-  @Deprecated
-  default void clearHeaderAndFooter() {
-    clearPlayerListHeaderAndFooter();
-  }
-
-  /**
-   * Clears the player list header and footer.
-   */
-  void clearPlayerListHeaderAndFooter();
-
-  /**
-   * Returns the player's player list header.
-   *
-   * @return this player's player list header
-   */
-  Component getPlayerListHeader();
-
-  /**
-   * Returns the player's player list footer.
-   *
-   * @return this player's tab list
-   */
-  Component getPlayerListFooter();
-
-  /**
-   * Returns the player's tab list.
-   *
-   * @return this player's tab list
-   */
-  TabList getTabList();
 
   /**
    * Disconnects the player with the specified reason. Once this method is called, further calls to

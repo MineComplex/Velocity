@@ -77,7 +77,6 @@ import com.velocitypowered.proxy.protocol.packet.ClientboundSoundEntityPacket;
 import com.velocitypowered.proxy.protocol.packet.ClientboundStopSoundPacket;
 import com.velocitypowered.proxy.protocol.packet.ClientboundStoreCookiePacket;
 import com.velocitypowered.proxy.protocol.packet.DisconnectPacket;
-import com.velocitypowered.proxy.protocol.packet.HeaderAndFooterPacket;
 import com.velocitypowered.proxy.protocol.packet.KeepAlivePacket;
 import com.velocitypowered.proxy.protocol.packet.PluginMessagePacket;
 import com.velocitypowered.proxy.protocol.packet.RemoveResourcePackPacket;
@@ -92,8 +91,6 @@ import com.velocitypowered.proxy.protocol.packet.config.StartUpdatePacket;
 import com.velocitypowered.proxy.protocol.packet.title.GenericTitlePacket;
 import com.velocitypowered.proxy.protocol.util.ByteBufDataOutput;
 import com.velocitypowered.proxy.server.VelocityRegisteredServer;
-import com.velocitypowered.proxy.tablist.InternalTabList;
-import com.velocitypowered.proxy.tablist.VelocityTabList;
 import com.velocitypowered.proxy.util.ClosestLocaleMatcher;
 import com.velocitypowered.proxy.util.DurationUtils;
 import com.velocitypowered.proxy.util.TranslatableMapper;
@@ -171,9 +168,6 @@ public class ConnectedPlayer implements MinecraftConnectionAssociation, Player, 
   private @Nullable PlayerSettings settings;
   private @Nullable ModInfo modInfo;
   private final Set<VelocityBossBarImplementation> bossBars = new HashSet<>();
-  private Component playerListHeader = Component.empty();
-  private Component playerListFooter = Component.empty();
-  public InternalTabList tabList;
   private final VelocityServer server;
   private ClientConnectionPhase connectionPhase;
   private final Collection<ChannelIdentifier> clientsideChannels;
@@ -203,7 +197,6 @@ public class ConnectedPlayer implements MinecraftConnectionAssociation, Player, 
     this.onlineMode = onlineMode;
     this.clientsideChannels = CappedSet.create(MAX_CLIENTSIDE_PLUGIN_CHANNELS);
 
-    this.tabList = new VelocityTabList(this);
     this.chatQueue = new ChatQueue(this);
     this.chatBuilderFactory = new ChatBuilderFactory(this.getProtocolVersion());
     this.resourcePackHandler = ResourcePackHandler.create(this, server);
@@ -419,36 +412,6 @@ public class ConnectedPlayer implements MinecraftConnectionAssociation, Player, 
   }
 
   @Override
-  public Component getPlayerListHeader() {
-    return this.playerListHeader;
-  }
-
-  @Override
-  public Component getPlayerListFooter() {
-    return this.playerListFooter;
-  }
-
-  @Override
-  public void sendPlayerListHeader(@NonNull final Component header) {
-    this.sendPlayerListHeaderAndFooter(header, this.playerListFooter);
-  }
-
-  @Override
-  public void sendPlayerListFooter(@NonNull final Component footer) {
-    this.sendPlayerListHeaderAndFooter(this.playerListHeader, footer);
-  }
-
-  @Override
-  public void sendPlayerListHeaderAndFooter(final @NotNull Component header,
-                                            final @NotNull Component footer) {
-    Component translatedHeader = translateMessage(header);
-    Component translatedFooter = translateMessage(footer);
-    this.playerListHeader = translatedHeader;
-    this.playerListFooter = translatedFooter;
-    this.connection.write(HeaderAndFooterPacket.create(translatedHeader, translatedFooter));
-  }
-
-  @Override
   public void showTitle(@NonNull Title title) {
     GenericTitlePacket timesPkt = GenericTitlePacket.constructTitlePacket(GenericTitlePacket.ActionType.SET_TIMES);
     Title.Times times = title.times();
@@ -544,22 +507,6 @@ public class ConnectedPlayer implements MinecraftConnectionAssociation, Player, 
   @Override
   public void setGameProfileProperties(List<GameProfile.Property> properties) {
     this.profile = profile.withProperties(Preconditions.checkNotNull(properties));
-  }
-
-  @Override
-  public void clearPlayerListHeaderAndFooter() {
-    clearPlayerListHeaderAndFooterSilent();
-    this.connection.write(HeaderAndFooterPacket.reset());
-  }
-
-  public void clearPlayerListHeaderAndFooterSilent() {
-    this.playerListHeader = Component.empty();
-    this.playerListFooter = Component.empty();
-  }
-
-  @Override
-  public InternalTabList getTabList() {
-    return tabList;
   }
 
   @Override

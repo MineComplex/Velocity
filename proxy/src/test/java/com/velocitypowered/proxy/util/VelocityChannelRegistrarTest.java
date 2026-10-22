@@ -34,9 +34,9 @@ class VelocityChannelRegistrarTest {
       new LegacyChannelIdentifier("VelocityTest");
 
   private static final MinecraftChannelIdentifier MODERN_SPECIAL_REMAP = MinecraftChannelIdentifier
-      .create("bungeecord", "main");
+      .create("minecraft", "brand");
   private static final LegacyChannelIdentifier SPECIAL_REMAP_LEGACY =
-      new LegacyChannelIdentifier("BungeeCord");
+      new LegacyChannelIdentifier("MC|Brand");
 
   private static final String SIMPLE_LEGACY_REMAPPED = "legacy:velocitytest";
 

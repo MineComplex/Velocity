@@ -18,7 +18,6 @@
 package com.velocitypowered.proxy.connection.backend;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.mojang.brigadier.tree.RootCommandNode;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.event.command.PlayerAvailableCommandsEvent;
@@ -54,14 +53,12 @@ import com.velocitypowered.proxy.protocol.packet.DisconnectPacket;
 import com.velocitypowered.proxy.protocol.packet.JoinGamePacket;
 import com.velocitypowered.proxy.protocol.packet.KeepAlivePacket;
 import com.velocitypowered.proxy.protocol.packet.PluginMessagePacket;
-import com.velocitypowered.proxy.protocol.packet.RemovePlayerInfoPacket;
 import com.velocitypowered.proxy.protocol.packet.RemoveResourcePackPacket;
 import com.velocitypowered.proxy.protocol.packet.ResourcePackRequestPacket;
 import com.velocitypowered.proxy.protocol.packet.ResourcePackResponsePacket;
 import com.velocitypowered.proxy.protocol.packet.ServerDataPacket;
 import com.velocitypowered.proxy.protocol.packet.TabCompleteResponsePacket;
 import com.velocitypowered.proxy.protocol.packet.TransferPacket;
-import com.velocitypowered.proxy.protocol.packet.UpsertPlayerInfoPacket;
 import com.velocitypowered.proxy.protocol.packet.chat.ComponentHolder;
 import com.velocitypowered.proxy.protocol.packet.config.StartUpdatePacket;
 import com.velocitypowered.proxy.protocol.util.DeferredByteBufHolder;
@@ -78,7 +75,6 @@ import org.apache.logging.log4j.Logger;
 import java.net.InetSocketAddress;
 import java.util.regex.Pattern;
 
-import static com.velocitypowered.proxy.connection.backend.BungeeCordMessageResponder.getBungeeCordChannel;
 
 /**
  * Handles a connected player.
@@ -97,7 +93,6 @@ public class BackendPlaySessionHandler implements MinecraftSessionHandler {
   public final VelocityServerConnection serverConn;
   private final ClientPlaySessionHandler playerSessionHandler;
   private final MinecraftConnection playerConnection;
-  private final BungeeCordMessageResponder bungeecordMessageResponder;
   private boolean exceptionTriggered = false;
   private int packetsFlushed;
 
@@ -113,19 +108,11 @@ public class BackendPlaySessionHandler implements MinecraftSessionHandler {
     }
     this.playerSessionHandler = (ClientPlaySessionHandler) psh;
 
-    this.bungeecordMessageResponder = new BungeeCordMessageResponder(server,
-        serverConn.getPlayer());
   }
 
   @Override
   public void activated() {
     serverConn.getServer().addPlayer(serverConn.getPlayer());
-
-    MinecraftConnection serverMc = serverConn.ensureConnected();
-    if (server.getConfiguration().isBungeePluginChannelEnabled()) {
-      serverMc.write(PluginMessageUtil.constructChannelsPacket(
-          ImmutableList.of(getBungeeCordChannel())));
-    }
 
   }
 
@@ -275,10 +262,6 @@ public class BackendPlaySessionHandler implements MinecraftSessionHandler {
 
   @Override
   public boolean handle(PluginMessagePacket packet) {
-    if (bungeecordMessageResponder.process(packet)) {
-      return true;
-    }
-
     // Register and unregister packets are simply forwarded to the client as-is.
     if (PluginMessageUtil.isRegister(packet) || PluginMessageUtil.isUnregister(packet)) {
       return false;
@@ -320,18 +303,6 @@ public class BackendPlaySessionHandler implements MinecraftSessionHandler {
   public boolean handle(TabCompleteResponsePacket packet) {
     playerSessionHandler.handleTabCompleteResponse(packet);
     return true;
-  }
-
-  @Override
-  public boolean handle(UpsertPlayerInfoPacket packet) {
-    serverConn.getPlayer().getTabList().processUpdate(packet);
-    return false;
-  }
-
-  @Override
-  public boolean handle(RemovePlayerInfoPacket packet) {
-    serverConn.getPlayer().getTabList().processRemove(packet);
-    return false;
   }
 
   @Override

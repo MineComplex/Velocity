@@ -33,7 +33,6 @@ import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.connection.MinecraftConnection;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.connection.backend.BackendConnectionPhases;
-import com.velocitypowered.proxy.connection.backend.BungeeCordMessageResponder;
 import com.velocitypowered.proxy.connection.backend.VelocityServerConnection;
 import com.velocitypowered.proxy.connection.player.resourcepack.ResourcePackResponseBundle;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
@@ -303,8 +302,6 @@ public class ClientPlaySessionHandler implements MinecraftSessionHandler {
         server.getEventManager().fireAndForget(new PlayerClientBrandEvent(player, brand));
         player.setClientBrand(brand);
         backendConn.write(packet.retain());
-      } else if (BungeeCordMessageResponder.isBungeeCordMessage(packet)) {
-        return true;
       } else {
         if (serverConn.getPhase() == BackendConnectionPhases.IN_TRANSITION) {
           // We must bypass the currently-connected server when forwarding Forge packets.
@@ -528,8 +525,6 @@ public class ClientPlaySessionHandler implements MinecraftSessionHandler {
 
       // Config state clears everything in the client. No need to clear later.
       spawned = false;
-      player.clearPlayerListHeaderAndFooterSilent();
-      player.getTabList().clearAllSilent();
       player.getBossBarManager().dropPackets();
     }
 
@@ -555,9 +550,6 @@ public class ClientPlaySessionHandler implements MinecraftSessionHandler {
       player.getConnection().delayedWrite(joinGame);
       player.getPhase().onFirstJoin(player);
     } else {
-      // Clear tab list to avoid duplicate entries
-      player.getTabList().clearAll();
-
       // The player is switching from a server already, so we need to tell the client to change
       // entity IDs and send new dimension information.
       this.doFastClientServerSwitch(joinGame);

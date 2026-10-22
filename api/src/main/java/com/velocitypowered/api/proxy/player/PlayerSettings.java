@@ -59,8 +59,7 @@ public interface PlayerSettings {
 
   /**
    * Returns whether the client explicitly allows listing on the
-   * {@link com.velocitypowered.api.proxy.player.TabList} or not in
-   * anonymous TabList mode.
+   * player list or uses anonymous listing mode.
    * This feature was introduced in 1.18.
    *
    * @return whether or not the client explicitly allows listing. Always false on older clients.

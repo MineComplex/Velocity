@@ -231,9 +231,6 @@ public class ConfigSessionHandler implements MinecraftSessionHandler {
       smc.write(FinishedUpdatePacket.INSTANCE);
       if (serverConn == player.getConnectedServer()) {
         smc.setActiveSessionHandler(StateRegistry.PLAY);
-        player.sendPlayerListHeaderAndFooter(player.getPlayerListHeader(), player.getPlayerListFooter());
-        // The client cleared the tab list. TODO: Restore changes done via TabList API
-        player.getTabList().clearAllSilent();
       } else {
         smc.setActiveSessionHandler(StateRegistry.PLAY, new TransitionSessionHandler(server, serverConn, resultFuture));
       }

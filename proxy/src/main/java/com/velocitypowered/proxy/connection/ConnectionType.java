@@ -17,8 +17,6 @@
 
 package com.velocitypowered.proxy.connection;
 
-import com.velocitypowered.api.util.GameProfile;
-import com.velocitypowered.proxy.config.PlayerInfoForwarding;
 import com.velocitypowered.proxy.connection.backend.BackendConnectionPhase;
 import com.velocitypowered.proxy.connection.client.ClientConnectionPhase;
 
@@ -40,15 +38,4 @@ public interface ConnectionType {
    * @return The {@link BackendConnectionPhase}
    */
   BackendConnectionPhase getInitialBackendPhase();
-
-  /**
-   * Adds properties to the {@link GameProfile} if required. If any properties are added, the
-   * returned {@link GameProfile} will be a copy.
-   *
-   * @param original       The original {@link GameProfile}
-   * @param forwardingType The Velocity {@link PlayerInfoForwarding}
-   * @return The {@link GameProfile} with the properties added in.
-   */
-  GameProfile addGameProfileTokensIfRequired(GameProfile original,
-      PlayerInfoForwarding forwardingType);
 }

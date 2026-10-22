@@ -27,7 +27,6 @@ import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
 import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.connection.MinecraftConnection;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
-import com.velocitypowered.proxy.connection.backend.BungeeCordMessageResponder;
 import com.velocitypowered.proxy.connection.backend.VelocityServerConnection;
 import com.velocitypowered.proxy.connection.player.resourcepack.ResourcePackResponseBundle;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
@@ -128,8 +127,6 @@ public class ClientConfigSessionHandler implements MinecraftSessionHandler {
       brandChannel = packet.getChannel();
       // Client sends `minecraft:brand` packet immediately after Login,
       // but at this time the backend server may not be ready
-    } else if (BungeeCordMessageResponder.isBungeeCordMessage(packet)) {
-      return true;
     } else if (serverConn != null) {
       ChannelIdentifier id = this.server.getChannelRegistrar().getFromId(packet.getChannel());
 

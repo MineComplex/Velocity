@@ -17,18 +17,12 @@
 
 package com.velocitypowered.proxy.connection;
 
-import static com.velocitypowered.proxy.VelocityServer.GENERAL_GSON;
-
-import com.google.common.collect.ImmutableList;
 import com.velocitypowered.api.util.GameProfile;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
-import java.util.function.UnaryOperator;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -43,10 +37,6 @@ public final class PlayerDataForwarding {
   public static final int MODERN_WITH_KEY_V2 = 3;
   public static final int MODERN_LAZY_SESSION = 4;
   public static final int MODERN_MAX_VERSION = MODERN_LAZY_SESSION;
-
-  private static final char LEGACY_SEPARATOR = '\0';
-
-  private static final String BUNGEE_GUARD_TOKEN_PROPERTY_NAME = "bungeeguard-token";
 
   private PlayerDataForwarding() {
   }
@@ -90,60 +80,4 @@ public final class PlayerDataForwarding {
         : MODERN_DEFAULT;
   }
 
-  public static String createLegacyForwardingAddress(
-      final String serverAddress,
-      final String playerAddress,
-      final GameProfile profile
-  ) {
-    return createLegacyForwardingAddress(
-        serverAddress,
-        playerAddress,
-        profile,
-        UnaryOperator.identity()
-    );
-  }
-
-  private static String createLegacyForwardingAddress(
-      final String serverAddress,
-      final String playerAddress,
-      final GameProfile profile,
-      final UnaryOperator<List<GameProfile.Property>> propertiesTransform
-  ) {
-    // BungeeCord IP forwarding is simply a special injection after the "address" in the handshake,
-    // separated by \0 (the null byte). In order, you send the original host, the player's IP, their
-    // UUID (undashed), and if you are in online-mode, their login properties (from Mojang).
-    final StringBuilder data = new StringBuilder()
-        .append(serverAddress)
-        .append(LEGACY_SEPARATOR)
-        .append(playerAddress)
-        .append(LEGACY_SEPARATOR)
-        .append(profile.getUndashedId())
-        .append(LEGACY_SEPARATOR);
-    GENERAL_GSON
-        .toJson(propertiesTransform.apply(profile.getProperties()), data);
-    return data.toString();
-  }
-
-  public static String createBungeeGuardForwardingAddress(
-      final String serverAddress,
-      final String playerAddress,
-      final GameProfile profile,
-      final byte[] forwardingSecret
-  ) {
-    // Append forwarding secret as a BungeeGuard token.
-    final GameProfile.Property property = new GameProfile.Property(
-        BUNGEE_GUARD_TOKEN_PROPERTY_NAME,
-        new String(forwardingSecret, StandardCharsets.UTF_8),
-        ""
-    );
-    return createLegacyForwardingAddress(
-        serverAddress,
-        playerAddress,
-        profile,
-        properties -> ImmutableList.<GameProfile.Property>builder()
-            .addAll(properties)
-            .add(property)
-            .build()
-    );
-  }
 }
