@@ -33,14 +33,10 @@ class ModArgumentPropertySerializer implements ArgumentPropertySerializer<ModArg
 
   @Override
   public @Nullable ModArgumentProperty deserialize(ByteBuf buf, ProtocolVersion version) {
-    ArgumentIdentifier identifier;
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_19)) {
-      int idx = ProtocolUtils.readVarInt(buf);
-      identifier = ArgumentIdentifier.id("crossstitch:identified_" + (idx < 0 ? "n" + (-idx) : idx),
-          ArgumentIdentifier.mapSet(version, idx));
-    } else {
-      identifier = ArgumentIdentifier.id(ProtocolUtils.readString(buf));
-    }
+    int idx = ProtocolUtils.readVarInt(buf);
+    ArgumentIdentifier identifier = ArgumentIdentifier.id(
+        "crossstitch:identified_" + (idx < 0 ? "n" + (-idx) : idx),
+        ArgumentIdentifier.mapSet(version, idx));
 
     byte[] extraData = ProtocolUtils.readByteArray(buf);
     return new ModArgumentProperty(identifier, Unpooled.wrappedBuffer(extraData));

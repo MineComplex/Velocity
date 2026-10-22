@@ -37,7 +37,6 @@ import com.velocitypowered.proxy.protocol.packet.HandshakePacket;
 import com.velocitypowered.proxy.protocol.packet.HeaderAndFooterPacket;
 import com.velocitypowered.proxy.protocol.packet.JoinGamePacket;
 import com.velocitypowered.proxy.protocol.packet.KeepAlivePacket;
-import com.velocitypowered.proxy.protocol.packet.LegacyPlayerListItemPacket;
 import com.velocitypowered.proxy.protocol.packet.LoginAcknowledgedPacket;
 import com.velocitypowered.proxy.protocol.packet.LoginPluginMessagePacket;
 import com.velocitypowered.proxy.protocol.packet.LoginPluginResponsePacket;
@@ -67,9 +66,6 @@ import com.velocitypowered.proxy.protocol.packet.UpsertPlayerInfoPacket;
 import com.velocitypowered.proxy.protocol.packet.chat.ChatAcknowledgementPacket;
 import com.velocitypowered.proxy.protocol.packet.chat.PlayerChatCompletionPacket;
 import com.velocitypowered.proxy.protocol.packet.chat.SystemChatPacket;
-import com.velocitypowered.proxy.protocol.packet.chat.keyed.KeyedPlayerChatPacket;
-import com.velocitypowered.proxy.protocol.packet.chat.keyed.KeyedPlayerCommandPacket;
-import com.velocitypowered.proxy.protocol.packet.chat.legacy.LegacyChatPacket;
 import com.velocitypowered.proxy.protocol.packet.chat.session.SessionPlayerChatPacket;
 import com.velocitypowered.proxy.protocol.packet.chat.session.SessionPlayerCommandPacket;
 import com.velocitypowered.proxy.protocol.packet.chat.session.UnsignedPlayerCommandPacket;
@@ -112,7 +108,6 @@ import com.velocitypowered.proxy.protocol.packet.server.ServerTagsPacket;
 import com.velocitypowered.proxy.protocol.packet.server.ServerUpdateSectionBlocksPacket;
 import com.velocitypowered.proxy.protocol.packet.server.ServerViewPositionPacket;
 import com.velocitypowered.proxy.protocol.packet.server.ServerWorldTimePacket;
-import com.velocitypowered.proxy.protocol.packet.title.LegacyTitlePacket;
 import com.velocitypowered.proxy.protocol.packet.title.TitleActionbarPacket;
 import com.velocitypowered.proxy.protocol.packet.title.TitleClearPacket;
 import com.velocitypowered.proxy.protocol.packet.title.TitleSubtitlePacket;
@@ -135,36 +130,6 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 import static com.google.common.collect.Iterables.getLast;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_12;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_12_1;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_12_2;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_13;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_14;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_15;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_16;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_16_2;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_16_4;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_17;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_18;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_18_2;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_19;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_19_1;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_19_3;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_19_4;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_20_2;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_20_3;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_20_5;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_2;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_4;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_5;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_6;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_21_9;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_7_2;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_8;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_9;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_9_4;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_26_1;
 import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_26_3;
 import static com.velocitypowered.api.network.ProtocolVersion.MINIMUM_VERSION;
 import static com.velocitypowered.api.network.ProtocolVersion.SUPPORTED_VERSIONS;
@@ -180,134 +145,106 @@ public enum StateRegistry {
   HANDSHAKE {
     {
       serverbound.register(HandshakePacket.class, HandshakePacket::new,
-          map(0x00, MINECRAFT_1_7_2, false));
+          map(0x00, MINECRAFT_26_3, false));
     }
   },
   STATUS {
     {
       serverbound.register(
           StatusRequestPacket.class, () -> StatusRequestPacket.INSTANCE,
-          map(0x00, MINECRAFT_1_7_2, false));
+          map(0x00, MINECRAFT_26_3, false));
       serverbound.register(StatusPingPacket.class, StatusPingPacket::new,
-          map(0x01, MINECRAFT_1_7_2, false));
+          map(0x01, MINECRAFT_26_3, false));
 
       clientbound.register(
           StatusResponsePacket.class, StatusResponsePacket::new,
-          map(0x00, MINECRAFT_1_7_2, false));
+          map(0x00, MINECRAFT_26_3, false));
       clientbound.register(StatusPingPacket.class, StatusPingPacket::new,
-          map(0x01, MINECRAFT_1_7_2, false));
+          map(0x01, MINECRAFT_26_3, false));
     }
   },
   CONFIG {
     {
       serverbound.register(
           ClientSettingsPacket.class, ClientSettingsPacket::new,
-          map(0x00, MINECRAFT_1_20_2, false));
+          map(0x00, MINECRAFT_26_3, false));
       serverbound.register(
           ServerboundCookieResponsePacket.class, ServerboundCookieResponsePacket::new,
-          map(0x01, MINECRAFT_1_20_5, false));
+          map(0x01, MINECRAFT_26_3, false));
       serverbound.register(
           PluginMessagePacket.class, PluginMessagePacket::new,
-          map(0x01, MINECRAFT_1_20_2, false),
-          map(0x02, MINECRAFT_1_20_5, false));
+          map(0x02, MINECRAFT_26_3, false));
       serverbound.register(
           FinishedUpdatePacket.class, () -> FinishedUpdatePacket.INSTANCE,
-          map(0x02, MINECRAFT_1_20_2, false),
-          map(0x03, MINECRAFT_1_20_5, false));
+          map(0x03, MINECRAFT_26_3, false));
       serverbound.register(KeepAlivePacket.class, KeepAlivePacket::new,
-          map(0x03, MINECRAFT_1_20_2, false),
-          map(0x04, MINECRAFT_1_20_5, false));
+          map(0x04, MINECRAFT_26_3, false));
       serverbound.register(
           PingIdentifyPacket.class, PingIdentifyPacket::new,
-          map(0x04, MINECRAFT_1_20_2, false),
-          map(0x05, MINECRAFT_1_20_5, false));
+          map(0x05, MINECRAFT_26_3, false));
       serverbound.register(
           ResourcePackResponsePacket.class,
           ResourcePackResponsePacket::new,
-          map(0x05, MINECRAFT_1_20_2, false),
-          map(0x06, MINECRAFT_1_20_5, false));
+          map(0x06, MINECRAFT_26_3, false));
       serverbound.register(
           KnownPacksPacket.class,
           KnownPacksPacket::new,
-          map(0x07, MINECRAFT_1_20_5, false));
+          map(0x07, MINECRAFT_26_3, false));
       serverbound.register(ServerboundCustomClickActionPacket.class, ServerboundCustomClickActionPacket::new,
-          map(0x08, MINECRAFT_1_21_6, false));
+          map(0x08, MINECRAFT_26_3, false));
       serverbound.register(
           CodeOfConductAcceptPacket.class,
           () -> CodeOfConductAcceptPacket.INSTANCE,
-          map(0x09, MINECRAFT_1_21_9, false));
+          map(0x09, MINECRAFT_26_3, false));
 
       clientbound.register(
           ClientboundCookieRequestPacket.class, ClientboundCookieRequestPacket::new,
-          map(0x00, MINECRAFT_1_20_5, false));
+          map(0x00, MINECRAFT_26_3, false));
       clientbound.register(
           PluginMessagePacket.class, PluginMessagePacket::new,
-          map(0x00, MINECRAFT_1_20_2, false),
-          map(0x01, MINECRAFT_1_20_5, false));
+          map(0x01, MINECRAFT_26_3, false));
       clientbound.register(
           DisconnectPacket.class, () -> new DisconnectPacket(this),
-          map(0x01, MINECRAFT_1_20_2, false),
-          map(0x02, MINECRAFT_1_20_5, false));
+          map(0x02, MINECRAFT_26_3, false));
       clientbound.register(
           FinishedUpdatePacket.class, () -> FinishedUpdatePacket.INSTANCE,
-          map(0x02, MINECRAFT_1_20_2, false),
-          map(0x03, MINECRAFT_1_20_5, false));
+          map(0x03, MINECRAFT_26_3, false));
       clientbound.register(KeepAlivePacket.class, KeepAlivePacket::new,
-          map(0x03, MINECRAFT_1_20_2, false),
-          map(0x04, MINECRAFT_1_20_5, false));
+          map(0x04, MINECRAFT_26_3, false));
       clientbound.register(
           PingIdentifyPacket.class, PingIdentifyPacket::new,
-          map(0x04, MINECRAFT_1_20_2, false),
-          map(0x05, MINECRAFT_1_20_5, false));
+          map(0x05, MINECRAFT_26_3, false));
       clientbound.register(
           RegistrySyncPacket.class, RegistrySyncPacket::new,
-          map(0x05, MINECRAFT_1_20_2, false),
-          map(0x07, MINECRAFT_1_20_5, false));
+          map(0x07, MINECRAFT_26_3, false));
       clientbound.register(
           RemoveResourcePackPacket.class, RemoveResourcePackPacket::new,
-          map(0x06, MINECRAFT_1_20_3, false),
-          map(0x08, MINECRAFT_1_20_5, false));
+          map(0x08, MINECRAFT_26_3, false));
       clientbound.register(ResourcePackRequestPacket.class, ResourcePackRequestPacket::new,
-          map(0x06, MINECRAFT_1_20_2, false),
-          map(0x07, MINECRAFT_1_20_3, false),
-          map(0x09, MINECRAFT_1_20_5, false));
+          map(0x09, MINECRAFT_26_3, false));
       clientbound.register(
           ClientboundPostEffectsPacket.class, ClientboundPostEffectsPacket::new,
           map(0x0A, MINECRAFT_26_3, false));
       clientbound.register(
           ClientboundStoreCookiePacket.class, ClientboundStoreCookiePacket::new,
-          map(0x0A, MINECRAFT_1_20_5, false),
           map(0x0B, MINECRAFT_26_3, false));
       clientbound.register(TransferPacket.class, TransferPacket::new,
-          map(0x0B, MINECRAFT_1_20_5, false),
           map(0x0C, MINECRAFT_26_3, false));
       clientbound.register(ActiveFeaturesPacket.class, ActiveFeaturesPacket::new,
-          map(0x07, MINECRAFT_1_20_2, false),
-          map(0x08, MINECRAFT_1_20_3, false),
-          map(0x0C, MINECRAFT_1_20_5, false),
           map(0x0D, MINECRAFT_26_3, false));
       clientbound.register(TagsUpdatePacket.class, TagsUpdatePacket::new,
-          map(0x08, MINECRAFT_1_20_2, false),
-          map(0x09, MINECRAFT_1_20_3, false),
-          map(0x0D, MINECRAFT_1_20_5, false),
           map(0x0E, MINECRAFT_26_3, false));
       clientbound.register(KnownPacksPacket.class, KnownPacksPacket::new,
-          map(0x0E, MINECRAFT_1_20_5, false),
           map(0x0F, MINECRAFT_26_3, false));
       clientbound.register(ClientboundCustomReportDetailsPacket.class, ClientboundCustomReportDetailsPacket::new,
-          map(0x0F, MINECRAFT_1_21, false),
           map(0x10, MINECRAFT_26_3, false));
       clientbound.register(ClientboundServerLinksPacket.class, ClientboundServerLinksPacket::new,
-          map(0x10, MINECRAFT_1_21, false),
           map(0x11, MINECRAFT_26_3, false));
       clientbound.register(DialogClearPacket.class, () -> DialogClearPacket.INSTANCE,
-          map(0x11, MINECRAFT_1_21_6, false),
           map(0x12, MINECRAFT_26_3, false));
       clientbound.register(DialogShowPacket.class, () -> new DialogShowPacket(this),
-          map(0x12, MINECRAFT_1_21_6, false),
           map(0x13, MINECRAFT_26_3, false));
       clientbound.register(CodeOfConductPacket.class, CodeOfConductPacket::new,
-          map(0x13, MINECRAFT_1_21_9, false),
           map(0x14, MINECRAFT_26_3, false));
     }
   },
@@ -317,615 +254,161 @@ public enum StateRegistry {
       clientbound.fallback = false;
 
       serverbound.register(TabCompleteRequestPacket.class, TabCompleteRequestPacket::new,
-          map(0x14, MINECRAFT_1_7_2, false),
-          map(0x01, MINECRAFT_1_9, false),
-          map(0x02, MINECRAFT_1_12, false),
-          map(0x01, MINECRAFT_1_12_1, false),
-          map(0x05, MINECRAFT_1_13, false),
-          map(0x06, MINECRAFT_1_14, false),
-          map(0x08, MINECRAFT_1_19, false),
-          map(0x09, MINECRAFT_1_19_1, false),
-          map(0x08, MINECRAFT_1_19_3, false),
-          map(0x09, MINECRAFT_1_19_4, false),
-          map(0x0A, MINECRAFT_1_20_2, false),
-          map(0x0B, MINECRAFT_1_20_5, false),
-          map(0x0D, MINECRAFT_1_21_2, false),
-          map(0x0E, MINECRAFT_1_21_6, false),
-          map(0x0F, MINECRAFT_26_1, false));
-      serverbound.register(
-          LegacyChatPacket.class,
-          LegacyChatPacket::new,
-          map(0x01, MINECRAFT_1_7_2, false),
-          map(0x02, MINECRAFT_1_9, false),
-          map(0x03, MINECRAFT_1_12, false),
-          map(0x02, MINECRAFT_1_12_1, false),
-          map(0x03, MINECRAFT_1_14, MINECRAFT_1_18_2, false));
+          map(0x0F, MINECRAFT_26_3, false));
       serverbound.register(
           ChatAcknowledgementPacket.class,
           ChatAcknowledgementPacket::new,
-          map(0x03, MINECRAFT_1_19_3, false),
-          map(0x04, MINECRAFT_1_21_2, false),
-          map(0x05, MINECRAFT_1_21_6, false),
-          map(0x06, MINECRAFT_26_1, false));
-      serverbound.register(KeyedPlayerCommandPacket.class, KeyedPlayerCommandPacket::new,
-          map(0x03, MINECRAFT_1_19, false),
-          map(0x04, MINECRAFT_1_19_1, MINECRAFT_1_19_1, false));
-      serverbound.register(KeyedPlayerChatPacket.class, KeyedPlayerChatPacket::new,
-          map(0x04, MINECRAFT_1_19, false),
-          map(0x05, MINECRAFT_1_19_1, MINECRAFT_1_19_1, false));
+          map(0x06, MINECRAFT_26_3, false));
       serverbound.register(SessionPlayerCommandPacket.class, SessionPlayerCommandPacket::new,
-          map(0x04, MINECRAFT_1_19_3, false),
-          map(0x05, MINECRAFT_1_20_5, false),
-          map(0x06, MINECRAFT_1_21_2, false),
-          map(0x07, MINECRAFT_1_21_6, false),
-          map(0x08, MINECRAFT_26_1, false));
+          map(0x08, MINECRAFT_26_3, false));
       serverbound.register(UnsignedPlayerCommandPacket.class, UnsignedPlayerCommandPacket::new,
-          map(0x04, MINECRAFT_1_20_5, false),
-          map(0x05, MINECRAFT_1_21_2, false),
-          map(0x06, MINECRAFT_1_21_6, false),
-          map(0x07, MINECRAFT_26_1, false));
+          map(0x07, MINECRAFT_26_3, false));
       serverbound.register(
           SessionPlayerChatPacket.class,
           SessionPlayerChatPacket::new,
-          map(0x05, MINECRAFT_1_19_3, false),
-          map(0x06, MINECRAFT_1_20_5, false),
-          map(0x07, MINECRAFT_1_21_2, false),
-          map(0x08, MINECRAFT_1_21_6, false),
-          map(0x09, MINECRAFT_26_1, false));
+          map(0x09, MINECRAFT_26_3, false));
       serverbound.register(
           ClientSettingsPacket.class,
           ClientSettingsPacket::new,
-          map(0x15, MINECRAFT_1_7_2, false),
-          map(0x04, MINECRAFT_1_9, false),
-          map(0x05, MINECRAFT_1_12, false),
-          map(0x04, MINECRAFT_1_12_1, false),
-          map(0x05, MINECRAFT_1_14, false),
-          map(0x07, MINECRAFT_1_19, false),
-          map(0x08, MINECRAFT_1_19_1, false),
-          map(0x07, MINECRAFT_1_19_3, false),
-          map(0x08, MINECRAFT_1_19_4, false),
-          map(0x09, MINECRAFT_1_20_2, false),
-          map(0x0A, MINECRAFT_1_20_5, false),
-          map(0x0C, MINECRAFT_1_21_2, false),
-          map(0x0D, MINECRAFT_1_21_6, false),
-          map(0x0E, MINECRAFT_26_1, false));
+          map(0x0E, MINECRAFT_26_3, false));
       serverbound.register(
           ServerboundCookieResponsePacket.class, ServerboundCookieResponsePacket::new,
-          map(0x11, MINECRAFT_1_20_5, false),
-          map(0x13, MINECRAFT_1_21_2, false),
-          map(0x14, MINECRAFT_1_21_6, false),
-          map(0x15, MINECRAFT_26_1, false));
+          map(0x15, MINECRAFT_26_3, false));
       serverbound.register(
           ServerboundPlayerLoadedPacket.class,
           () -> ServerboundPlayerLoadedPacket.INSTANCE,
-          map(0x2A, MINECRAFT_1_21_4, false),
-          map(0x2B, MINECRAFT_1_21_6, false),
-          map(0x2C, MINECRAFT_26_1, false));
+          map(0x2C, MINECRAFT_26_3, false));
       serverbound.register(
           PluginMessagePacket.class,
           PluginMessagePacket::new,
-          map(0x17, MINECRAFT_1_7_2, false),
-          map(0x09, MINECRAFT_1_9, false),
-          map(0x0A, MINECRAFT_1_12, false),
-          map(0x09, MINECRAFT_1_12_1, false),
-          map(0x0A, MINECRAFT_1_13, false),
-          map(0x0B, MINECRAFT_1_14, false),
-          map(0x0A, MINECRAFT_1_17, false),
-          map(0x0C, MINECRAFT_1_19, false),
-          map(0x0D, MINECRAFT_1_19_1, false),
-          map(0x0C, MINECRAFT_1_19_3, false),
-          map(0x0D, MINECRAFT_1_19_4, false),
-          map(0x0F, MINECRAFT_1_20_2, false),
-          map(0x10, MINECRAFT_1_20_3, false),
-          map(0x12, MINECRAFT_1_20_5, false),
-          map(0x14, MINECRAFT_1_21_2, false),
-          map(0x15, MINECRAFT_1_21_6, false),
-          map(0x16, MINECRAFT_26_1, false));
+          map(0x16, MINECRAFT_26_3, false));
       serverbound.register(
           KeepAlivePacket.class,
           KeepAlivePacket::new,
-          map(0x00, MINECRAFT_1_7_2, false),
-          map(0x0B, MINECRAFT_1_9, false),
-          map(0x0C, MINECRAFT_1_12, false),
-          map(0x0B, MINECRAFT_1_12_1, false),
-          map(0x0E, MINECRAFT_1_13, false),
-          map(0x0F, MINECRAFT_1_14, false),
-          map(0x10, MINECRAFT_1_16, false),
-          map(0x0F, MINECRAFT_1_17, false),
-          map(0x11, MINECRAFT_1_19, false),
-          map(0x12, MINECRAFT_1_19_1, false),
-          map(0x11, MINECRAFT_1_19_3, false),
-          map(0x12, MINECRAFT_1_19_4, false),
-          map(0x14, MINECRAFT_1_20_2, false),
-          map(0x15, MINECRAFT_1_20_3, false),
-          map(0x18, MINECRAFT_1_20_5, false),
-          map(0x1A, MINECRAFT_1_21_2, false),
-          map(0x1B, MINECRAFT_1_21_6, false),
-          map(0x1C, MINECRAFT_26_1, false));
+          map(0x1C, MINECRAFT_26_3, false));
       serverbound.register(
           ResourcePackResponsePacket.class,
           ResourcePackResponsePacket::new,
-          map(0x19, MINECRAFT_1_8, false),
-          map(0x16, MINECRAFT_1_9, false),
-          map(0x18, MINECRAFT_1_12, false),
-          map(0x1D, MINECRAFT_1_13, false),
-          map(0x1F, MINECRAFT_1_14, false),
-          map(0x20, MINECRAFT_1_16, false),
-          map(0x21, MINECRAFT_1_16_2, false),
-          map(0x23, MINECRAFT_1_19, false),
-          map(0x24, MINECRAFT_1_19_1, false),
-          map(0x27, MINECRAFT_1_20_2, false),
-          map(0x28, MINECRAFT_1_20_3, false),
-          map(0x2B, MINECRAFT_1_20_5, false),
-          map(0x2D, MINECRAFT_1_21_2, false),
-          map(0x2F, MINECRAFT_1_21_4, false),
-          map(0x30, MINECRAFT_1_21_6, false),
-          map(0x31, MINECRAFT_26_1, false),
           map(0x32, MINECRAFT_26_3, false));
       serverbound.register(
           FinishedUpdatePacket.class, () -> FinishedUpdatePacket.INSTANCE,
-          map(0x0B, MINECRAFT_1_20_2, false),
-          map(0x0C, MINECRAFT_1_20_5, false),
-          map(0x0E, MINECRAFT_1_21_2, false),
-          map(0x0F, MINECRAFT_1_21_6, false),
-          map(0x10, MINECRAFT_26_1, false));
+          map(0x10, MINECRAFT_26_3, false));
       serverbound.register(
           ClientPlayerChatSessionPacket.class, ClientPlayerChatSessionPacket::new,
-          map(0x20, MINECRAFT_1_19_3, false),
-          map(0x06, MINECRAFT_1_19_4, false),
-          map(0x07, MINECRAFT_1_20_5, false),
-          map(0x08, MINECRAFT_1_21_2, false),
-          map(0x09, MINECRAFT_1_21_6, false),
-          map(0x0A, MINECRAFT_26_1, false)
-      );
+          map(0x0A, MINECRAFT_26_3, false));
 
       clientbound.register(
           BossBarPacket.class,
           BossBarPacket::new,
-          map(0x0C, MINECRAFT_1_9, false),
-          map(0x0D, MINECRAFT_1_15, false),
-          map(0x0C, MINECRAFT_1_16, false),
-          map(0x0D, MINECRAFT_1_17, false),
-          map(0x0A, MINECRAFT_1_19, false),
-          map(0x0B, MINECRAFT_1_19_4, false),
-          map(0x0A, MINECRAFT_1_20_2, false),
-          map(0x09, MINECRAFT_1_21_5, false));
-      clientbound.register(
-          LegacyChatPacket.class,
-          LegacyChatPacket::new,
-          map(0x02, MINECRAFT_1_7_2, true),
-          map(0x0F, MINECRAFT_1_9, true),
-          map(0x0E, MINECRAFT_1_13, true),
-          map(0x0F, MINECRAFT_1_15, true),
-          map(0x0E, MINECRAFT_1_16, true),
-          map(0x0F, MINECRAFT_1_17, MINECRAFT_1_18_2, true));
+          map(0x09, MINECRAFT_26_3, false));
       clientbound.register(TabCompleteResponsePacket.class, TabCompleteResponsePacket::new,
-          map(0x3A, MINECRAFT_1_7_2, false),
-          map(0x0E, MINECRAFT_1_9, false),
-          map(0x10, MINECRAFT_1_13, false),
-          map(0x11, MINECRAFT_1_15, false),
-          map(0x10, MINECRAFT_1_16, false),
-          map(0x0F, MINECRAFT_1_16_2, false),
-          map(0x11, MINECRAFT_1_17, false),
-          map(0x0E, MINECRAFT_1_19, false),
-          map(0x0D, MINECRAFT_1_19_3, false),
-          map(0x0F, MINECRAFT_1_19_4, false),
-          map(0x10, MINECRAFT_1_20_2, false),
-          map(0x0F, MINECRAFT_1_21_5, false));
+          map(0x0F, MINECRAFT_26_3, false));
       clientbound.register(
           AvailableCommandsPacket.class,
           AvailableCommandsPacket::new,
-          map(0x11, MINECRAFT_1_13, false),
-          map(0x12, MINECRAFT_1_15, false),
-          map(0x11, MINECRAFT_1_16, false),
-          map(0x10, MINECRAFT_1_16_2, false),
-          map(0x12, MINECRAFT_1_17, false),
-          map(0x0F, MINECRAFT_1_19, false),
-          map(0x0E, MINECRAFT_1_19_3, false),
-          map(0x10, MINECRAFT_1_19_4, false),
-          map(0x11, MINECRAFT_1_20_2, false),
-          map(0x10, MINECRAFT_1_21_5, false));
+          map(0x10, MINECRAFT_26_3, false));
       clientbound.register(
           ClientboundCookieRequestPacket.class, ClientboundCookieRequestPacket::new,
-          map(0x16, MINECRAFT_1_20_5, false),
-          map(0x15, MINECRAFT_1_21_5, false));
+          map(0x15, MINECRAFT_26_3, false));
       clientbound.register(
           ClientboundPostEffectsPacket.class, ClientboundPostEffectsPacket::new,
           map(0x53, MINECRAFT_26_3, false));
       clientbound.register(
           ClientboundSoundEntityPacket.class, ClientboundSoundEntityPacket::new,
-          map(0x5D, MINECRAFT_1_19_3, true),
-          map(0x61, MINECRAFT_1_19_4, true),
-          map(0x63, MINECRAFT_1_20_2, true),
-          map(0x65, MINECRAFT_1_20_3, true),
-          map(0x67, MINECRAFT_1_20_5, true),
-          map(0x6E, MINECRAFT_1_21_2, true),
-          map(0x6D, MINECRAFT_1_21_5, true),
-          map(0x72, MINECRAFT_1_21_9, true),
-          map(0x74, MINECRAFT_26_1, true),
           map(0x76, MINECRAFT_26_3, true));
       clientbound.register(
           ClientboundStopSoundPacket.class, ClientboundStopSoundPacket::new,
-          map(0x5F, MINECRAFT_1_19_3, true),
-          map(0x63, MINECRAFT_1_19_4, true),
-          map(0x66, MINECRAFT_1_20_2, true),
-          map(0x68, MINECRAFT_1_20_3, true),
-          map(0x6A, MINECRAFT_1_20_5, true),
-          map(0x71, MINECRAFT_1_21_2, true),
-          map(0x70, MINECRAFT_1_21_5, true),
-          map(0x75, MINECRAFT_1_21_9, true),
-          map(0x77, MINECRAFT_26_1, true),
           map(0x79, MINECRAFT_26_3, true));
       clientbound.register(
           PluginMessagePacket.class,
           PluginMessagePacket::new,
-          map(0x3F, MINECRAFT_1_7_2, false),
-          map(0x18, MINECRAFT_1_9, false),
-          map(0x19, MINECRAFT_1_13, false),
-          map(0x18, MINECRAFT_1_14, false),
-          map(0x19, MINECRAFT_1_15, false),
-          map(0x18, MINECRAFT_1_16, false),
-          map(0x17, MINECRAFT_1_16_2, false),
-          map(0x18, MINECRAFT_1_17, false),
-          map(0x15, MINECRAFT_1_19, false),
-          map(0x16, MINECRAFT_1_19_1, false),
-          map(0x15, MINECRAFT_1_19_3, false),
-          map(0x17, MINECRAFT_1_19_4, false),
-          map(0x18, MINECRAFT_1_20_2, false),
-          map(0x19, MINECRAFT_1_20_5, false),
-          map(0x18, MINECRAFT_1_21_5, false));
+          map(0x18, MINECRAFT_26_3, false));
       clientbound.register(
           DisconnectPacket.class,
           () -> new DisconnectPacket(this),
-          map(0x40, MINECRAFT_1_7_2, false),
-          map(0x1A, MINECRAFT_1_9, false),
-          map(0x1B, MINECRAFT_1_13, false),
-          map(0x1A, MINECRAFT_1_14, false),
-          map(0x1B, MINECRAFT_1_15, false),
-          map(0x1A, MINECRAFT_1_16, false),
-          map(0x19, MINECRAFT_1_16_2, false),
-          map(0x1A, MINECRAFT_1_17, false),
-          map(0x17, MINECRAFT_1_19, false),
-          map(0x19, MINECRAFT_1_19_1, false),
-          map(0x17, MINECRAFT_1_19_3, false),
-          map(0x1A, MINECRAFT_1_19_4, false),
-          map(0x1B, MINECRAFT_1_20_2, false),
-          map(0x1D, MINECRAFT_1_20_5, false),
-          map(0x1C, MINECRAFT_1_21_5, false),
-          map(0x20, MINECRAFT_1_21_9, false));
+          map(0x20, MINECRAFT_26_3, false));
       clientbound.register(
           KeepAlivePacket.class,
           KeepAlivePacket::new,
-          map(0x00, MINECRAFT_1_7_2, false),
-          map(0x1F, MINECRAFT_1_9, false),
-          map(0x21, MINECRAFT_1_13, false),
-          map(0x20, MINECRAFT_1_14, false),
-          map(0x21, MINECRAFT_1_15, false),
-          map(0x20, MINECRAFT_1_16, false),
-          map(0x1F, MINECRAFT_1_16_2, false),
-          map(0x21, MINECRAFT_1_17, false),
-          map(0x1E, MINECRAFT_1_19, false),
-          map(0x20, MINECRAFT_1_19_1, false),
-          map(0x1F, MINECRAFT_1_19_3, false),
-          map(0x23, MINECRAFT_1_19_4, false),
-          map(0x24, MINECRAFT_1_20_2, false),
-          map(0x26, MINECRAFT_1_20_5, false),
-          map(0x27, MINECRAFT_1_21_2, false),
-          map(0x26, MINECRAFT_1_21_5, false),
-          map(0x2B, MINECRAFT_1_21_9, false),
-          map(0x2C, MINECRAFT_26_1, false),
           map(0x2D, MINECRAFT_26_3, false));
       clientbound.register(
           JoinGamePacket.class,
           JoinGamePacket::new,
-          map(0x01, MINECRAFT_1_7_2, false),
-          map(0x23, MINECRAFT_1_9, false),
-          map(0x25, MINECRAFT_1_13, false),
-          map(0x25, MINECRAFT_1_14, false),
-          map(0x26, MINECRAFT_1_15, false),
-          map(0x25, MINECRAFT_1_16, false),
-          map(0x24, MINECRAFT_1_16_2, false),
-          map(0x26, MINECRAFT_1_17, false),
-          map(0x23, MINECRAFT_1_19, false),
-          map(0x25, MINECRAFT_1_19_1, false),
-          map(0x24, MINECRAFT_1_19_3, false),
-          map(0x28, MINECRAFT_1_19_4, false),
-          map(0x29, MINECRAFT_1_20_2, false),
-          map(0x2B, MINECRAFT_1_20_5, false),
-          map(0x2C, MINECRAFT_1_21_2, false),
-          map(0x2B, MINECRAFT_1_21_5, false),
-          map(0x30, MINECRAFT_1_21_9, false),
-          map(0x31, MINECRAFT_26_1, false),
           map(0x32, MINECRAFT_26_3, false));
       clientbound.register(
           RespawnPacket.class,
           RespawnPacket::new,
-          map(0x07, MINECRAFT_1_7_2, true),
-          map(0x33, MINECRAFT_1_9, true),
-          map(0x34, MINECRAFT_1_12, true),
-          map(0x35, MINECRAFT_1_12_1, true),
-          map(0x38, MINECRAFT_1_13, true),
-          map(0x3A, MINECRAFT_1_14, true),
-          map(0x3B, MINECRAFT_1_15, true),
-          map(0x3A, MINECRAFT_1_16, true),
-          map(0x39, MINECRAFT_1_16_2, true),
-          map(0x3D, MINECRAFT_1_17, true),
-          map(0x3B, MINECRAFT_1_19, true),
-          map(0x3E, MINECRAFT_1_19_1, true),
-          map(0x3D, MINECRAFT_1_19_3, true),
-          map(0x41, MINECRAFT_1_19_4, true),
-          map(0x43, MINECRAFT_1_20_2, true),
-          map(0x45, MINECRAFT_1_20_3, true),
-          map(0x47, MINECRAFT_1_20_5, true),
-          map(0x4C, MINECRAFT_1_21_2, true),
-          map(0x4B, MINECRAFT_1_21_5, true),
-          map(0x50, MINECRAFT_1_21_9, true),
-          map(0x52, MINECRAFT_26_1, true),
           map(0x54, MINECRAFT_26_3, true));
       clientbound.register(
           RemoveResourcePackPacket.class,
           RemoveResourcePackPacket::new,
-          map(0x43, MINECRAFT_1_20_3, false),
-          map(0x45, MINECRAFT_1_20_5, false),
-          map(0x4A, MINECRAFT_1_21_2, false),
-          map(0x49, MINECRAFT_1_21_5, false),
-          map(0x4E, MINECRAFT_1_21_9, false),
-          map(0x50, MINECRAFT_26_1, false),
           map(0x51, MINECRAFT_26_3, false));
       clientbound.register(
           ResourcePackRequestPacket.class,
           ResourcePackRequestPacket::new,
-          map(0x48, MINECRAFT_1_8, false),
-          map(0x32, MINECRAFT_1_9, false),
-          map(0x33, MINECRAFT_1_12, false),
-          map(0x34, MINECRAFT_1_12_1, false),
-          map(0x37, MINECRAFT_1_13, false),
-          map(0x39, MINECRAFT_1_14, false),
-          map(0x3A, MINECRAFT_1_15, false),
-          map(0x39, MINECRAFT_1_16, false),
-          map(0x38, MINECRAFT_1_16_2, false),
-          map(0x3C, MINECRAFT_1_17, false),
-          map(0x3A, MINECRAFT_1_19, false),
-          map(0x3D, MINECRAFT_1_19_1, false),
-          map(0x3C, MINECRAFT_1_19_3, false),
-          map(0x40, MINECRAFT_1_19_4, false),
-          map(0x42, MINECRAFT_1_20_2, false),
-          map(0x44, MINECRAFT_1_20_3, false),
-          map(0x46, MINECRAFT_1_20_5, false),
-          map(0x4B, MINECRAFT_1_21_2, false),
-          map(0x4A, MINECRAFT_1_21_5, false),
-          map(0x4F, MINECRAFT_1_21_9, false),
-          map(0x51, MINECRAFT_26_1, false),
           map(0x52, MINECRAFT_26_3, false));
       clientbound.register(
           HeaderAndFooterPacket.class,
           HeaderAndFooterPacket::new,
-          map(0x47, MINECRAFT_1_8, true),
-          map(0x48, MINECRAFT_1_9, true),
-          map(0x47, MINECRAFT_1_9_4, true),
-          map(0x49, MINECRAFT_1_12, true),
-          map(0x4A, MINECRAFT_1_12_1, true),
-          map(0x4E, MINECRAFT_1_13, true),
-          map(0x53, MINECRAFT_1_14, true),
-          map(0x54, MINECRAFT_1_15, true),
-          map(0x53, MINECRAFT_1_16, true),
-          map(0x5E, MINECRAFT_1_17, true),
-          map(0x5F, MINECRAFT_1_18, true),
-          map(0x60, MINECRAFT_1_19, true),
-          map(0x63, MINECRAFT_1_19_1, true),
-          map(0x61, MINECRAFT_1_19_3, true),
-          map(0x65, MINECRAFT_1_19_4, true),
-          map(0x68, MINECRAFT_1_20_2, true),
-          map(0x6A, MINECRAFT_1_20_3, true),
-          map(0x6D, MINECRAFT_1_20_5, true),
-          map(0x74, MINECRAFT_1_21_2, true),
-          map(0x73, MINECRAFT_1_21_5, true),
-          map(0x78, MINECRAFT_1_21_9, true),
-          map(0x7A, MINECRAFT_26_1, true),
           map(0x7D, MINECRAFT_26_3, true));
-      clientbound.register(
-          LegacyTitlePacket.class,
-          LegacyTitlePacket::new,
-          map(0x45, MINECRAFT_1_8, true),
-          map(0x45, MINECRAFT_1_9, true),
-          map(0x47, MINECRAFT_1_12, true),
-          map(0x48, MINECRAFT_1_12_1, true),
-          map(0x4B, MINECRAFT_1_13, true),
-          map(0x4F, MINECRAFT_1_14, true),
-          map(0x50, MINECRAFT_1_15, true),
-          map(0x4F, MINECRAFT_1_16, MINECRAFT_1_16_4, true));
       clientbound.register(TitleSubtitlePacket.class, TitleSubtitlePacket::new,
-          map(0x57, MINECRAFT_1_17, true),
-          map(0x58, MINECRAFT_1_18, true),
-          map(0x5B, MINECRAFT_1_19_1, true),
-          map(0x59, MINECRAFT_1_19_3, true),
-          map(0x5D, MINECRAFT_1_19_4, true),
-          map(0x5F, MINECRAFT_1_20_2, true),
-          map(0x61, MINECRAFT_1_20_3, true),
-          map(0x63, MINECRAFT_1_20_5, true),
-          map(0x6A, MINECRAFT_1_21_2, true),
-          map(0x69, MINECRAFT_1_21_5, true),
-          map(0x6E, MINECRAFT_1_21_9, true),
-          map(0x70, MINECRAFT_26_1, true),
           map(0x72, MINECRAFT_26_3, true));
       clientbound.register(
           TitleTextPacket.class,
           TitleTextPacket::new,
-          map(0x59, MINECRAFT_1_17, true),
-          map(0x5A, MINECRAFT_1_18, true),
-          map(0x5D, MINECRAFT_1_19_1, true),
-          map(0x5B, MINECRAFT_1_19_3, true),
-          map(0x5F, MINECRAFT_1_19_4, true),
-          map(0x61, MINECRAFT_1_20_2, true),
-          map(0x63, MINECRAFT_1_20_3, true),
-          map(0x65, MINECRAFT_1_20_5, true),
-          map(0x6C, MINECRAFT_1_21_2, true),
-          map(0x6B, MINECRAFT_1_21_5, true),
-          map(0x70, MINECRAFT_1_21_9, true),
-          map(0x72, MINECRAFT_26_1, true),
           map(0x74, MINECRAFT_26_3, true));
       clientbound.register(
           TitleActionbarPacket.class,
           TitleActionbarPacket::new,
-          map(0x41, MINECRAFT_1_17, true),
-          map(0x40, MINECRAFT_1_19, true),
-          map(0x43, MINECRAFT_1_19_1, true),
-          map(0x42, MINECRAFT_1_19_3, true),
-          map(0x46, MINECRAFT_1_19_4, true),
-          map(0x48, MINECRAFT_1_20_2, true),
-          map(0x4A, MINECRAFT_1_20_3, true),
-          map(0x4C, MINECRAFT_1_20_5, true),
-          map(0x51, MINECRAFT_1_21_2, true),
-          map(0x50, MINECRAFT_1_21_5, true),
-          map(0x55, MINECRAFT_1_21_9, true),
-          map(0x57, MINECRAFT_26_1, true),
           map(0x59, MINECRAFT_26_3, true));
       clientbound.register(
           TitleTimesPacket.class,
           TitleTimesPacket::new,
-          map(0x5A, MINECRAFT_1_17, true),
-          map(0x5B, MINECRAFT_1_18, true),
-          map(0x5E, MINECRAFT_1_19_1, true),
-          map(0x5C, MINECRAFT_1_19_3, true),
-          map(0x60, MINECRAFT_1_19_4, true),
-          map(0x62, MINECRAFT_1_20_2, true),
-          map(0x64, MINECRAFT_1_20_3, true),
-          map(0x66, MINECRAFT_1_20_5, true),
-          map(0x6D, MINECRAFT_1_21_2, true),
-          map(0x6C, MINECRAFT_1_21_5, true),
-          map(0x71, MINECRAFT_1_21_9, true),
-          map(0x73, MINECRAFT_26_1, true),
           map(0x75, MINECRAFT_26_3, true));
       clientbound.register(
           TitleClearPacket.class,
           TitleClearPacket::new,
-          map(0x10, MINECRAFT_1_17, true),
-          map(0x0D, MINECRAFT_1_19, true),
-          map(0x0C, MINECRAFT_1_19_3, true),
-          map(0x0E, MINECRAFT_1_19_4, true),
-          map(0x0F, MINECRAFT_1_20_2, true),
-          map(0x0E, MINECRAFT_1_21_5, true));
-      clientbound.register(
-          LegacyPlayerListItemPacket.class,
-          LegacyPlayerListItemPacket::new,
-          map(0x38, MINECRAFT_1_7_2, false),
-          map(0x2D, MINECRAFT_1_9, false),
-          map(0x2E, MINECRAFT_1_12_1, false),
-          map(0x30, MINECRAFT_1_13, false),
-          map(0x33, MINECRAFT_1_14, false),
-          map(0x34, MINECRAFT_1_15, false),
-          map(0x33, MINECRAFT_1_16, false),
-          map(0x32, MINECRAFT_1_16_2, false),
-          map(0x36, MINECRAFT_1_17, false),
-          map(0x34, MINECRAFT_1_19, false),
-          map(0x37, MINECRAFT_1_19_1, MINECRAFT_1_19_1, false));
+          map(0x0E, MINECRAFT_26_3, true));
       clientbound.register(RemovePlayerInfoPacket.class, RemovePlayerInfoPacket::new,
-          map(0x35, MINECRAFT_1_19_3, false),
-          map(0x39, MINECRAFT_1_19_4, false),
-          map(0x3B, MINECRAFT_1_20_2, false),
-          map(0x3D, MINECRAFT_1_20_5, false),
-          map(0x3F, MINECRAFT_1_21_2, false),
-          map(0x3E, MINECRAFT_1_21_5, false),
-          map(0x43, MINECRAFT_1_21_9, false),
-          map(0x45, MINECRAFT_26_1, false),
           map(0x46, MINECRAFT_26_3, false));
       clientbound.register(
           UpsertPlayerInfoPacket.class,
           UpsertPlayerInfoPacket::new,
-          map(0x36, MINECRAFT_1_19_3, false),
-          map(0x3A, MINECRAFT_1_19_4, false),
-          map(0x3C, MINECRAFT_1_20_2, false),
-          map(0x3E, MINECRAFT_1_20_5, false),
-          map(0x40, MINECRAFT_1_21_2, false),
-          map(0x3F, MINECRAFT_1_21_5, false),
-          map(0x44, MINECRAFT_1_21_9, false),
-          map(0x46, MINECRAFT_26_1, false),
           map(0x47, MINECRAFT_26_3, false));
       clientbound.register(
           ClientboundStoreCookiePacket.class, ClientboundStoreCookiePacket::new,
-          map(0x6B, MINECRAFT_1_20_5, false),
-          map(0x72, MINECRAFT_1_21_2, false),
-          map(0x71, MINECRAFT_1_21_5, false),
-          map(0x76, MINECRAFT_1_21_9, false),
-          map(0x78, MINECRAFT_26_1, false),
           map(0x7A, MINECRAFT_26_3, false));
       clientbound.register(
           SystemChatPacket.class,
           SystemChatPacket::new,
-          map(0x5F, MINECRAFT_1_19, true),
-          map(0x62, MINECRAFT_1_19_1, true),
-          map(0x60, MINECRAFT_1_19_3, true),
-          map(0x64, MINECRAFT_1_19_4, true),
-          map(0x67, MINECRAFT_1_20_2, true),
-          map(0x69, MINECRAFT_1_20_3, true),
-          map(0x6C, MINECRAFT_1_20_5, true),
-          map(0x73, MINECRAFT_1_21_2, true),
-          map(0x72, MINECRAFT_1_21_5, true),
-          map(0x77, MINECRAFT_1_21_9, true),
-          map(0x79, MINECRAFT_26_1, true),
           map(0x7C, MINECRAFT_26_3, true));
       clientbound.register(
           PlayerChatCompletionPacket.class,
           PlayerChatCompletionPacket::new,
-          map(0x15, MINECRAFT_1_19_1, true),
-          map(0x14, MINECRAFT_1_19_3, true),
-          map(0x16, MINECRAFT_1_19_4, true),
-          map(0x17, MINECRAFT_1_20_2, true),
-          map(0x18, MINECRAFT_1_20_5, true),
-          map(0x17, MINECRAFT_1_21_5, true));
+          map(0x17, MINECRAFT_26_3, true));
       clientbound.register(
           ServerDataPacket.class,
           ServerDataPacket::new,
-          map(0x3F, MINECRAFT_1_19, false),
-          map(0x42, MINECRAFT_1_19_1, false),
-          map(0x41, MINECRAFT_1_19_3, false),
-          map(0x45, MINECRAFT_1_19_4, false),
-          map(0x47, MINECRAFT_1_20_2, false),
-          map(0x49, MINECRAFT_1_20_3, false),
-          map(0x4B, MINECRAFT_1_20_5, false),
-          map(0x50, MINECRAFT_1_21_2, false),
-          map(0x4F, MINECRAFT_1_21_5, false),
-          map(0x54, MINECRAFT_1_21_9, false),
-          map(0x56, MINECRAFT_26_1, false),
           map(0x58, MINECRAFT_26_3, false));
       clientbound.register(
           StartUpdatePacket.class,
           () -> StartUpdatePacket.INSTANCE,
-          map(0x65, MINECRAFT_1_20_2, false),
-          map(0x67, MINECRAFT_1_20_3, false),
-          map(0x69, MINECRAFT_1_20_5, false),
-          map(0x70, MINECRAFT_1_21_2, false),
-          map(0x6F, MINECRAFT_1_21_5, false),
-          map(0x74, MINECRAFT_1_21_9, false),
-          map(0x76, MINECRAFT_26_1, false),
           map(0x78, MINECRAFT_26_3, false));
       clientbound.register(
           BundleDelimiterPacket.class,
           () -> BundleDelimiterPacket.INSTANCE,
-          map(0x00, MINECRAFT_1_19_4, false));
+          map(0x00, MINECRAFT_26_3, false));
       clientbound.register(
           TransferPacket.class,
           TransferPacket::new,
-          map(0x73, MINECRAFT_1_20_5, false),
-          map(0x7A, MINECRAFT_1_21_2, false),
-          map(0x7F, MINECRAFT_1_21_9, false),
-          map(0x81, MINECRAFT_26_1, false),
           map(0x84, MINECRAFT_26_3, false));
       clientbound.register(
           ClientboundCustomReportDetailsPacket.class,
           ClientboundCustomReportDetailsPacket::new,
-          map(0x7A, MINECRAFT_1_21, false),
-          map(0x81, MINECRAFT_1_21_2, false),
-          map(0x86, MINECRAFT_1_21_9, false),
-          map(0x88, MINECRAFT_26_1, false),
           map(0x8B, MINECRAFT_26_3, false));
       clientbound.register(
           ClientboundServerLinksPacket.class,
           ClientboundServerLinksPacket::new,
-          map(0x7B, MINECRAFT_1_21, false),
-          map(0x82, MINECRAFT_1_21_2, false),
-          map(0x87, MINECRAFT_1_21_9, false),
-          map(0x89, MINECRAFT_26_1, false),
           map(0x8C, MINECRAFT_26_3, false));
     }
   },
@@ -933,39 +416,39 @@ public enum StateRegistry {
     {
       serverbound.register(ServerLoginPacket.class,
           ServerLoginPacket::new,
-          map(0x00, MINECRAFT_1_7_2, false));
+          map(0x00, MINECRAFT_26_3, false));
       serverbound.register(
           EncryptionResponsePacket.class, EncryptionResponsePacket::new,
-          map(0x01, MINECRAFT_1_7_2, false));
+          map(0x01, MINECRAFT_26_3, false));
       serverbound.register(
           LoginPluginResponsePacket.class, LoginPluginResponsePacket::new,
-          map(0x02, MINECRAFT_1_13, false));
+          map(0x02, MINECRAFT_26_3, false));
       serverbound.register(
           LoginAcknowledgedPacket.class, LoginAcknowledgedPacket::new,
-          map(0x03, MINECRAFT_1_20_2, false));
+          map(0x03, MINECRAFT_26_3, false));
       serverbound.register(
           ServerboundCookieResponsePacket.class, ServerboundCookieResponsePacket::new,
-          map(0x04, MINECRAFT_1_20_5, false));
+          map(0x04, MINECRAFT_26_3, false));
 
       clientbound.register(
           DisconnectPacket.class, () -> new DisconnectPacket(this),
-          map(0x00, MINECRAFT_1_7_2, false));
+          map(0x00, MINECRAFT_26_3, false));
       clientbound.register(
           EncryptionRequestPacket.class, EncryptionRequestPacket::new,
-          map(0x01, MINECRAFT_1_7_2, false));
+          map(0x01, MINECRAFT_26_3, false));
       clientbound.register(
           ServerLoginSuccessPacket.class, ServerLoginSuccessPacket::new,
-          map(0x02, MINECRAFT_1_7_2, false));
+          map(0x02, MINECRAFT_26_3, false));
       clientbound.register(
           SetCompressionPacket.class, SetCompressionPacket::new,
-          map(0x03, MINECRAFT_1_8, false));
+          map(0x03, MINECRAFT_26_3, false));
       clientbound.register(
           LoginPluginMessagePacket.class,
           LoginPluginMessagePacket::new,
-          map(0x04, MINECRAFT_1_13, false));
+          map(0x04, MINECRAFT_26_3, false));
       clientbound.register(
           ClientboundCookieRequestPacket.class, ClientboundCookieRequestPacket::new,
-          map(0x05, MINECRAFT_1_20_5, false));
+          map(0x05, MINECRAFT_26_3, false));
     }
   },
   LIMBO {
@@ -975,332 +458,54 @@ public enum StateRegistry {
 
       // minecraft:move_player_status_only
       serverbound.register(ClientMoveOnGroundOnlyPacket.class, ClientMoveOnGroundOnlyPacket::new,
-          map(0x03, MINECRAFT_1_7_2, false),
-          map(0x0F, MINECRAFT_1_9, false),
-          map(0x0D, MINECRAFT_1_12, false),
-          map(0x0C, MINECRAFT_1_12_1, false),
-          map(0x0F, MINECRAFT_1_13, false),
-          map(0x14, MINECRAFT_1_14, false),
-          map(0x15, MINECRAFT_1_16, false),
-          map(0x14, MINECRAFT_1_17, false),
-          map(0x16, MINECRAFT_1_19, false),
-          map(0x17, MINECRAFT_1_19_1, false),
-          map(0x16, MINECRAFT_1_19_3, false),
-          map(0x17, MINECRAFT_1_19_4, false),
-          map(0x19, MINECRAFT_1_20_2, false),
-          map(0x1A, MINECRAFT_1_20_3, false),
-          map(0x1D, MINECRAFT_1_20_5, false),
-          map(0x1F, MINECRAFT_1_21_2, false),
-          map(0x20, MINECRAFT_1_21_6, false),
-          map(0x21, MINECRAFT_26_1, false)
-      );
+          map(0x21, MINECRAFT_26_3, false));
       // minecraft:move_player_pos
       serverbound.register(ClientMovePositionOnlyPacket.class, ClientMovePositionOnlyPacket::new,
-          map(0x04, MINECRAFT_1_7_2, false),
-          map(0x0C, MINECRAFT_1_9, false),
-          map(0x0E, MINECRAFT_1_12, false),
-          map(0x0D, MINECRAFT_1_12_1, false),
-          map(0x10, MINECRAFT_1_13, false),
-          map(0x11, MINECRAFT_1_14, false),
-          map(0x12, MINECRAFT_1_16, false),
-          map(0x11, MINECRAFT_1_17, false),
-          map(0x13, MINECRAFT_1_19, false),
-          map(0x14, MINECRAFT_1_19_1, false),
-          map(0x13, MINECRAFT_1_19_3, false),
-          map(0x14, MINECRAFT_1_19_4, false),
-          map(0x16, MINECRAFT_1_20_2, false),
-          map(0x17, MINECRAFT_1_20_3, false),
-          map(0x1A, MINECRAFT_1_20_5, false),
-          map(0x1C, MINECRAFT_1_21_2, false),
-          map(0x1D, MINECRAFT_1_21_6, false),
-          map(0x1E, MINECRAFT_26_1, false)
-      );
+          map(0x1E, MINECRAFT_26_3, false));
       // minecraft:move_player_rot
       serverbound.register(ClientMoveRotationOnlyPacket.class, ClientMoveRotationOnlyPacket::new,
-          map(0x05, MINECRAFT_1_7_2, false),
-          map(0x0E, MINECRAFT_1_9, false),
-          map(0x10, MINECRAFT_1_12, false),
-          map(0x0F, MINECRAFT_1_12_1, false),
-          map(0x12, MINECRAFT_1_13, false),
-          map(0x13, MINECRAFT_1_14, false),
-          map(0x14, MINECRAFT_1_16, false),
-          map(0x13, MINECRAFT_1_17, false),
-          map(0x15, MINECRAFT_1_19, false),
-          map(0x16, MINECRAFT_1_19_1, false),
-          map(0x15, MINECRAFT_1_19_3, false),
-          map(0x16, MINECRAFT_1_19_4, false),
-          map(0x18, MINECRAFT_1_20_2, false),
-          map(0x19, MINECRAFT_1_20_3, false),
-          map(0x1C, MINECRAFT_1_20_5, false),
-          map(0x1E, MINECRAFT_1_21_2, false),
-          map(0x1F, MINECRAFT_1_21_6, false),
-          map(0x20, MINECRAFT_26_1, false)
-      );
+          map(0x20, MINECRAFT_26_3, false));
       // minecraft:move_player_pos_rot
       serverbound.register(ClientMovePacket.class, ClientMovePacket::new,
-          map(0x06, MINECRAFT_1_7_2, false),
-          map(0x0D, MINECRAFT_1_9, false),
-          map(0x0F, MINECRAFT_1_12, false),
-          map(0x0E, MINECRAFT_1_12_1, false),
-          map(0x11, MINECRAFT_1_13, false),
-          map(0x12, MINECRAFT_1_14, false),
-          map(0x13, MINECRAFT_1_16, false),
-          map(0x12, MINECRAFT_1_17, false),
-          map(0x14, MINECRAFT_1_19, false),
-          map(0x15, MINECRAFT_1_19_1, false),
-          map(0x14, MINECRAFT_1_19_3, false),
-          map(0x15, MINECRAFT_1_19_4, false),
-          map(0x17, MINECRAFT_1_20_2, false),
-          map(0x18, MINECRAFT_1_20_3, false),
-          map(0x1B, MINECRAFT_1_20_5, false),
-          map(0x1D, MINECRAFT_1_21_2, false),
-          map(0x1E, MINECRAFT_1_21_6, false),
-          map(0x1F, MINECRAFT_26_1, false)
-      );
+          map(0x1F, MINECRAFT_26_3, false));
       // minecraft:accept_teleportation
       serverbound.register(ClientTeleportConfirmPacket.class, ClientTeleportConfirmPacket::new,
-          map(0x00, MINECRAFT_1_9, false));
+          map(0x00, MINECRAFT_26_3, false));
 
       // minecraft:update_tags
       clientbound.register(ServerTagsPacket.class, ServerTagsPacket::new,
-          map(0x55, MINECRAFT_1_13, true),
-          map(0x5B, MINECRAFT_1_14, true),
-          map(0x5C, MINECRAFT_1_15, true),
-          map(0x5B, MINECRAFT_1_16, true),
-          map(0x66, MINECRAFT_1_17, true),
-          map(0x67, MINECRAFT_1_18, true),
-          map(0x68, MINECRAFT_1_19, true),
-          map(0x6B, MINECRAFT_1_19_1, true),
-          map(0x6A, MINECRAFT_1_19_3, true),
-          map(0x6E, MINECRAFT_1_19_4, true),
-          map(0x70, MINECRAFT_1_20_2, true),
-          map(0x74, MINECRAFT_1_20_3, true),
-          map(0x78, MINECRAFT_1_20_5, true),
-          map(0x7F, MINECRAFT_1_21_2, true),
-          map(0x84, MINECRAFT_1_21_9, true),
-          map(0x86, MINECRAFT_26_1, true),
-          map(0x89, MINECRAFT_26_3, true)
-      );
+          map(0x89, MINECRAFT_26_3, true));
       // minecraft:player_position
       clientbound.register(ServerPositionRotationPacket.class, ServerPositionRotationPacket::new,
-          map(0x08, MINECRAFT_1_7_2, true),
-          map(0x2E, MINECRAFT_1_9, true),
-          map(0x2F, MINECRAFT_1_12_1, true),
-          map(0x32, MINECRAFT_1_13, true),
-          map(0x35, MINECRAFT_1_14, true),
-          map(0x36, MINECRAFT_1_15, true),
-          map(0x35, MINECRAFT_1_16, true),
-          map(0x34, MINECRAFT_1_16_2, true),
-          map(0x38, MINECRAFT_1_17, true),
-          map(0x36, MINECRAFT_1_19, true),
-          map(0x39, MINECRAFT_1_19_1, true),
-          map(0x38, MINECRAFT_1_19_3, true),
-          map(0x3C, MINECRAFT_1_19_4, true),
-          map(0x3E, MINECRAFT_1_20_2, true),
-          map(0x40, MINECRAFT_1_20_5, true),
-          map(0x42, MINECRAFT_1_21_2, true),
-          map(0x41, MINECRAFT_1_21_5, true),
-          map(0x46, MINECRAFT_1_21_9, true),
-          map(0x48, MINECRAFT_26_1, true),
-          map(0x49, MINECRAFT_26_3, true)
-      );
+          map(0x49, MINECRAFT_26_3, true));
       // minecraft:player_abilities
       clientbound.register(ServerPlayerAbilitiesPacket.class, ServerPlayerAbilitiesPacket::new,
-          map(0x39, MINECRAFT_1_7_2, true),
-          map(0x2B, MINECRAFT_1_9, true),
-          map(0x2C, MINECRAFT_1_12_1, true),
-          map(0x2E, MINECRAFT_1_13, true),
-          map(0x31, MINECRAFT_1_14, true),
-          map(0x32, MINECRAFT_1_15, true),
-          map(0x31, MINECRAFT_1_16, true),
-          map(0x30, MINECRAFT_1_16_2, true),
-          map(0x32, MINECRAFT_1_17, true),
-          map(0x2f, MINECRAFT_1_19, true),
-          map(0x31, MINECRAFT_1_19_1, true),
-          map(0x30, MINECRAFT_1_19_3, true),
-          map(0x34, MINECRAFT_1_19_4, true),
-          map(0x36, MINECRAFT_1_20_2, true),
-          map(0x38, MINECRAFT_1_20_5, true),
-          map(0x3A, MINECRAFT_1_21_2, true),
-          map(0x39, MINECRAFT_1_21_5, true),
-          map(0x3E, MINECRAFT_1_21_9, true),
-          map(0x40, MINECRAFT_26_1, true),
-          map(0x41, MINECRAFT_26_3, true)
-      );
+          map(0x41, MINECRAFT_26_3, true));
       // minecraft:level_chunk_with_light
       clientbound.register(ServerChunkDataPacket.class, ServerChunkDataPacket::new,
-          map(0x21, MINECRAFT_1_7_2, true),
-          map(0x20, MINECRAFT_1_9, true),
-          map(0x22, MINECRAFT_1_13, true),
-          map(0x21, MINECRAFT_1_14, true),
-          map(0x22, MINECRAFT_1_15, true),
-          map(0x21, MINECRAFT_1_16, true),
-          map(0x20, MINECRAFT_1_16_2, true),
-          map(0x22, MINECRAFT_1_17, true),
-          map(0x1F, MINECRAFT_1_19, true),
-          map(0x21, MINECRAFT_1_19_1, true),
-          map(0x20, MINECRAFT_1_19_3, true),
-          map(0x24, MINECRAFT_1_19_4, true),
-          map(0x25, MINECRAFT_1_20_2, true),
-          map(0x27, MINECRAFT_1_20_5, true),
-          map(0x28, MINECRAFT_1_21_2, true),
-          map(0x27, MINECRAFT_1_21_5, true),
-          map(0x2C, MINECRAFT_1_21_9, true),
-          map(0x2D, MINECRAFT_26_1, true),
           map(0x2E, MINECRAFT_26_3, true));
       // minecraft:section_blocks_update
       clientbound.register(ServerUpdateSectionBlocksPacket.class, ServerUpdateSectionBlocksPacket::new,
-          map(0x22, MINECRAFT_1_7_2, true),
-          map(0x10, MINECRAFT_1_9, true),
-          map(0x0F, MINECRAFT_1_13, true),
-          map(0x10, MINECRAFT_1_15, true),
-          map(0x0F, MINECRAFT_1_16, true),
-          map(0x3B, MINECRAFT_1_16_2, true),
-          map(0x3F, MINECRAFT_1_17, true),
-          map(0x3D, MINECRAFT_1_19, true),
-          map(0x40, MINECRAFT_1_19_1, true),
-          map(0x3F, MINECRAFT_1_19_3, true),
-          map(0x43, MINECRAFT_1_19_4, true),
-          map(0x45, MINECRAFT_1_20_2, true),
-          map(0x47, MINECRAFT_1_20_3, true),
-          map(0x49, MINECRAFT_1_20_5, true),
-          map(0x4E, MINECRAFT_1_21_2, true),
-          map(0x4D, MINECRAFT_1_21_5, true),
-          map(0x52, MINECRAFT_1_21_9, true),
-          map(0x54, MINECRAFT_26_1, true),
-          map(0x56, MINECRAFT_26_3, true)
-      );
+          map(0x56, MINECRAFT_26_3, true));
       // minecraft:set_default_spawn_position
       clientbound.register(ServerDefaultSpawnPositionPacket.class, ServerDefaultSpawnPositionPacket::new,
-          map(0x05, MINECRAFT_1_7_2, true),
-          map(0x43, MINECRAFT_1_9, true),
-          map(0x45, MINECRAFT_1_12, true),
-          map(0x46, MINECRAFT_1_12_1, true),
-          map(0x49, MINECRAFT_1_13, true),
-          map(0x4D, MINECRAFT_1_14, true),
-          map(0x4E, MINECRAFT_1_15, true),
-          map(0x42, MINECRAFT_1_16, true),
-          map(0x4B, MINECRAFT_1_17, true),
-          map(0x4A, MINECRAFT_1_19, true),
-          map(0x4D, MINECRAFT_1_19_1, true),
-          map(0x4C, MINECRAFT_1_19_3, true),
-          map(0x50, MINECRAFT_1_19_4, true),
-          map(0x52, MINECRAFT_1_20_2, true),
-          map(0x54, MINECRAFT_1_20_3, true),
-          map(0x56, MINECRAFT_1_20_5, true),
-          map(0x5B, MINECRAFT_1_21_2, true),
-          map(0x5A, MINECRAFT_1_21_5, true),
-          map(0x5F, MINECRAFT_1_21_9, true),
-          map(0x61, MINECRAFT_26_1, true),
           map(0x63, MINECRAFT_26_3, true));
       // minecraft:set_experience
       clientbound.register(ServerExperiencePacket.class, ServerExperiencePacket::new,
-          map(0x1F, MINECRAFT_1_7_2, true),
-          map(0x3D, MINECRAFT_1_9, true),
-          map(0x3F, MINECRAFT_1_12, true),
-          map(0x40, MINECRAFT_1_12_1, true),
-          map(0x43, MINECRAFT_1_13, true),
-          map(0x47, MINECRAFT_1_14, true),
-          map(0x48, MINECRAFT_1_15, true),
-          map(0x51, MINECRAFT_1_17, true),
-          map(0x54, MINECRAFT_1_19_1, true),
-          map(0x52, MINECRAFT_1_19_3, true),
-          map(0x56, MINECRAFT_1_19_4, true),
-          map(0x58, MINECRAFT_1_20_2, true),
-          map(0x5A, MINECRAFT_1_20_3, true),
-          map(0x5C, MINECRAFT_1_20_5, true),
-          map(0x61, MINECRAFT_1_21_2, true),
-          map(0x60, MINECRAFT_1_21_5, true),
-          map(0x65, MINECRAFT_1_21_9, true),
-          map(0x67, MINECRAFT_26_1, true),
-          map(0x69, MINECRAFT_26_3, true)
-      );
+          map(0x69, MINECRAFT_26_3, true));
       // minecraft:map_item_data
       clientbound.register(ServerMapDataPacket.class, ServerMapDataPacket::new,
-          map(0x34, MINECRAFT_1_7_2, true),
-          map(0x24, MINECRAFT_1_9, true),
-          map(0x26, MINECRAFT_1_13, true),
-          map(0x27, MINECRAFT_1_15, true),
-          map(0x26, MINECRAFT_1_16, true),
-          map(0x25, MINECRAFT_1_16_2, true),
-          map(0x27, MINECRAFT_1_17, true),
-          map(0x24, MINECRAFT_1_19, true),
-          map(0x26, MINECRAFT_1_19_1, true),
-          map(0x25, MINECRAFT_1_19_3, true),
-          map(0x29, MINECRAFT_1_19_4, true),
-          map(0x2A, MINECRAFT_1_20_2, true),
-          map(0x2C, MINECRAFT_1_20_5, true),
-          map(0x2D, MINECRAFT_1_21_2, true),
-          map(0x2C, MINECRAFT_1_21_5, true),
-          map(0x31, MINECRAFT_1_21_9, true),
-          map(0x33, MINECRAFT_26_1, true),
-          map(0x34, MINECRAFT_26_3, true)
-      );
+          map(0x34, MINECRAFT_26_3, true));
       // minecraft:game_event
       clientbound.register(ServerGameStatePacket.class, ServerGameStatePacket::new,
-          map(0x2B, MINECRAFT_1_7_2, true),
-          map(0x1E, MINECRAFT_1_9, true),
-          map(0x20, MINECRAFT_1_13, true),
-          map(0x1E, MINECRAFT_1_14, true),
-          map(0x1F, MINECRAFT_1_15, true),
-          map(0x1E, MINECRAFT_1_16, true),
-          map(0x1D, MINECRAFT_1_16_2, true),
-          map(0x1E, MINECRAFT_1_17, true),
-          map(0x1B, MINECRAFT_1_19, true),
-          map(0x1D, MINECRAFT_1_19_1, true),
-          map(0x1C, MINECRAFT_1_19_3, true),
-          map(0x1F, MINECRAFT_1_19_4, true),
-          map(0x20, MINECRAFT_1_20_2, true),
-          map(0x20, MINECRAFT_1_20_3, true),
-          map(0x22, MINECRAFT_1_20_5, true),
-          map(0x23, MINECRAFT_1_21_2, true),
-          map(0x22, MINECRAFT_1_21_5, true),
-          map(0x26, MINECRAFT_1_21_9, true),
           map(0x27, MINECRAFT_26_3, true));
       // minecraft:set_chunk_cache_center
       clientbound.register(
           ServerViewPositionPacket.class, null,
-          map(0x40, MINECRAFT_1_14, true),
-          map(0x41, MINECRAFT_1_15, true),
-          map(0x40, MINECRAFT_1_16, true),
-          map(0x49, MINECRAFT_1_17, true),
-          map(0x48, MINECRAFT_1_19, true),
-          map(0x4B, MINECRAFT_1_19_1, true),
-          map(0x4A, MINECRAFT_1_19_3, true),
-          map(0x4E, MINECRAFT_1_19_4, true),
-          map(0x50, MINECRAFT_1_20_2, true),
-          map(0x52, MINECRAFT_1_20_3, true),
-          map(0x54, MINECRAFT_1_20_5, true),
-          map(0x58, MINECRAFT_1_21_2, true),
-          map(0x57, MINECRAFT_1_21_5, true),
-          map(0x5C, MINECRAFT_1_21_9, true),
-          map(0x5E, MINECRAFT_26_1, true),
-          map(0x60, MINECRAFT_26_3, true)
-      );
+          map(0x60, MINECRAFT_26_3, true));
       // minecraft:set_time
       clientbound.register(ServerWorldTimePacket.class, ServerWorldTimePacket::new,
-          map(0x03, MINECRAFT_1_7_2, true),
-          map(0x44, MINECRAFT_1_9, true),
-          map(0x46, MINECRAFT_1_12, true),
-          map(0x47, MINECRAFT_1_12_1, true),
-          map(0x4A, MINECRAFT_1_13, true),
-          map(0x4E, MINECRAFT_1_14, true),
-          map(0x4F, MINECRAFT_1_15, true),
-          map(0x4E, MINECRAFT_1_16, true),
-          map(0x58, MINECRAFT_1_17, true),
-          map(0x59, MINECRAFT_1_18, true),
-          map(0x5C, MINECRAFT_1_19_1, true),
-          map(0x5A, MINECRAFT_1_19_3, true),
-          map(0x5E, MINECRAFT_1_19_4, true),
-          map(0x60, MINECRAFT_1_20_2, true),
-          map(0x62, MINECRAFT_1_20_3, true),
-          map(0x64, MINECRAFT_1_20_5, true),
-          map(0x6B, MINECRAFT_1_21_2, true),
-          map(0x6A, MINECRAFT_1_21_5, true),
-          map(0x6F, MINECRAFT_1_21_9, true),
-          map(0x71, MINECRAFT_26_1, true),
-          map(0x73, MINECRAFT_26_3, true)
-      );
+          map(0x73, MINECRAFT_26_3, true));
     }
   },
   FILTER {
@@ -1310,298 +515,51 @@ public enum StateRegistry {
 
       // minecraft:client_tick_end
       serverbound.register(ClientTickEndPacket.class, ClientTickEndPacket::new,
-          map(0x0B, MINECRAFT_1_21_2, false),
-          map(0x0C, MINECRAFT_1_21_6, false),
-          map(0x0D, MINECRAFT_26_1, false)
-      );
+          map(0x0D, MINECRAFT_26_3, false));
       // minecraft:set_carried_item
       serverbound.register(SetHeldItemPacket.class, SetHeldItemPacket::new,
-          map(0x09, MINECRAFT_1_7_2, false),
-          map(0x17, MINECRAFT_1_9, false),
-          map(0x1A, MINECRAFT_1_12, false),
-          map(0x21, MINECRAFT_1_13, false),
-          map(0x23, MINECRAFT_1_14, false),
-          map(0x24, MINECRAFT_1_16, false),
-          map(0x25, MINECRAFT_1_16_2, false),
-          map(0x27, MINECRAFT_1_19, false),
-          map(0x28, MINECRAFT_1_19_1, false),
-          map(0x2B, MINECRAFT_1_20_2, false),
-          map(0x2C, MINECRAFT_1_20_3, false),
-          map(0x2F, MINECRAFT_1_20_5, false),
-          map(0x31, MINECRAFT_1_21_2, false),
-          map(0x33, MINECRAFT_1_21_4, false),
-          map(0x34, MINECRAFT_1_21_6, false),
-          map(0x35, MINECRAFT_26_1, false),
-          map(0x36, MINECRAFT_26_3, false)
-      );
+          map(0x36, MINECRAFT_26_3, false));
       // minecraft:paddle_boat
       serverbound.register(ClientPaddleBoatPacket.class, ClientPaddleBoatPacket::new,
-          map(0x11, MINECRAFT_1_9, false),
-          map(0x12, MINECRAFT_1_12, false),
-          map(0x11, MINECRAFT_1_12_1, false),
-          map(0x14, MINECRAFT_1_13, false),
-          map(0x16, MINECRAFT_1_14, false),
-          map(0x17, MINECRAFT_1_16, false),
-          map(0x16, MINECRAFT_1_17, false),
-          map(0x18, MINECRAFT_1_19, false),
-          map(0x19, MINECRAFT_1_19_1, false),
-          map(0x18, MINECRAFT_1_19_3, false),
-          map(0x19, MINECRAFT_1_19_4, false),
-          map(0x1B, MINECRAFT_1_20_2, false),
-          map(0x1C, MINECRAFT_1_20_3, false),
-          map(0x1F, MINECRAFT_1_20_5, false),
-          map(0x21, MINECRAFT_1_21_2, false),
-          map(0x22, MINECRAFT_1_21_6, false),
-          map(0x23, MINECRAFT_26_1, false)
-      );
+          map(0x23, MINECRAFT_26_3, false));
       // minecraft:player_input
       serverbound.register(ClientPlayerInputPacket.class, ClientPlayerInputPacket::new,
-          map(0x0C, MINECRAFT_1_7_2, false),
-          map(0x15, MINECRAFT_1_9, false),
-          map(0x16, MINECRAFT_1_12, false),
-          map(0x1A, MINECRAFT_1_13, false),
-          map(0x1C, MINECRAFT_1_14, false),
-          map(0x1D, MINECRAFT_1_16, false),
-          map(0x1C, MINECRAFT_1_17, false),
-          map(0x1E, MINECRAFT_1_19, false),
-          map(0x1F, MINECRAFT_1_19_1, false),
-          map(0x1E, MINECRAFT_1_19_3, false),
-          map(0x1F, MINECRAFT_1_19_4, false),
-          map(0x22, MINECRAFT_1_20_2, false),
-          map(0x23, MINECRAFT_1_20_3, false),
-          map(0x26, MINECRAFT_1_20_5, false),
-          map(0x28, MINECRAFT_1_21_2, false),
-          map(0x29, MINECRAFT_1_21_4, false),
-          map(0x2A, MINECRAFT_1_21_6, false),
-          map(0x26, MINECRAFT_26_1, false),
-          map(0x2B, MINECRAFT_26_3, false)
-      );
+          map(0x2B, MINECRAFT_26_3, false));
       // minecraft:move_vehicle
       serverbound.register(ClientVehicleMovePacket.class, ClientVehicleMovePacket::new,
-          map(0x10, MINECRAFT_1_9, false),
-          map(0x11, MINECRAFT_1_12, false),
-          map(0x10, MINECRAFT_1_12_1, false),
-          map(0x13, MINECRAFT_1_13, false),
-          map(0x15, MINECRAFT_1_14, false),
-          map(0x16, MINECRAFT_1_16, false),
-          map(0x15, MINECRAFT_1_17, false),
-          map(0x17, MINECRAFT_1_19, false),
-          map(0x18, MINECRAFT_1_19_1, false),
-          map(0x17, MINECRAFT_1_19_3, false),
-          map(0x18, MINECRAFT_1_19_4, false),
-          map(0x1A, MINECRAFT_1_20_2, false),
-          map(0x1B, MINECRAFT_1_20_3, false),
-          map(0x1E, MINECRAFT_1_20_5, false),
-          map(0x20, MINECRAFT_1_21_2, false),
-          map(0x21, MINECRAFT_1_21_6, false),
-          map(0x22, MINECRAFT_26_1, false));
+          map(0x22, MINECRAFT_26_3, false));
       // minecraft:pong
       serverbound.register(TransactionPacket.class, TransactionPacket::new,
-          map(0x0F, MINECRAFT_1_7_2, false),
-          map(0x05, MINECRAFT_1_9, false),
-          map(0x06, MINECRAFT_1_12, false),
-          map(0x05, MINECRAFT_1_12_1, false),
-          map(0x06, MINECRAFT_1_13, false),
-          map(0x07, MINECRAFT_1_14, false),
-          map(0x1D, MINECRAFT_1_17, false),
-          map(0x1F, MINECRAFT_1_19, false),
-          map(0x20, MINECRAFT_1_19_1, false),
-          map(0x1F, MINECRAFT_1_19_3, false),
-          map(0x20, MINECRAFT_1_19_4, false),
-          map(0x23, MINECRAFT_1_20_2, false),
-          map(0x24, MINECRAFT_1_20_3, false),
-          map(0x27, MINECRAFT_1_20_5, false),
-          map(0x29, MINECRAFT_1_21_2, false),
-          map(0x2B, MINECRAFT_1_21_4, false),
-          map(0x2C, MINECRAFT_1_21_6, false),
-          map(0x2D, MINECRAFT_26_1, false)
-      );
+          map(0x2D, MINECRAFT_26_3, false));
       // minecraft:swing
       serverbound.register(ClientAnimationPacket.class, ClientAnimationPacket::new,
-          map(0x0A, MINECRAFT_1_7_2, false),
-          map(0x1A, MINECRAFT_1_9, false),
-          map(0x1D, MINECRAFT_1_12, false),
-          map(0x27, MINECRAFT_1_13, false),
-          map(0x2A, MINECRAFT_1_14, false),
-          map(0x2B, MINECRAFT_1_16, false),
-          map(0x2C, MINECRAFT_1_16_2, false),
-          map(0x2E, MINECRAFT_1_19, false),
-          map(0x2F, MINECRAFT_1_19_1, false),
-          map(0x32, MINECRAFT_1_20_2, false),
-          map(0x33, MINECRAFT_1_20_3, false),
-          map(0x36, MINECRAFT_1_20_5, false),
-          map(0x38, MINECRAFT_1_21_2, false),
-          map(0x3A, MINECRAFT_1_21_4, false),
-          map(0x3B, MINECRAFT_1_21_5, false),
-          map(0x3C, MINECRAFT_1_21_6, false),
-          map(0x3F, MINECRAFT_26_1, false),
-          map(0x2E, MINECRAFT_26_3, false)
-      );
+          map(0x2E, MINECRAFT_26_3, false));
       // minecraft:interact
       serverbound.register(ClientInteractPacket.class, ClientInteractPacket::new,
-          map(0x02, MINECRAFT_1_7_2, false),
-          map(0x0A, MINECRAFT_1_9, false),
-          map(0x0B, MINECRAFT_1_12, false),
-          map(0x0A, MINECRAFT_1_12_1, false),
-          map(0x0D, MINECRAFT_1_13, false),
-          map(0x0E, MINECRAFT_1_14, false),
-          map(0x0D, MINECRAFT_1_17, false),
-          map(0x0F, MINECRAFT_1_19, false),
-          map(0x10, MINECRAFT_1_19_1, false),
-          map(0x0F, MINECRAFT_1_19_3, false),
-          map(0x10, MINECRAFT_1_19_4, false),
-          map(0x12, MINECRAFT_1_20_2, false),
-          map(0x13, MINECRAFT_1_20_3, false),
-          map(0x16, MINECRAFT_1_20_5, false),
-          map(0x18, MINECRAFT_1_21_2, false),
-          map(0x19, MINECRAFT_1_21_6, false),
-          map(0x1A, MINECRAFT_26_1, false)
-      );
+          map(0x1A, MINECRAFT_26_3, false));
 
       // minecraft:set_entity_data
       clientbound.register(ServerEntityMetadataPacket.class, null,
-          map(0x1C, MINECRAFT_1_7_2, true),
-          map(0x39, MINECRAFT_1_9, true),
-          map(0x3B, MINECRAFT_1_12, true),
-          map(0x3C, MINECRAFT_1_12_1, true),
-          map(0x3F, MINECRAFT_1_13, true),
-          map(0x43, MINECRAFT_1_14, true),
-          map(0x44, MINECRAFT_1_15, true),
-          map(0x4D, MINECRAFT_1_17, true),
-          map(0x50, MINECRAFT_1_19_1, true),
-          map(0x4E, MINECRAFT_1_19_3, true),
-          map(0x52, MINECRAFT_1_19_4, true),
-          map(0x54, MINECRAFT_1_20_2, true),
-          map(0x56, MINECRAFT_1_20_3, true),
-          map(0x58, MINECRAFT_1_20_5, true),
-          map(0x5D, MINECRAFT_1_21_2, true),
-          map(0x5C, MINECRAFT_1_21_5, true),
-          map(0x61, MINECRAFT_1_21_9, true),
-          map(0x63, MINECRAFT_26_1, true),
-          map(0x65, MINECRAFT_26_3, true)
-      );
+          map(0x65, MINECRAFT_26_3, true));
       // minecraft:ping
       clientbound.register(TransactionPacket.class, TransactionPacket::new,
-          map(0x32, MINECRAFT_1_7_2, true),
-          map(0x11, MINECRAFT_1_9, true),
-          map(0x12, MINECRAFT_1_13, true),
-          map(0x13, MINECRAFT_1_15, true),
-          map(0x12, MINECRAFT_1_16, true),
-          map(0x11, MINECRAFT_1_16_2, true),
-          map(0x30, MINECRAFT_1_17, true),
-          map(0x2D, MINECRAFT_1_19, true),
-          map(0x2F, MINECRAFT_1_19_1, true),
-          map(0x2E, MINECRAFT_1_19_3, true),
-          map(0x32, MINECRAFT_1_19_4, true),
-          map(0x33, MINECRAFT_1_20_2, true),
-          map(0x35, MINECRAFT_1_20_5, true),
-          map(0x37, MINECRAFT_1_21_2, true),
-          map(0x36, MINECRAFT_1_21_5, true),
-          map(0x3B, MINECRAFT_1_21_9, true),
-          map(0x3D, MINECRAFT_26_1, true),
-          map(0x3E, MINECRAFT_26_3, true)
-      );
+          map(0x3E, MINECRAFT_26_3, true));
       // minecraft:remove_entities
       clientbound.register(ServerRemoveEntitiesPacket.class, ServerRemoveEntitiesPacket::new,
-          map(0x13, MINECRAFT_1_7_2, true),
-          map(0x30, MINECRAFT_1_9, true),
-          map(0x31, MINECRAFT_1_12, true),
-          map(0x32, MINECRAFT_1_12_2, true),
-          map(0x35, MINECRAFT_1_13, true),
-          map(0x37, MINECRAFT_1_14, true),
-          map(0x38, MINECRAFT_1_15, true),
-          map(0x37, MINECRAFT_1_16, true),
-          map(0x36, MINECRAFT_1_16_2, true),
-          map(0x3A, MINECRAFT_1_17, true),
-          map(0x38, MINECRAFT_1_19, true),
-          map(0x3B, MINECRAFT_1_19_1, true),
-          map(0x3A, MINECRAFT_1_19_3, true),
-          map(0x3E, MINECRAFT_1_19_4, true),
-          map(0x40, MINECRAFT_1_20_2, true),
-          map(0x42, MINECRAFT_1_20_5, true),
-          map(0x47, MINECRAFT_1_21_2, true),
-          map(0x46, MINECRAFT_1_21_5, true),
-          map(0x4B, MINECRAFT_1_21_9, true),
-          map(0x4D, MINECRAFT_26_1, true),
-          map(0x4E, MINECRAFT_26_3, true)
-      );
+          map(0x4E, MINECRAFT_26_3, true));
       // minecraft:set_passengers
       clientbound.register(ServerSetPassengersPacket.class, ServerSetPassengersPacket::new,
-          map(0x1B, MINECRAFT_1_7_2, true),
-          map(0x40, MINECRAFT_1_9, true),
-          map(0x42, MINECRAFT_1_12, true),
-          map(0x43, MINECRAFT_1_12_1, true),
-          map(0x46, MINECRAFT_1_13, true),
-          map(0x4A, MINECRAFT_1_14, true),
-          map(0x4B, MINECRAFT_1_15, true),
-          map(0x54, MINECRAFT_1_17, true),
-          map(0x57, MINECRAFT_1_19_1, true),
-          map(0x55, MINECRAFT_1_19_3, true),
-          map(0x59, MINECRAFT_1_19_4, true),
-          map(0x5B, MINECRAFT_1_20_2, true),
-          map(0x5D, MINECRAFT_1_20_3, true),
-          map(0x5F, MINECRAFT_1_20_5, true),
-          map(0x65, MINECRAFT_1_21_2, true),
-          map(0x64, MINECRAFT_1_21_5, true),
-          map(0x69, MINECRAFT_1_21_9, true),
-          map(0x6B, MINECRAFT_26_1, true),
-          map(0x6D, MINECRAFT_26_3, true)
-      );
+          map(0x6D, MINECRAFT_26_3, true));
       clientbound.register(ServerSpawnEntityPacket.class, ServerSpawnEntityPacket::new,
-          map(0x0E, MINECRAFT_1_7_2, true),
-          map(0x00, MINECRAFT_1_9, true),
-          map(0x01, MINECRAFT_1_19_4, true)
-      );
+          map(0x01, MINECRAFT_26_3, true));
       // minecraft:container_set_slot
       clientbound.register(ServerInventorySetSlotPacket.class, ServerInventorySetSlotPacket::new,
-          map(0x2F, MINECRAFT_1_7_2, true),
-          map(0x16, MINECRAFT_1_9, true),
-          map(0x17, MINECRAFT_1_13, true),
-          map(0x16, MINECRAFT_1_14, true),
-          map(0x17, MINECRAFT_1_15, true),
-          map(0x16, MINECRAFT_1_16, true),
-          map(0x15, MINECRAFT_1_16_2, true),
-          map(0x16, MINECRAFT_1_17, true),
-          map(0x13, MINECRAFT_1_19, true),
-          map(0x12, MINECRAFT_1_19_3, true),
-          map(0x14, MINECRAFT_1_19_4, true),
-          map(0x15, MINECRAFT_1_20_2, true),
-          map(0x14, MINECRAFT_1_21_5, true)
-      );
+          map(0x14, MINECRAFT_26_3, true));
       // minecraft:set_held_slot
       clientbound.register(SetHeldItemPacket.class, SetHeldItemPacket::new,
-          map(0x09, MINECRAFT_1_7_2, true),
-          map(0x37, MINECRAFT_1_9, true),
-          map(0x39, MINECRAFT_1_12, true),
-          map(0x3A, MINECRAFT_1_12_1, true),
-          map(0x3D, MINECRAFT_1_13, true),
-          map(0x3F, MINECRAFT_1_14, true),
-          map(0x40, MINECRAFT_1_15, true),
-          map(0x3F, MINECRAFT_1_16, true),
-          map(0x48, MINECRAFT_1_17, true),
-          map(0x47, MINECRAFT_1_19, true),
-          map(0x4A, MINECRAFT_1_19_1, true),
-          map(0x49, MINECRAFT_1_19_3, true),
-          map(0x4D, MINECRAFT_1_19_4, true),
-          map(0x4F, MINECRAFT_1_20_2, true),
-          map(0x51, MINECRAFT_1_20_3, true),
-          map(0x53, MINECRAFT_1_20_5, true),
-          map(0x63, MINECRAFT_1_21_2, true),
-          map(0x62, MINECRAFT_1_21_5, true),
-          map(0x67, MINECRAFT_1_21_9, true),
-          map(0x69, MINECRAFT_26_1, true),
-          map(0x6B, MINECRAFT_26_3, true)
-      );
+          map(0x6B, MINECRAFT_26_3, true));
       clientbound.register(ServerEntityAnimationPacket.class, ServerEntityAnimationPacket::new,
-          map(0x0B, MINECRAFT_1_7_2, true),
-          map(0x06, MINECRAFT_1_9, true),
-          map(0x05, MINECRAFT_1_16, true),
-          map(0x06, MINECRAFT_1_17, true),
-          map(0x03, MINECRAFT_1_19, true),
-          map(0x04, MINECRAFT_1_19_4, true),
-          map(0x03, MINECRAFT_1_20_2, true),
-          map(0x02, MINECRAFT_1_21_5, true)
-      );
+          map(0x02, MINECRAFT_26_3, true));
     }
   };
 
@@ -1622,20 +580,18 @@ public enum StateRegistry {
     var playProtocolRegistryVersions = playRegistry.versions;
     Map<ProtocolVersion, StateRegistry.PacketRegistry.ProtocolRegistry> versions =
         new EnumMap<>(ProtocolVersion.class);
-    for (ProtocolVersion version : ProtocolVersion.values()) {
-      if (!version.isLegacy() && !version.isUnknown()) {
-        StateRegistry.PacketRegistry.ProtocolRegistry playProtoRegistry = playProtocolRegistryVersions.get(version);
-        PacketRegistry.ProtocolRegistry protoRegistry = registry.new ProtocolRegistry(version);
+    for (ProtocolVersion version : SUPPORTED_VERSIONS) {
+      StateRegistry.PacketRegistry.ProtocolRegistry playProtoRegistry = playProtocolRegistryVersions.get(version);
+      PacketRegistry.ProtocolRegistry protoRegistry = registry.new ProtocolRegistry(version);
 
-        protoRegistry.packetIdToSupplier = new OverlayIntObjectMap<>(playProtoRegistry.packetIdToSupplier,
-            new IntObjectHashMap<>(16, 0.5F));
+      protoRegistry.packetIdToSupplier = new OverlayIntObjectMap<>(playProtoRegistry.packetIdToSupplier,
+          new IntObjectHashMap<>(16, 0.5F));
 
-        Object2IntMap<Class<? extends MinecraftPacket>> packetClassToId = new Object2IntOpenHashMap<>(16, 0.5F);
-        packetClassToId.defaultReturnValue(playProtoRegistry.packetClassToId.defaultReturnValue());
-        protoRegistry.packetClassToId = new OverlayObject2IntMap<>(playProtoRegistry.packetClassToId, packetClassToId);
+      Object2IntMap<Class<? extends MinecraftPacket>> packetClassToId = new Object2IntOpenHashMap<>(16, 0.5F);
+      packetClassToId.defaultReturnValue(playProtoRegistry.packetClassToId.defaultReturnValue());
+      protoRegistry.packetClassToId = new OverlayObject2IntMap<>(playProtoRegistry.packetClassToId, packetClassToId);
 
-        versions.put(version, protoRegistry);
-      }
+      versions.put(version, protoRegistry);
     }
 
     registry.versions = Collections.unmodifiableMap(versions);
@@ -1689,11 +645,11 @@ public enum StateRegistry {
       this.direction = direction;
       this.registry = registry;
 
+      // Only supported versions get a registry. Anything else (old clients pinging the
+      // server, unknown versions) goes through the fallback when the state allows it.
       Map<ProtocolVersion, ProtocolRegistry> mutableVersions = new EnumMap<>(ProtocolVersion.class);
-      for (ProtocolVersion version : ProtocolVersion.values()) {
-        if (!version.isLegacy() && !version.isUnknown()) {
-          mutableVersions.put(version, new ProtocolRegistry(version));
-        }
+      for (ProtocolVersion version : SUPPORTED_VERSIONS) {
+        mutableVersions.put(version, new ProtocolRegistry(version));
       }
 
       this.versions = Collections.unmodifiableMap(mutableVersions);

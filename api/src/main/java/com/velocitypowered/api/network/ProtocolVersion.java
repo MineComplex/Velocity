@@ -44,6 +44,8 @@ public enum ProtocolVersion implements Ordered<ProtocolVersion> {
       return false;
     }
   },
+  // Versions below MINIMUM_VERSION are kept only to recognise old clients (for example when they
+  // ping the server). They cannot log in.
   MINECRAFT_1_7_2(4,
       "1.7.2", "1.7.3", "1.7.4", "1.7.5"),
   MINECRAFT_1_7_6(5,
@@ -109,7 +111,7 @@ public enum ProtocolVersion implements Ordered<ProtocolVersion> {
   /**
    * Represents the lowest supported version.
    */
-  public static final ProtocolVersion MINIMUM_VERSION = MINECRAFT_1_7_2;
+  public static final ProtocolVersion MINIMUM_VERSION = MINECRAFT_26_3;
   /**
    * Represents the highest supported version.
    */
@@ -118,9 +120,11 @@ public enum ProtocolVersion implements Ordered<ProtocolVersion> {
   /**
    * The user-friendly representation of the lowest and highest supported versions.
    */
-  public static final String SUPPORTED_VERSION_STRING = String
-      .format("%s-%s", MINIMUM_VERSION.getVersionIntroducedIn(),
-          MAXIMUM_VERSION.getMostRecentSupportedVersion());
+  public static final String SUPPORTED_VERSION_STRING =
+      MINIMUM_VERSION.getVersionIntroducedIn().equals(MAXIMUM_VERSION.getMostRecentSupportedVersion())
+          ? MINIMUM_VERSION.getVersionIntroducedIn()
+          : String.format("%s-%s", MINIMUM_VERSION.getVersionIntroducedIn(),
+              MAXIMUM_VERSION.getMostRecentSupportedVersion());
 
   /**
    * A map linking the protocol version number to its {@link ProtocolVersion} representation.
@@ -230,7 +234,7 @@ public enum ProtocolVersion implements Ordered<ProtocolVersion> {
    * @return if the protocol supported
    */
   public boolean isSupported() {
-    return true;
+    return noLessThan(MINIMUM_VERSION);
   }
 
   /**

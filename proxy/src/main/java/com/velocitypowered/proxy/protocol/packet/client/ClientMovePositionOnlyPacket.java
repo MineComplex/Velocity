@@ -47,13 +47,9 @@ public class ClientMovePositionOnlyPacket implements MinecraftPacket {
     y = buf.readDouble();
     z = buf.readDouble();
 
-    if (protocolVersion.lessThan(ProtocolVersion.MINECRAFT_1_21_2)) {
-      onGround = buf.readBoolean();
-    } else {
-      int flags = buf.readUnsignedByte();
-      onGround = (flags & 1) != 0;
-      collideHorizontally = (flags & 2) != 0;
-    }
+    int flags = buf.readUnsignedByte();
+    onGround = (flags & 1) != 0;
+    collideHorizontally = (flags & 2) != 0;
   }
 
   @Override

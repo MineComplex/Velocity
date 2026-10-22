@@ -45,17 +45,10 @@ public class ServerDefaultSpawnPositionPacket implements MinecraftPacket {
 
   @Override
   public void encode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion protocolVersion) {
-    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_21_9)) {
-      ProtocolUtils.writeString(buf, dimension);
-      buf.writeLong(((posX & 0x3FFFFFFL) << 38) | ((posZ & 0x3FFFFFFL) << 12) | (posY & 0xFFFL));
-      buf.writeFloat(yaw);
-      buf.writeFloat(pitch);
-    } else {
-      buf.writeLong(((posX & 0x3FFFFFFL) << 38) | ((posZ & 0x3FFFFFFL) << 12) | (posY & 0xFFFL));
-      if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_17)) {
-        buf.writeFloat(yaw);
-      }
-    }
+    ProtocolUtils.writeString(buf, dimension);
+    buf.writeLong(((posX & 0x3FFFFFFL) << 38) | ((posZ & 0x3FFFFFFL) << 12) | (posY & 0xFFFL));
+    buf.writeFloat(yaw);
+    buf.writeFloat(pitch);
   }
 
   @Override

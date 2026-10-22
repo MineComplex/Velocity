@@ -22,12 +22,10 @@ import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.ProtocolUtils.Direction;
-import com.velocitypowered.proxy.util.except.QuietDecoderException;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import static com.velocitypowered.proxy.connection.VelocityConstants.EMPTY_BYTE_ARRAY;
 
@@ -36,73 +34,25 @@ import static com.velocitypowered.proxy.connection.VelocityConstants.EMPTY_BYTE_
  * during the encryption handshake process. This packet contains the shared secret
  * and verifies the token used to establish secure communication between the client
  * and the server.
- *
- * <p>The packet structure varies depending on the Minecraft protocol version, with additional
- * fields such as a salt being present in versions 1.19 and above.</p>
  */
 @Getter
 @Setter
 @ToString
 public class EncryptionResponsePacket implements MinecraftPacket {
 
-  private static final QuietDecoderException NO_SALT = new QuietDecoderException(
-      "Encryption response didn't contain salt");
-
   private byte[] sharedSecret = EMPTY_BYTE_ARRAY;
   private byte[] verifyToken = EMPTY_BYTE_ARRAY;
-  private @Nullable Long salt;
-
-  /**
-   * Retrieves the salt used in the encryption response. The salt is introduced in
-   * Minecraft version 1.19 and is optional in certain protocol versions.
-   *
-   * @return the salt used in the encryption response
-   * @throws QuietDecoderException if the salt is not present
-   */
-  public long getSalt() {
-    if (salt == null) {
-      throw NO_SALT;
-    }
-    return salt;
-  }
 
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_8)) {
-      this.sharedSecret = ProtocolUtils.readByteArray(buf, 128);
-
-      if (version.noLessThan(ProtocolVersion.MINECRAFT_1_19)
-          && version.lessThan(ProtocolVersion.MINECRAFT_1_19_3)
-          && !buf.readBoolean()) {
-        salt = buf.readLong();
-      }
-
-      this.verifyToken = ProtocolUtils.readByteArray(buf,
-          version.noLessThan(ProtocolVersion.MINECRAFT_1_19) ? 256 : 128);
-    } else {
-      this.sharedSecret = ProtocolUtils.readByteArray17(buf);
-      this.verifyToken = ProtocolUtils.readByteArray17(buf);
-    }
+    this.sharedSecret = ProtocolUtils.readByteArray(buf, 128);
+    this.verifyToken = ProtocolUtils.readByteArray(buf, 256);
   }
 
   @Override
   public void encode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_8)) {
-      ProtocolUtils.writeByteArray(buf, sharedSecret);
-      if (version.noLessThan(ProtocolVersion.MINECRAFT_1_19)
-          && version.lessThan(ProtocolVersion.MINECRAFT_1_19_3)) {
-        if (salt != null) {
-          buf.writeBoolean(false);
-          buf.writeLong(salt);
-        } else {
-          buf.writeBoolean(true);
-        }
-      }
-      ProtocolUtils.writeByteArray(buf, verifyToken);
-    } else {
-      ProtocolUtils.writeByteArray17(sharedSecret, buf, false);
-      ProtocolUtils.writeByteArray17(verifyToken, buf, false);
-    }
+    ProtocolUtils.writeByteArray(buf, sharedSecret);
+    ProtocolUtils.writeByteArray(buf, verifyToken);
   }
 
   @Override
@@ -112,27 +62,12 @@ public class EncryptionResponsePacket implements MinecraftPacket {
 
   @Override
   public int decodeExpectedMaxLength(ByteBuf buf, Direction direction, ProtocolVersion version) {
-    // It turns out these come out to the same length, whether we're talking >=1.8 or not.
-    // The length prefix always winds up being 2 bytes.
-    int base = 256 + 2 + 2;
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_19_3)) {
-      return base + 128;
-    }
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_19)) {
-      // Verify token is twice as long on 1.19+
-      // Additional 1 byte for left <> right and 8 bytes for salt
-      base += 128 + 8 + 1;
-    }
-    return base;
+    // Both arrays have a 2 byte length prefix.
+    return 256 + 2 + 2 + 128;
   }
 
   @Override
   public int decodeExpectedMinLength(ByteBuf buf, Direction direction, ProtocolVersion version) {
-    int base = decodeExpectedMaxLength(buf, direction, version);
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_19)) {
-      // These are "optional"
-      base -= 128 + 8;
-    }
-    return base;
+    return decodeExpectedMaxLength(buf, direction, version) - (128 + 8);
   }
 }

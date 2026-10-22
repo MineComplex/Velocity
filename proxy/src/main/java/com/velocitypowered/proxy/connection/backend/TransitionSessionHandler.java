@@ -17,15 +17,10 @@
 
 package com.velocitypowered.proxy.connection.backend;
 
-import static com.velocitypowered.proxy.connection.backend.BackendConnectionPhases.IN_TRANSITION;
-import static com.velocitypowered.proxy.connection.forge.legacy.LegacyForgeHandshakeBackendPhase.HELLO;
-
 import com.velocitypowered.api.event.player.ServerConnectedEvent;
 import com.velocitypowered.api.event.player.ServerPostConnectEvent;
-import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.proxy.VelocityServer;
-import com.velocitypowered.proxy.connection.ConnectionTypes;
 import com.velocitypowered.proxy.connection.MinecraftConnection;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.connection.client.ClientPlaySessionHandler;
@@ -146,12 +141,6 @@ public class TransitionSessionHandler implements MinecraftSessionHandler {
           // the API knows which server the player is connected to.
           smc.setAutoReading(true);
 
-          // Send client settings. In 1.20.2+ this is done in the config state.
-          if (smc.getProtocolVersion().lessThan(ProtocolVersion.MINECRAFT_1_20_2)
-              && player.getClientSettingsPacket() != null) {
-            serverConn.ensureConnected().write(player.getClientSettingsPacket());
-          }
-
           // We're done! :)
           server.getEventManager().fireAndForget(new ServerPostConnectEvent(player,
               previousServer));
@@ -173,15 +162,7 @@ public class TransitionSessionHandler implements MinecraftSessionHandler {
     final MinecraftConnection connection = serverConn.ensureConnected();
     serverConn.disconnect();
 
-    // If we were in the middle of the Forge handshake, it is not safe to proceed. We must kick
-    // the client.
-    if (connection.getType() == ConnectionTypes.LEGACY_FORGE
-        && !serverConn.getPhase().consideredComplete()) {
-      resultFuture.complete(ConnectionRequestResults.forUnsafeDisconnect(packet,
-          serverConn.getServer()));
-    } else {
-      resultFuture.complete(ConnectionRequestResults.forDisconnect(packet, serverConn.getServer()));
-    }
+    resultFuture.complete(ConnectionRequestResults.forDisconnect(packet, serverConn.getServer()));
 
     return true;
   }
@@ -192,20 +173,7 @@ public class TransitionSessionHandler implements MinecraftSessionHandler {
       return true;
     }
 
-    // We always need to handle plugin messages, for Forge compatibility.
     if (serverConn.getPhase().handle(serverConn, serverConn.getPlayer(), packet)) {
-      // Handled, but check the server connection phase.
-      if (serverConn.getPhase() == HELLO) {
-        VelocityServerConnection existingConnection = serverConn.getPlayer().getConnectedServer();
-        if (existingConnection != null && existingConnection.getPhase() != IN_TRANSITION) {
-          // Indicate that this connection is "in transition"
-          existingConnection.setConnectionPhase(IN_TRANSITION);
-
-          // Tell the player that we're leaving and we just aren't coming back.
-          existingConnection.getPhase().onDepartForNewServer(existingConnection,
-              serverConn.getPlayer());
-        }
-      }
       return true;
     }
 

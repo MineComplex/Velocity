@@ -17,7 +17,6 @@
 
 package com.velocitypowered.proxy.connection.player.resourcepack.handler;
 
-import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.api.proxy.player.ResourcePackInfo;
 import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.connection.backend.VelocityServerConnection;
@@ -37,8 +36,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * ResourcePackHandler.
  */
-public abstract sealed class ResourcePackHandler
-        permits LegacyResourcePackHandler, ModernResourcePackHandler {
+public abstract sealed class ResourcePackHandler permits ModernResourcePackHandler {
   protected final ConnectedPlayer player;
   protected final VelocityServer server;
 
@@ -57,13 +55,6 @@ public abstract sealed class ResourcePackHandler
    */
   public static @NotNull ResourcePackHandler create(final ConnectedPlayer player,
                                            final VelocityServer server) {
-    final ProtocolVersion protocolVersion = player.getProtocolVersion();
-    if (protocolVersion.lessThan(ProtocolVersion.MINECRAFT_1_17)) {
-      return new LegacyResourcePackHandler(player, server);
-    }
-    if (protocolVersion.lessThan(ProtocolVersion.MINECRAFT_1_20_3)) {
-      return new Legacy117ResourcePackHandler(player, server);
-    }
     return new ModernResourcePackHandler(player, server);
   }
 
@@ -111,7 +102,7 @@ public abstract sealed class ResourcePackHandler
     }
     request.setRequired(queued.getShouldForce());
     request.setPrompt(queued.getPrompt() == null ? null :
-            new ComponentHolder(player.getProtocolVersion(), player.translateMessage(queued.getPrompt())));
+            new ComponentHolder(player.translateMessage(queued.getPrompt())));
 
     player.getConnection().write(request);
   }
@@ -159,7 +150,7 @@ public abstract sealed class ResourcePackHandler
       final VelocityServerConnection connectionInFlight = player.getConnectionInFlight();
       if (connectionInFlight != null && connectionInFlight.getConnection() != null) {
         connectionInFlight.getConnection().write(new ResourcePackResponsePacket(
-                bundle.uuid(), bundle.hash(), bundle.status()));
+                bundle.uuid(), bundle.status()));
       }
     }
     return handled;

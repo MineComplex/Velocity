@@ -27,8 +27,6 @@ import it.unimi.dsi.fastutil.Pair;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import net.kyori.adventure.nbt.BinaryTagIO;
-import net.kyori.adventure.nbt.CompoundBinaryTag;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -42,34 +40,27 @@ public class RespawnPacket implements MinecraftPacket {
 
   private int dimension;
   private long partialHashedSeed;
-  private short difficulty;
   private int gamemode;
-  private String levelType = "";
-  private byte dataToKeep; // 1.16+
-  private DimensionInfo dimensionInfo; // 1.16-1.16.1
-  private int previousGamemode; // 1.16+
-  private CompoundBinaryTag currentDimensionData; // 1.16.2+
-  private @Nullable Pair<String, Long> lastDeathPosition; // 1.19+
-  private int portalCooldown; // 1.20+
-  private int seaLevel; // 1.21.2+
+  private byte dataToKeep;
+  private DimensionInfo dimensionInfo;
+  private int previousGamemode;
+  private @Nullable Pair<String, Long> lastDeathPosition;
+  private int portalCooldown;
+  private int seaLevel;
 
   public RespawnPacket() {
   }
 
-  public RespawnPacket(int dimension, long partialHashedSeed, short difficulty, int gamemode,
-                       String levelType, byte dataToKeep, DimensionInfo dimensionInfo,
-                       int previousGamemode, CompoundBinaryTag currentDimensionData,
+  public RespawnPacket(int dimension, long partialHashedSeed, int gamemode, byte dataToKeep,
+                       DimensionInfo dimensionInfo, int previousGamemode,
                        @Nullable Pair<String, Long> lastDeathPosition, int portalCooldown,
                        int seaLevel) {
     this.dimension = dimension;
     this.partialHashedSeed = partialHashedSeed;
-    this.difficulty = difficulty;
     this.gamemode = gamemode;
-    this.levelType = levelType;
     this.dataToKeep = dataToKeep;
     this.dimensionInfo = dimensionInfo;
     this.previousGamemode = previousGamemode;
-    this.currentDimensionData = currentDimensionData;
     this.lastDeathPosition = lastDeathPosition;
     this.portalCooldown = portalCooldown;
     this.seaLevel = seaLevel;
@@ -83,142 +74,51 @@ public class RespawnPacket implements MinecraftPacket {
    */
   public static RespawnPacket fromJoinGame(JoinGamePacket joinGame) {
     return new RespawnPacket(joinGame.getDimension(), joinGame.getPartialHashedSeed(),
-        joinGame.getDifficulty(), joinGame.getGamemode(), joinGame.getLevelType(),
-        (byte) 0, joinGame.getDimensionInfo(), joinGame.getPreviousGamemode(),
-        joinGame.getCurrentDimensionData(), joinGame.getLastDeathPosition(),
+        joinGame.getGamemode(), (byte) 0, joinGame.getDimensionInfo(),
+        joinGame.getPreviousGamemode(), joinGame.getLastDeathPosition(),
         joinGame.getPortalCooldown(), joinGame.getSeaLevel());
   }
 
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
-    String dimensionKey = "";
-    String levelName = null;
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_16)) {
-      if (version.noLessThan(ProtocolVersion.MINECRAFT_1_16_2)
-          && version.lessThan(ProtocolVersion.MINECRAFT_1_19)) {
-        this.currentDimensionData = ProtocolUtils.readCompoundTag(buf, version, BinaryTagIO.reader());
-        dimensionKey = ProtocolUtils.readString(buf);
-      } else {
-        if (version.noLessThan(ProtocolVersion.MINECRAFT_1_20_5)) {
-          dimension = ProtocolUtils.readVarInt(buf);
-        } else {
-          dimensionKey = ProtocolUtils.readString(buf);
-        }
-        levelName = ProtocolUtils.readString(buf);
-      }
-    } else {
-      this.dimension = buf.readInt();
-    }
-    if (version.noGreaterThan(ProtocolVersion.MINECRAFT_1_13_2)) {
-      this.difficulty = buf.readUnsignedByte();
-    }
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_15)) {
-      this.partialHashedSeed = buf.readLong();
-    }
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_26_3)) {
-      this.gamemode = ProtocolUtils.readVarInt(buf);
-    } else {
-      this.gamemode = buf.readByte();
-    }
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_16)) {
-      if (version.noLessThan(ProtocolVersion.MINECRAFT_26_3)) {
-        this.previousGamemode = ProtocolUtils.readVarInt(buf);
-      } else {
-        this.previousGamemode = buf.readByte();
-      }
-      boolean isDebug = buf.readBoolean();
-      boolean isFlat = buf.readBoolean();
-      this.dimensionInfo = new DimensionInfo(dimensionKey, levelName, isFlat, isDebug, version);
-      if (version.lessThan(ProtocolVersion.MINECRAFT_1_19_3)) {
-        this.dataToKeep = (byte) (buf.readBoolean() ? 1 : 0);
-      } else if (version.lessThan(ProtocolVersion.MINECRAFT_1_20_2)) {
-        this.dataToKeep = buf.readByte();
-      }
-    } else {
-      this.levelType = ProtocolUtils.readString(buf, 16);
-    }
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_19) && buf.readBoolean()) {
+    this.dimension = ProtocolUtils.readVarInt(buf);
+    String levelName = ProtocolUtils.readString(buf);
+    this.partialHashedSeed = buf.readLong();
+    this.gamemode = ProtocolUtils.readVarInt(buf);
+    this.previousGamemode = ProtocolUtils.readVarInt(buf);
+    boolean isDebug = buf.readBoolean();
+    boolean isFlat = buf.readBoolean();
+    this.dimensionInfo = new DimensionInfo(levelName, isFlat, isDebug);
+    if (buf.readBoolean()) {
       this.lastDeathPosition = Pair.of(ProtocolUtils.readString(buf), buf.readLong());
     }
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_20)) {
-      this.portalCooldown = ProtocolUtils.readVarInt(buf);
-    }
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_21_2)) {
-      this.seaLevel = ProtocolUtils.readVarInt(buf);
-    }
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_20_2)) {
-      this.dataToKeep = buf.readByte();
-    }
+    this.portalCooldown = ProtocolUtils.readVarInt(buf);
+    this.seaLevel = ProtocolUtils.readVarInt(buf);
+    this.dataToKeep = buf.readByte();
   }
 
   @Override
   public void encode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_16)) {
-      if (version.noLessThan(ProtocolVersion.MINECRAFT_1_16_2)
-          && version.lessThan(ProtocolVersion.MINECRAFT_1_19)) {
-        ProtocolUtils.writeBinaryTag(buf, version, currentDimensionData);
-        ProtocolUtils.writeString(buf, dimensionInfo.getRegistryIdentifier());
-      } else {
-        if (version.noLessThan(ProtocolVersion.MINECRAFT_1_20_5)) {
-          ProtocolUtils.writeVarInt(buf, dimension);
-        } else {
-          ProtocolUtils.writeString(buf, dimensionInfo.getRegistryIdentifier());
-        }
-        ProtocolUtils.writeString(buf, dimensionInfo.getLevelName());
-      }
-    } else {
-      buf.writeInt(dimension);
-    }
-    if (version.noGreaterThan(ProtocolVersion.MINECRAFT_1_13_2)) {
-      buf.writeByte(difficulty);
-    }
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_15)) {
-      buf.writeLong(partialHashedSeed);
-    }
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_26_3)) {
-      ProtocolUtils.writeVarInt(buf, this.gamemode);
-    } else {
-      buf.writeByte(this.gamemode);
-    }
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_16)) {
-      if (version.noLessThan(ProtocolVersion.MINECRAFT_26_3)) {
-        ProtocolUtils.writeVarInt(buf, this.previousGamemode);
-      } else {
-        buf.writeByte(this.previousGamemode);
-      }
-      buf.writeBoolean(dimensionInfo.isDebugType());
-      buf.writeBoolean(dimensionInfo.isFlat());
-      if (version.lessThan(ProtocolVersion.MINECRAFT_1_19_3)) {
-        buf.writeBoolean(dataToKeep != 0);
-      } else if (version.lessThan(ProtocolVersion.MINECRAFT_1_20_2)) {
-        buf.writeByte(dataToKeep);
-      }
-    } else {
-      ProtocolUtils.writeString(buf, levelType);
-    }
+    ProtocolUtils.writeVarInt(buf, dimension);
+    ProtocolUtils.writeString(buf, dimensionInfo.getLevelName());
+    buf.writeLong(partialHashedSeed);
+    ProtocolUtils.writeVarInt(buf, this.gamemode);
+    ProtocolUtils.writeVarInt(buf, this.previousGamemode);
+    buf.writeBoolean(dimensionInfo.isDebugType());
+    buf.writeBoolean(dimensionInfo.isFlat());
 
     // optional death location
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_19)) {
-      if (lastDeathPosition != null) {
-        buf.writeBoolean(true);
-        ProtocolUtils.writeString(buf, lastDeathPosition.key());
-        buf.writeLong(lastDeathPosition.value());
-      } else {
-        buf.writeBoolean(false);
-      }
+    if (lastDeathPosition != null) {
+      buf.writeBoolean(true);
+      ProtocolUtils.writeString(buf, lastDeathPosition.key());
+      buf.writeLong(lastDeathPosition.value());
+    } else {
+      buf.writeBoolean(false);
     }
 
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_20)) {
-      ProtocolUtils.writeVarInt(buf, portalCooldown);
-    }
-
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_21_2)) {
-      ProtocolUtils.writeVarInt(buf, seaLevel);
-    }
-
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_20_2)) {
-      buf.writeByte(dataToKeep);
-    }
+    ProtocolUtils.writeVarInt(buf, portalCooldown);
+    ProtocolUtils.writeVarInt(buf, seaLevel);
+    buf.writeByte(dataToKeep);
   }
 
   @Override

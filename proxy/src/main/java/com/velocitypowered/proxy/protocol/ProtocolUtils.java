@@ -47,7 +47,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.velocitypowered.proxy.protocol.util.NettyPreconditions.checkFrame;
 
 /**
@@ -56,6 +55,7 @@ import static com.velocitypowered.proxy.protocol.util.NettyPreconditions.checkFr
 public enum ProtocolUtils {
   ;
 
+  // The pre-26.3 serializers are only used to answer server list pings from older clients.
   private static final GsonComponentSerializer PRE_1_16_SERIALIZER =
       GsonComponentSerializer.builder()
           .legacyHoverEventSerializer(NBTLegacyHoverEventSerializer.get())
@@ -228,17 +228,10 @@ public enum ProtocolUtils {
     }
   }
 
-  public static void writeBitSet(ByteBuf buf, ProtocolVersion version, long[] bits) {
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_26_3)) {
-      byte[] bytes = BitSet.valueOf(bits).toByteArray();
-      ProtocolUtils.writeVarInt(buf, bytes.length);
-      buf.writeBytes(bytes);
-    } else {
-      ProtocolUtils.writeVarInt(buf, bits.length);
-      for (long value : bits) {
-        buf.writeLong(value);
-      }
-    }
+  public static void writeBitSet(ByteBuf buf, long[] bits) {
+    byte[] bytes = BitSet.valueOf(bits).toByteArray();
+    ProtocolUtils.writeVarInt(buf, bytes.length);
+    buf.writeBytes(bytes);
   }
 
   private static void writeVarIntFull(ByteBuf buf, int value) {
@@ -566,9 +559,8 @@ public enum ProtocolUtils {
    * @param reader the {@link BinaryTagIO.Reader} to use
    * @return {@link net.kyori.adventure.nbt.CompoundBinaryTag} the CompoundTag from the buffer
    */
-  public static CompoundBinaryTag readCompoundTag(ByteBuf buf, ProtocolVersion version,
-                                                  BinaryTagIO.Reader reader) {
-    BinaryTag binaryTag = readBinaryTag(buf, version, reader);
+  public static CompoundBinaryTag readCompoundTag(ByteBuf buf, BinaryTagIO.Reader reader) {
+    BinaryTag binaryTag = readBinaryTag(buf, reader);
     if (binaryTag.type() != BinaryTagTypes.COMPOUND) {
       throw new DecoderException(
           "Expected root tag to be CompoundTag, but is " + binaryTag.getClass().getSimpleName());
@@ -583,12 +575,8 @@ public enum ProtocolUtils {
    * @param reader the {@link BinaryTagIO.Reader} to use
    * @return {@link net.kyori.adventure.nbt.BinaryTag} the BinaryTag from the buffer
    */
-  public static BinaryTag readBinaryTag(ByteBuf buf, ProtocolVersion version,
-                                        BinaryTagIO.Reader reader) {
+  public static BinaryTag readBinaryTag(ByteBuf buf, BinaryTagIO.Reader reader) {
     BinaryTagType<?> type = BINARY_TAG_TYPES[buf.readByte()];
-    if (version.lessThan(ProtocolVersion.MINECRAFT_1_20_2)) {
-      buf.skipBytes(buf.readUnsignedShort());
-    }
     try {
       return type.read(new ByteBufInputStream(buf));
     } catch (IOException thrown) {
@@ -602,15 +590,10 @@ public enum ProtocolUtils {
    * @param buf the buffer to write to
    * @param tag the BinaryTag to write
    */
-  public static <T extends BinaryTag> void writeBinaryTag(ByteBuf buf, ProtocolVersion version,
-                                                          T tag) {
+  public static <T extends BinaryTag> void writeBinaryTag(ByteBuf buf, T tag) {
     BinaryTagType<T> type = (BinaryTagType<T>) tag.type();
     buf.writeByte(type.id());
     try {
-      if (version.lessThan(ProtocolVersion.MINECRAFT_1_20_2)) {
-        // Empty name
-        buf.writeShort(0);
-      }
       type.write(tag, new ByteBufOutputStream(buf));
     } catch (IOException e) {
       throw new EncoderException("Unable to encode BinaryTag");
@@ -724,145 +707,10 @@ public enum ProtocolUtils {
     return properties;
   }
 
-  private static final int FORGE_MAX_ARRAY_LENGTH = Integer.MAX_VALUE & 0x1FFF9A;
-
   /**
-   * Reads an byte array for legacy version 1.7 from the specified {@code buf}.
-   *
-   * @param buf the buffer to read from
-   * @return the read byte array
-   */
-  public static byte[] readByteArray17(ByteBuf buf) {
-    // Read in a 2 or 3 byte number that represents the length of the packet. (3 byte "shorts" for
-    // Forge only)
-    // No vanilla packet should give a 3 byte packet
-    int len = readExtendedForgeShort(buf);
-
-    checkArgument(len <= FORGE_MAX_ARRAY_LENGTH,
-        "Cannot receive array longer than %s (got %s bytes)", FORGE_MAX_ARRAY_LENGTH, len);
-    checkFrame(buf.isReadable(len),
-        "Trying to read an array that is too long (wanted %s, only have %s)", len,
-        buf.readableBytes());
-
-    byte[] ret = new byte[len];
-    buf.readBytes(ret);
-    return ret;
-  }
-
-  /**
-   * Reads a retained {@link ByteBuf} slice of the specified {@code buf} with the 1.7 style length.
-   *
-   * @param buf the buffer to read from
-   * @return the retained slice
-   */
-  public static ByteBuf readRetainedByteBufSlice17(ByteBuf buf) {
-    // Read in a 2 or 3 byte number that represents the length of the packet. (3 byte "shorts" for
-    // Forge only)
-    // No vanilla packet should give a 3 byte packet
-    int len = readExtendedForgeShort(buf);
-
-    checkFrame(len <= FORGE_MAX_ARRAY_LENGTH,
-        "Cannot receive array longer than %s (got %s bytes)", FORGE_MAX_ARRAY_LENGTH, len);
-
-    return buf.readRetainedSlice(len);
-  }
-
-  /**
-   * Writes an byte array for legacy version 1.7 to the specified {@code buf}.
-   *
-   * @param b             array
-   * @param buf           buf
-   * @param allowExtended forge
-   */
-  public static void writeByteArray17(byte[] b, ByteBuf buf, boolean allowExtended) {
-    if (allowExtended) {
-      checkFrame(b.length <= FORGE_MAX_ARRAY_LENGTH,
-          "Cannot send array longer than %s (got %s bytes)", FORGE_MAX_ARRAY_LENGTH,
-          b.length);
-    } else {
-      checkFrame(b.length <= Short.MAX_VALUE,
-          "Cannot send array longer than Short.MAX_VALUE (got %s bytes)", b.length);
-    }
-    // Write a 2 or 3 byte number that represents the length of the packet. (3 byte "shorts" for
-    // Forge only)
-    // No vanilla packet should give a 3 byte packet, this method will still retain vanilla
-    // behaviour.
-    writeExtendedForgeShort(buf, b.length);
-    buf.writeBytes(b);
-  }
-
-  /**
-   * Writes an {@link ByteBuf} for legacy version 1.7 to the specified {@code buf}.
-   *
-   * @param b             array
-   * @param buf           buf
-   * @param allowExtended forge
-   */
-  public static void writeByteBuf17(ByteBuf b, ByteBuf buf, boolean allowExtended) {
-    if (allowExtended) {
-      checkFrame(b.readableBytes() <= FORGE_MAX_ARRAY_LENGTH,
-          "Cannot send array longer than %s (got %s bytes)", FORGE_MAX_ARRAY_LENGTH,
-          b.readableBytes());
-    } else {
-      checkFrame(b.readableBytes() <= Short.MAX_VALUE,
-          "Cannot send array longer than Short.MAX_VALUE (got %s bytes)", b.readableBytes());
-    }
-    // Write a 2 or 3 byte number that represents the length of the packet. (3 byte "shorts" for
-    // Forge only)
-    // No vanilla packet should give a 3 byte packet, this method will still retain vanilla
-    // behaviour.
-    writeExtendedForgeShort(buf, b.readableBytes());
-    buf.writeBytes(b);
-  }
-
-  /**
-   * Reads a Minecraft-style extended short from the specified {@code buf}.
-   *
-   * @param buf buf to write
-   * @return read extended short
-   */
-  public static int readExtendedForgeShort(ByteBuf buf) {
-    int low = buf.readUnsignedShort();
-    int high = 0;
-    if ((low & 0x8000) != 0) {
-      low = low & 0x7FFF;
-      high = buf.readUnsignedByte();
-    }
-    return ((high & 0xFF) << 15) | low;
-  }
-
-  /**
-   * Writes a Minecraft-style extended short to the specified {@code buf}.
-   *
-   * @param buf     buf to write
-   * @param toWrite the extended short to write
-   */
-  public static void writeExtendedForgeShort(ByteBuf buf, int toWrite) {
-    int low = toWrite & 0x7FFF;
-    int high = (toWrite & 0x7F8000) >> 15;
-    if (high != 0) {
-      low = low | 0x8000;
-    }
-    buf.writeShort(low);
-    if (high != 0) {
-      buf.writeByte(high);
-    }
-  }
-
-  /**
-   * Reads a non length-prefixed string from the {@code buf}. We need this for the legacy 1.7
-   * version, being inconsistent when sending the brand.
-   *
-   * @param buf the buffer to read from
-   * @return the decoded string
-   */
-  public static String readStringWithoutLength(ByteBuf buf) {
-    return readString(buf, DEFAULT_MAX_STRING_SIZE, buf.readableBytes());
-  }
-
-  /**
-   * Returns the appropriate {@link GsonComponentSerializer} for the given protocol version. This is
-   * used to constrain messages sent to older clients.
+   * Returns the appropriate {@link GsonComponentSerializer} for the given protocol version. Only the
+   * server list ping still talks to older clients, everything else should use
+   * {@link #getJsonChatSerializer()}.
    *
    * @param version the protocol version used by the client.
    * @return the appropriate {@link GsonComponentSerializer}
@@ -878,6 +726,15 @@ public enum ProtocolUtils {
       return PRE_1_20_3_SERIALIZER;
     }
     return PRE_1_16_SERIALIZER;
+  }
+
+  /**
+   * Returns the {@link GsonComponentSerializer} used by supported clients.
+   *
+   * @return the modern {@link GsonComponentSerializer}
+   */
+  public static GsonComponentSerializer getJsonChatSerializer() {
+    return MODERN_SERIALIZER;
   }
 
   /**
@@ -898,46 +755,30 @@ public enum ProtocolUtils {
    * @param buf the buffer
    * @return the key
    */
-  public static IdentifiedKey readPlayerKey(ProtocolVersion version, ByteBuf buf) {
+  public static IdentifiedKey readPlayerKey(ByteBuf buf) {
     long expiry = buf.readLong();
     byte[] key = ProtocolUtils.readByteArray(buf);
     byte[] signature = ProtocolUtils.readByteArray(buf, 4096);
-    IdentifiedKey.Revision revision = version.noGreaterOrLessThan(ProtocolVersion.MINECRAFT_1_19)
-        ? IdentifiedKey.Revision.GENERIC_V1 : IdentifiedKey.Revision.LINKED_V2;
-    return new IdentifiedKeyImpl(revision, key, expiry, signature);
+    return new IdentifiedKeyImpl(IdentifiedKey.Revision.LINKED_V2, key, expiry, signature);
   }
 
   /**
    * Reads a {@link Sound.Source} from the buffer.
    *
    * @param buf the buffer
-   * @param version the protocol version
    * @return the sound source
    */
-  public static Sound.Source readSoundSource(ByteBuf buf, ProtocolVersion version) {
-    int ordinal = readVarInt(buf);
-
-    if (version.lessThan(ProtocolVersion.MINECRAFT_1_21_5)
-        && ordinal == Sound.Source.UI.ordinal()) {
-      throw new UnsupportedOperationException("UI sound-source is only supported in 1.21.5+");
-    }
-
-    return Sound.Source.values()[ordinal];
+  public static Sound.Source readSoundSource(ByteBuf buf) {
+    return Sound.Source.values()[readVarInt(buf)];
   }
 
   /**
    * Writes a {@link Sound.Source} to the buffer.
    *
    * @param buf the buffer
-   * @param version the protocol version
    * @param source the sound source to write
    */
-  public static void writeSoundSource(ByteBuf buf, ProtocolVersion version, Sound.Source source) {
-    if (version.lessThan(ProtocolVersion.MINECRAFT_1_21_5)
-        && source == Sound.Source.UI) {
-      throw new UnsupportedOperationException("UI sound-source is only supported in 1.21.5+");
-    }
-
+  public static void writeSoundSource(ByteBuf buf, Sound.Source source) {
     writeVarInt(buf, source.ordinal());
   }
 

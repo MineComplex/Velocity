@@ -47,26 +47,11 @@ public class ClientSettingsPacket implements MinecraftPacket {
   private byte viewDistance;
   private int chatVisibility;
   private boolean chatColors;
-  private byte difficulty; // 1.7 Protocol
   private short skinParts;
   private int mainHand;
-  private boolean textFilteringEnabled; // Added in 1.17
-  private boolean clientListingAllowed; // Added in 1.18, overwrites server-list "anonymous" mode
-  private int particleStatus; // Added in 1.21.2
-
-  public ClientSettingsPacket(String locale, byte viewDistance, int chatVisibility, boolean chatColors,
-                              short skinParts, int mainHand, boolean textFilteringEnabled, boolean clientListingAllowed,
-                              int particleStatus) {
-    this.locale = locale;
-    this.viewDistance = viewDistance;
-    this.chatVisibility = chatVisibility;
-    this.chatColors = chatColors;
-    this.skinParts = skinParts;
-    this.mainHand = mainHand;
-    this.textFilteringEnabled = textFilteringEnabled;
-    this.clientListingAllowed = clientListingAllowed;
-    this.particleStatus = particleStatus;
-  }
+  private boolean textFilteringEnabled;
+  private boolean clientListingAllowed; // overwrites server-list "anonymous" mode
+  private int particleStatus;
 
   /**
    * Gets the client's locale.
@@ -87,28 +72,11 @@ public class ClientSettingsPacket implements MinecraftPacket {
     this.viewDistance = buf.readByte();
     this.chatVisibility = ProtocolUtils.readVarInt(buf);
     this.chatColors = buf.readBoolean();
-
-    if (version.noGreaterThan(ProtocolVersion.MINECRAFT_1_7_6)) {
-      this.difficulty = buf.readByte();
-    }
-
     this.skinParts = buf.readUnsignedByte();
-
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_9)) {
-      this.mainHand = ProtocolUtils.readVarInt(buf);
-
-      if (version.noLessThan(ProtocolVersion.MINECRAFT_1_17)) {
-        this.textFilteringEnabled = buf.readBoolean();
-
-        if (version.noLessThan(ProtocolVersion.MINECRAFT_1_18)) {
-          this.clientListingAllowed = buf.readBoolean();
-
-          if (version.noLessThan(ProtocolVersion.MINECRAFT_1_21_2)) {
-            this.particleStatus = ProtocolUtils.readVarInt(buf);
-          }
-        }
-      }
-    }
+    this.mainHand = ProtocolUtils.readVarInt(buf);
+    this.textFilteringEnabled = buf.readBoolean();
+    this.clientListingAllowed = buf.readBoolean();
+    this.particleStatus = ProtocolUtils.readVarInt(buf);
   }
 
   @Override
@@ -120,28 +88,11 @@ public class ClientSettingsPacket implements MinecraftPacket {
     buf.writeByte(viewDistance);
     ProtocolUtils.writeVarInt(buf, chatVisibility);
     buf.writeBoolean(chatColors);
-
-    if (version.noGreaterThan(ProtocolVersion.MINECRAFT_1_7_6)) {
-      buf.writeByte(difficulty);
-    }
-
     buf.writeByte(skinParts);
-
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_9)) {
-      ProtocolUtils.writeVarInt(buf, mainHand);
-
-      if (version.noLessThan(ProtocolVersion.MINECRAFT_1_17)) {
-        buf.writeBoolean(textFilteringEnabled);
-
-        if (version.noLessThan(ProtocolVersion.MINECRAFT_1_18)) {
-          buf.writeBoolean(clientListingAllowed);
-        }
-
-        if (version.noLessThan(ProtocolVersion.MINECRAFT_1_21_2)) {
-          ProtocolUtils.writeVarInt(buf, particleStatus);
-        }
-      }
-    }
+    ProtocolUtils.writeVarInt(buf, mainHand);
+    buf.writeBoolean(textFilteringEnabled);
+    buf.writeBoolean(clientListingAllowed);
+    ProtocolUtils.writeVarInt(buf, particleStatus);
   }
 
   @Override
@@ -156,34 +107,15 @@ public class ClientSettingsPacket implements MinecraftPacket {
 
   @Override
   public int decodeExpectedMinLength(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
-    int minLength = 1 // locale
-        + 1       // viewDistance
-        + 1       // chatVisibility
-        + 1;      // chatColors
-
-    if (version.noGreaterThan(ProtocolVersion.MINECRAFT_1_7_6)) {
-      minLength += 1; // difficulty
-    }
-
-    minLength += 1; // skinParts
-
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_9)) {
-      minLength += 1; // mainHand
-
-      if (version.noLessThan(ProtocolVersion.MINECRAFT_1_17)) {
-        minLength += 1; // textFilteringEnabled
-
-        if (version.noLessThan(ProtocolVersion.MINECRAFT_1_18)) {
-          minLength += 1; // clientListingAllowed
-
-          if (version.noLessThan(ProtocolVersion.MINECRAFT_1_21_2)) {
-            minLength += 1; // particleStatus
-          }
-        }
-      }
-    }
-
-    return minLength;
+    return 1 // locale
+        + 1  // viewDistance
+        + 1  // chatVisibility
+        + 1  // chatColors
+        + 1  // skinParts
+        + 1  // mainHand
+        + 1  // textFilteringEnabled
+        + 1  // clientListingAllowed
+        + 1; // particleStatus
   }
 
   @Override
@@ -198,7 +130,6 @@ public class ClientSettingsPacket implements MinecraftPacket {
     return viewDistance == that.viewDistance
         && chatVisibility == that.chatVisibility
         && chatColors == that.chatColors
-        && difficulty == that.difficulty
         && skinParts == that.skinParts
         && mainHand == that.mainHand
         && textFilteringEnabled == that.textFilteringEnabled
@@ -214,7 +145,6 @@ public class ClientSettingsPacket implements MinecraftPacket {
         viewDistance,
         chatVisibility,
         chatColors,
-        difficulty,
         skinParts,
         mainHand,
         textFilteringEnabled,

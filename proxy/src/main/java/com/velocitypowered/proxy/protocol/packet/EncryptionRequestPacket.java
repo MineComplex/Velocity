@@ -47,33 +47,17 @@ public class EncryptionRequestPacket implements MinecraftPacket {
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
     this.serverId = ProtocolUtils.readString(buf, 20);
-
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_8)) {
-      publicKey = ProtocolUtils.readByteArray(buf, 256);
-      verifyToken = ProtocolUtils.readByteArray(buf, 16);
-      if (version.noLessThan(ProtocolVersion.MINECRAFT_1_20_5)) {
-        shouldAuthenticate = buf.readBoolean();
-      }
-    } else {
-      publicKey = ProtocolUtils.readByteArray17(buf);
-      verifyToken = ProtocolUtils.readByteArray17(buf);
-    }
+    publicKey = ProtocolUtils.readByteArray(buf, 256);
+    verifyToken = ProtocolUtils.readByteArray(buf, 16);
+    shouldAuthenticate = buf.readBoolean();
   }
 
   @Override
   public void encode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
     ProtocolUtils.writeString(buf, this.serverId);
-
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_8)) {
-      ProtocolUtils.writeByteArray(buf, publicKey);
-      ProtocolUtils.writeByteArray(buf, verifyToken);
-      if (version.noLessThan(ProtocolVersion.MINECRAFT_1_20_5)) {
-        buf.writeBoolean(shouldAuthenticate);
-      }
-    } else {
-      ProtocolUtils.writeByteArray17(publicKey, buf, false);
-      ProtocolUtils.writeByteArray17(verifyToken, buf, false);
-    }
+    ProtocolUtils.writeByteArray(buf, publicKey);
+    ProtocolUtils.writeByteArray(buf, verifyToken);
+    buf.writeBoolean(shouldAuthenticate);
   }
 
   @Override

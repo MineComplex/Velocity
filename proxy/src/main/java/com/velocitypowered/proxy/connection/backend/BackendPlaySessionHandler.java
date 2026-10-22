@@ -30,7 +30,6 @@ import com.velocitypowered.api.event.player.PlayerResourcePackStatusEvent;
 import com.velocitypowered.api.event.player.ServerResourcePackRemoveEvent;
 import com.velocitypowered.api.event.player.ServerResourcePackSendEvent;
 import com.velocitypowered.api.event.proxy.ProxyPingEvent;
-import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
 import com.velocitypowered.api.proxy.player.ResourcePackInfo;
 import com.velocitypowered.proxy.VelocityServer;
@@ -47,7 +46,6 @@ import com.velocitypowered.proxy.protocol.StateRegistry;
 import com.velocitypowered.proxy.protocol.netty.MinecraftDecoder;
 import com.velocitypowered.proxy.protocol.netty.MinecraftVarintFrameDecoder;
 import com.velocitypowered.proxy.protocol.packet.AvailableCommandsPacket;
-import com.velocitypowered.proxy.protocol.packet.BossBarPacket;
 import com.velocitypowered.proxy.protocol.packet.BundleDelimiterPacket;
 import com.velocitypowered.proxy.protocol.packet.ClientSettingsPacket;
 import com.velocitypowered.proxy.protocol.packet.ClientboundCookieRequestPacket;
@@ -55,7 +53,6 @@ import com.velocitypowered.proxy.protocol.packet.ClientboundStoreCookiePacket;
 import com.velocitypowered.proxy.protocol.packet.DisconnectPacket;
 import com.velocitypowered.proxy.protocol.packet.JoinGamePacket;
 import com.velocitypowered.proxy.protocol.packet.KeepAlivePacket;
-import com.velocitypowered.proxy.protocol.packet.LegacyPlayerListItemPacket;
 import com.velocitypowered.proxy.protocol.packet.PluginMessagePacket;
 import com.velocitypowered.proxy.protocol.packet.RemovePlayerInfoPacket;
 import com.velocitypowered.proxy.protocol.packet.RemoveResourcePackPacket;
@@ -126,9 +123,8 @@ public class BackendPlaySessionHandler implements MinecraftSessionHandler {
 
     MinecraftConnection serverMc = serverConn.ensureConnected();
     if (server.getConfiguration().isBungeePluginChannelEnabled()) {
-      serverMc.write(PluginMessageUtil.constructChannelsPacket(serverMc.getProtocolVersion(),
-          ImmutableList.of(getBungeeCordChannel(serverMc.getProtocolVersion()))
-      ));
+      serverMc.write(PluginMessageUtil.constructChannelsPacket(
+          ImmutableList.of(getBungeeCordChannel())));
     }
 
   }
@@ -187,18 +183,6 @@ public class BackendPlaySessionHandler implements MinecraftSessionHandler {
   }
 
   @Override
-  public boolean handle(BossBarPacket packet) {
-    if (serverConn.getPlayer().getProtocolVersion().lessThan(ProtocolVersion.MINECRAFT_1_20_2)) {
-      if (packet.getAction() == BossBarPacket.ADD) {
-        playerSessionHandler.getServerBossBars().add(packet.getUuid());
-      } else if (packet.getAction() == BossBarPacket.REMOVE) {
-        playerSessionHandler.getServerBossBars().remove(packet.getUuid());
-      }
-    }
-    return false; // forward
-  }
-
-  @Override
   public boolean handle(final ResourcePackRequestPacket packet) {
     final ResourcePackInfo.Builder builder = new VelocityResourcePackInfo.BuilderImpl(
         Preconditions.checkNotNull(packet.getUrl()))
@@ -233,15 +217,11 @@ public class BackendPlaySessionHandler implements MinecraftSessionHandler {
           // Do not apply a resource pack that has already been applied
           if (serverConn.getConnection() != null) {
             serverConn.getConnection().write(new ResourcePackResponsePacket(
-                    packet.getId(), packet.getHash(), PlayerResourcePackStatusEvent.Status.ACCEPTED));
-            if (serverConn.getConnection().getProtocolVersion().noLessThan(ProtocolVersion.MINECRAFT_1_20_3)) {
-              serverConn.getConnection().write(new ResourcePackResponsePacket(
-                  packet.getId(), packet.getHash(),
-                  PlayerResourcePackStatusEvent.Status.DOWNLOADED));
-            }
+                    packet.getId(), PlayerResourcePackStatusEvent.Status.ACCEPTED));
             serverConn.getConnection().write(new ResourcePackResponsePacket(
-                packet.getId(), packet.getHash(),
-                PlayerResourcePackStatusEvent.Status.SUCCESSFUL));
+                packet.getId(), PlayerResourcePackStatusEvent.Status.DOWNLOADED));
+            serverConn.getConnection().write(new ResourcePackResponsePacket(
+                packet.getId(), PlayerResourcePackStatusEvent.Status.SUCCESSFUL));
           }
           if (modifiedPack) {
             logger.warn("A plugin has tried to modify a ResourcePack provided by the backend server "
@@ -252,17 +232,13 @@ public class BackendPlaySessionHandler implements MinecraftSessionHandler {
         }
       } else if (serverConn.getConnection() != null) {
         serverConn.getConnection().write(new ResourcePackResponsePacket(
-            packet.getId(),
-            packet.getHash(),
-            PlayerResourcePackStatusEvent.Status.DECLINED
+            packet.getId(), PlayerResourcePackStatusEvent.Status.DECLINED
         ));
       }
     }, playerConnection.eventLoop()).exceptionally((ex) -> {
       if (serverConn.getConnection() != null) {
         serverConn.getConnection().write(new ResourcePackResponsePacket(
-            packet.getId(),
-            packet.getHash(),
-            PlayerResourcePackStatusEvent.Status.DECLINED
+            packet.getId(), PlayerResourcePackStatusEvent.Status.DECLINED
         ));
       }
       logger.error("Exception while handling resource pack send for {}", playerConnection, ex);
@@ -310,8 +286,7 @@ public class BackendPlaySessionHandler implements MinecraftSessionHandler {
 
     if (PluginMessageUtil.isMcBrand(packet)) {
       PluginMessagePacket rewritten = PluginMessageUtil
-              .rewriteMinecraftBrand(packet,
-                      server.getVersion(), playerConnection.getProtocolVersion());
+              .rewriteMinecraftBrand(packet, server.getVersion());
       playerConnection.write(rewritten);
       return true;
     }
@@ -348,12 +323,6 @@ public class BackendPlaySessionHandler implements MinecraftSessionHandler {
   }
 
   @Override
-  public boolean handle(LegacyPlayerListItemPacket packet) {
-    serverConn.getPlayer().getTabList().processLegacy(packet);
-    return false;
-  }
-
-  @Override
   public boolean handle(UpsertPlayerInfoPacket packet) {
     serverConn.getPlayer().getTabList().processUpdate(packet);
     return false;
@@ -372,12 +341,6 @@ public class BackendPlaySessionHandler implements MinecraftSessionHandler {
       // Inject commands from the proxy.
       final CommandGraphInjector<CommandSource> injector = server.getCommandManager().getInjector();
       injector.inject(rootNode, serverConn.getPlayer());
-
-      // In 1.21.6 a confirmation prompt was added when executing a command via `run_command` click
-      // action if the command is unknown. To prevent this prompt we have to send the command.
-      if (this.playerConnection.getProtocolVersion().lessThan(ProtocolVersion.MINECRAFT_1_21_6)) {
-        rootNode.removeChildByName("velocity:callback");
-      }
     }
 
     server.getEventManager().fire(
@@ -396,10 +359,8 @@ public class BackendPlaySessionHandler implements MinecraftSessionHandler {
         ping -> server.getEventManager()
             .fire(new ProxyPingEvent(this.serverConn.getPlayer(), ping)),
         playerConnection.eventLoop()).thenAcceptAsync(pingEvent -> this.playerConnection.write(
-            new ServerDataPacket(new ComponentHolder(
-                this.serverConn.ensureConnected().getProtocolVersion(),
-                pingEvent.getPing().getDescriptionComponent()),
-                pingEvent.getPing().getFavicon().orElse(null), packet.isSecureChatEnforced())),
+            new ServerDataPacket(new ComponentHolder(pingEvent.getPing().getDescriptionComponent()),
+                pingEvent.getPing().getFavicon().orElse(null))),
         playerConnection.eventLoop());
     return true;
   }
@@ -508,7 +469,6 @@ public class BackendPlaySessionHandler implements MinecraftSessionHandler {
       if (server.getConfiguration().isFailoverOnUnexpectedServerDisconnect()) {
         serverConn.getPlayer().handleConnectionException(serverConn.getServer(),
             DisconnectPacket.create(ConnectionMessages.INTERNAL_SERVER_CONNECTION_ERROR,
-                serverConn.getPlayer().getProtocolVersion(),
                     serverConn.getPlayer().getConnection().getState()), true);
       } else {
         serverConn.getPlayer().disconnect(ConnectionMessages.INTERNAL_SERVER_CONNECTION_ERROR);

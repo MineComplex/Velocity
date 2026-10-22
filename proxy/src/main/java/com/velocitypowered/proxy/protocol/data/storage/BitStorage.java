@@ -19,7 +19,6 @@ package com.velocitypowered.proxy.protocol.data.storage;
 
 import com.google.common.base.Preconditions;
 import com.velocitypowered.api.network.ProtocolVersion;
-import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 
@@ -66,8 +65,6 @@ public class BitStorage {
       return 4;
     } else if (bitsPerEntry < 9) {
       return bitsPerEntry;
-    } else if (version.lessThan(ProtocolVersion.MINECRAFT_1_16_4)) {
-      return 14;
     } else {
       return 15;
     }
@@ -129,20 +126,13 @@ public class BitStorage {
   public void write(Object object, ProtocolVersion version) {
     Preconditions.checkArgument(object instanceof ByteBuf);
     ByteBuf buf = (ByteBuf) object;
-    if (version.lessThan(ProtocolVersion.MINECRAFT_1_21_5)) {
-      ProtocolUtils.writeVarInt(buf, data.length);
-    }
     for (long l : data) {
       buf.writeLong(l);
     }
   }
 
   public int getDataLength(ProtocolVersion version) {
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_21_5)) {
-      return data.length * 8;
-    }
-
-    return ProtocolUtils.varIntBytes(data.length) + data.length * 8;
+    return data.length * 8;
   }
 
   public BitStorage copy() {

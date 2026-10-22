@@ -24,7 +24,6 @@ import com.velocitypowered.api.event.player.CookieStoreEvent;
 import com.velocitypowered.api.event.player.PlayerResourcePackStatusEvent;
 import com.velocitypowered.api.event.player.ServerResourcePackRemoveEvent;
 import com.velocitypowered.api.event.player.ServerResourcePackSendEvent;
-import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
 import com.velocitypowered.api.proxy.player.ResourcePackInfo;
 import com.velocitypowered.proxy.VelocityServer;
@@ -80,8 +79,6 @@ public class ConfigSessionHandler implements MinecraftSessionHandler {
   private final VelocityServerConnection serverConn;
   private final CompletableFuture<Impl> resultFuture;
 
-  private ResourcePackInfo resourcePackToApply;
-
   private State state;
 
   /**
@@ -97,15 +94,6 @@ public class ConfigSessionHandler implements MinecraftSessionHandler {
     this.serverConn = serverConn;
     this.resultFuture = resultFuture;
     this.state = State.START;
-  }
-
-  @Override
-  public void activated() {
-    ConnectedPlayer player = serverConn.getPlayer();
-    if (player.getProtocolVersion() == ProtocolVersion.MINECRAFT_1_20_2) {
-      resourcePackToApply = player.resourcePackHandler().getFirstAppliedPack();
-      player.resourcePackHandler().clearAppliedResourcePacks();
-    }
   }
 
   @Override
@@ -174,28 +162,27 @@ public class ConfigSessionHandler implements MinecraftSessionHandler {
           if (serverConn.getConnection() != null) {
             // We can technically skip these first 2 states, however, for conformity to normal state flow expectations...
             serverConn.getConnection().write(new ResourcePackResponsePacket(
-                    packet.getId(), packet.getHash(), PlayerResourcePackStatusEvent.Status.ACCEPTED));
+                    packet.getId(), PlayerResourcePackStatusEvent.Status.ACCEPTED));
             serverConn.getConnection().write(new ResourcePackResponsePacket(
-                packet.getId(), packet.getHash(), PlayerResourcePackStatusEvent.Status.DOWNLOADED));
+                packet.getId(), PlayerResourcePackStatusEvent.Status.DOWNLOADED));
             serverConn.getConnection().write(new ResourcePackResponsePacket(
-                packet.getId(), packet.getHash(), PlayerResourcePackStatusEvent.Status.SUCCESSFUL));
+                packet.getId(), PlayerResourcePackStatusEvent.Status.SUCCESSFUL));
           }
           if (modifiedPack) {
             logger.warn("A plugin has tried to modify a ResourcePack provided by the backend server "
                     + "with a ResourcePack already applied, the applying of the resource pack will be skipped.");
           }
         } else {
-          resourcePackToApply = null;
           serverConn.getPlayer().resourcePackHandler().queueResourcePack(toSend);
         }
       } else if (serverConn.getConnection() != null) {
         serverConn.getConnection().write(new ResourcePackResponsePacket(
-                packet.getId(), packet.getHash(), PlayerResourcePackStatusEvent.Status.DECLINED));
+                packet.getId(), PlayerResourcePackStatusEvent.Status.DECLINED));
       }
     }, playerConnection.eventLoop()).exceptionally((ex) -> {
       if (serverConn.getConnection() != null) {
         serverConn.getConnection().write(new ResourcePackResponsePacket(
-                packet.getId(), packet.getHash(), PlayerResourcePackStatusEvent.Status.DECLINED));
+                packet.getId(), PlayerResourcePackStatusEvent.Status.DECLINED));
       }
       logger.error("Exception while handling resource pack send for {}", playerConnection, ex);
       return null;
@@ -250,9 +237,6 @@ public class ConfigSessionHandler implements MinecraftSessionHandler {
       } else {
         smc.setActiveSessionHandler(StateRegistry.PLAY, new TransitionSessionHandler(server, serverConn, resultFuture));
       }
-      if (player.resourcePackHandler().getFirstAppliedPack() == null && resourcePackToApply != null) {
-        player.resourcePackHandler().queueResourcePack(resourcePackToApply);
-      }
     }, smc.eventLoop());
     return true;
   }
@@ -274,8 +258,7 @@ public class ConfigSessionHandler implements MinecraftSessionHandler {
   public boolean handle(PluginMessagePacket packet) {
     if (PluginMessageUtil.isMcBrand(packet)) {
       serverConn.getPlayer().getConnection().write(
-          PluginMessageUtil.rewriteMinecraftBrand(packet, server.getVersion(),
-              serverConn.getPlayer().getProtocolVersion()));
+          PluginMessageUtil.rewriteMinecraftBrand(packet, server.getVersion()));
     } else {
       ChannelIdentifier id = this.server.getChannelRegistrar().getFromId(packet.getChannel());
 

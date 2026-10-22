@@ -41,18 +41,18 @@ public class DialogShowPacket implements MinecraftPacket {
   public void decode(ByteBuf buf, Direction direction, ProtocolVersion protocolVersion) {
     this.id = this.state == StateRegistry.CONFIG ? 0 : ProtocolUtils.readVarInt(buf);
     if (this.id == 0) {
-      this.nbt = ProtocolUtils.readBinaryTag(buf, protocolVersion, BinaryTagIO.reader());
+      this.nbt = ProtocolUtils.readBinaryTag(buf, BinaryTagIO.reader());
     }
   }
 
   @Override
   public void encode(ByteBuf buf, Direction direction, ProtocolVersion protocolVersion) {
     if (this.state == StateRegistry.CONFIG) {
-      ProtocolUtils.writeBinaryTag(buf, protocolVersion, this.nbt);
+      ProtocolUtils.writeBinaryTag(buf, this.nbt);
     } else {
       ProtocolUtils.writeVarInt(buf, this.id);
       if (this.id == 0) {
-        ProtocolUtils.writeBinaryTag(buf, protocolVersion, this.nbt);
+        ProtocolUtils.writeBinaryTag(buf, this.nbt);
       }
     }
   }

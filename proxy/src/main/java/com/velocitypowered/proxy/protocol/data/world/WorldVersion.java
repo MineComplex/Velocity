@@ -26,19 +26,12 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 @AllArgsConstructor
 public enum WorldVersion {
 
-  MINECRAFT_1_21_4(ProtocolVersion.MINECRAFT_1_21_4),
-  MINECRAFT_1_21_5(ProtocolVersion.MINECRAFT_1_21_5),
-  MINECRAFT_1_21_6(ProtocolVersion.MINECRAFT_1_21_6),
-  MINECRAFT_1_21_7(ProtocolVersion.MINECRAFT_1_21_7),
-  MINECRAFT_1_21_9(ProtocolVersion.MINECRAFT_1_21_9),
-  MINECRAFT_1_21_11(ProtocolVersion.MINECRAFT_1_21_11),
-  MINECRAFT_26_1(ProtocolVersion.MINECRAFT_26_1),
-  MINECRAFT_26_2(ProtocolVersion.MINECRAFT_26_2),
-  MINECRAFT_26_3(EnumSet.range(ProtocolVersion.MINECRAFT_26_3, ProtocolVersion.MAXIMUM_VERSION));
+  MINECRAFT_26_3(EnumSet.range(ProtocolVersion.MINIMUM_VERSION, ProtocolVersion.MAXIMUM_VERSION));
 
   private static final EnumMap<ProtocolVersion, WorldVersion> MC_VERSION_TO_ITEM_VERSIONS = new EnumMap<>(ProtocolVersion.class);
   private static final Map<String, WorldVersion> KEY_LOOKUP = Map.copyOf(EnumUniverse.createProtocolLookup(values()));
@@ -57,9 +50,12 @@ public enum WorldVersion {
     this.versions = EnumSet.copyOf(Arrays.asList(versions));
   }
 
-  public static WorldVersion parse(String from) {
-    //return KEY_LOOKUP.getOrDefault(from, MINECRAFT_1_16_4);
-    return KEY_LOOKUP.getOrDefault(from, MINECRAFT_1_21_4);
+  /**
+   * Returns the version for a key from the mapping files, or {@code null} for versions that
+   * are no longer supported.
+   */
+  public static @Nullable WorldVersion parse(String from) {
+    return KEY_LOOKUP.get(from);
   }
 
   public static WorldVersion from(ProtocolVersion protocolVersion) {

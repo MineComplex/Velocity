@@ -31,6 +31,6 @@ public class TagItemComponent extends ItemComponent<BinaryTag> {
 
   @Override
   public void write(ProtocolVersion version, ByteBuf buffer) {
-    ProtocolUtils.writeBinaryTag(buffer, version, getValue());
+    ProtocolUtils.writeBinaryTag(buffer, getValue());
   }
 }

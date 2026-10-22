@@ -19,12 +19,10 @@ package com.velocitypowered.proxy.protocol.packet;
 
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.api.util.GameProfile;
-import com.velocitypowered.api.util.UuidUtils;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import com.velocitypowered.proxy.protocol.ProtocolUtils.Direction;
-import com.velocitypowered.proxy.util.VelocityProperties;
 import io.netty.buffer.ByteBuf;
 import java.util.List;
 import java.util.UUID;
@@ -47,32 +45,12 @@ public class ServerLoginSuccessPacket implements MinecraftPacket {
   private @Nullable String username;
   private @Nullable List<GameProfile.Property> properties;
   private @Nullable UUID sessionId;
-  private static final boolean strictErrorHandling = VelocityProperties
-          .readBoolean("velocity.strictErrorHandling", true);
-
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_19)) {
-      uuid = ProtocolUtils.readUuid(buf);
-    } else if (version.noLessThan(ProtocolVersion.MINECRAFT_1_16)) {
-      uuid = ProtocolUtils.readUuidIntArray(buf);
-    } else if (version.noLessThan(ProtocolVersion.MINECRAFT_1_7_6)) {
-      uuid = UUID.fromString(ProtocolUtils.readString(buf, 36));
-    } else {
-      uuid = UuidUtils.fromUndashed(ProtocolUtils.readString(buf, 32));
-    }
+    uuid = ProtocolUtils.readUuid(buf);
     username = ProtocolUtils.readString(buf, 16);
-
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_19)) {
-      properties = ProtocolUtils.readProperties(buf);
-    }
-    if (version == ProtocolVersion.MINECRAFT_1_20_5 || version == ProtocolVersion.MINECRAFT_1_21) {
-      buf.readBoolean();
-    }
-
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_26_2)) {
-      this.sessionId = ProtocolUtils.readUuid(buf);
-    }
+    properties = ProtocolUtils.readProperties(buf);
+    this.sessionId = ProtocolUtils.readUuid(buf);
   }
 
   @Override
@@ -80,34 +58,17 @@ public class ServerLoginSuccessPacket implements MinecraftPacket {
     if (uuid == null) {
       throw new IllegalStateException("No UUID specified!");
     }
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_19)) {
-      ProtocolUtils.writeUuid(buf, uuid);
-    } else if (version.noLessThan(ProtocolVersion.MINECRAFT_1_16)) {
-      ProtocolUtils.writeUuidIntArray(buf, uuid);
-    } else if (version.noLessThan(ProtocolVersion.MINECRAFT_1_7_6)) {
-      ProtocolUtils.writeString(buf, uuid.toString());
-    } else {
-      ProtocolUtils.writeString(buf, UuidUtils.toUndashed(uuid));
-    }
+    ProtocolUtils.writeUuid(buf, uuid);
     if (username == null) {
       throw new IllegalStateException("No username specified!");
     }
     ProtocolUtils.writeString(buf, username);
-
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_19)) {
-      if (properties == null) {
-        ProtocolUtils.writeVarInt(buf, 0);
-      } else {
-        ProtocolUtils.writeProperties(buf, properties);
-      }
+    if (properties == null) {
+      ProtocolUtils.writeVarInt(buf, 0);
+    } else {
+      ProtocolUtils.writeProperties(buf, properties);
     }
-    if (version == ProtocolVersion.MINECRAFT_1_20_5 || version == ProtocolVersion.MINECRAFT_1_21) {
-      buf.writeBoolean(strictErrorHandling);
-    }
-
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_26_2)) {
-      ProtocolUtils.writeUuid(buf, this.sessionId);
-    }
+    ProtocolUtils.writeUuid(buf, this.sessionId);
   }
 
   @Override

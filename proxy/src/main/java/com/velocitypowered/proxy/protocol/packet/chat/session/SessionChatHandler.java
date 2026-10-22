@@ -17,8 +17,6 @@
 
 package com.velocitypowered.proxy.protocol.packet.chat.session;
 
-import static com.velocitypowered.proxy.protocol.packet.chat.keyed.KeyedChatHandler.invalidCancel;
-import static com.velocitypowered.proxy.protocol.packet.chat.keyed.KeyedChatHandler.invalidChange;
 
 import com.velocitypowered.api.event.EventManager;
 import com.velocitypowered.api.event.player.PlayerChatEvent;
@@ -29,6 +27,7 @@ import com.velocitypowered.proxy.protocol.packet.chat.ChatQueue;
 import java.util.concurrent.CompletableFuture;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import net.kyori.adventure.text.Component;
 
 
 /**
@@ -93,5 +92,21 @@ public class SessionChatHandler implements ChatHandler<SessionPlayerChatPacket> 
         packet.getTimestamp(),
         packet.getLastSeenMessages()
     );
+  }
+
+  private static void invalidCancel(Logger logger, ConnectedPlayer player) {
+    logger.fatal("A plugin tried to cancel a signed chat message."
+        + " This is no longer possible in 1.19.1 and newer. "
+        + "Disconnecting player " + player.getUsername());
+    player.disconnect(Component.text("A proxy plugin caused an illegal protocol state. "
+        + "Contact your network administrator."));
+  }
+
+  private static void invalidChange(Logger logger, ConnectedPlayer player) {
+    logger.fatal("A plugin tried to change a signed chat message. "
+        + "This is no longer possible in 1.19.1 and newer. "
+        + "Disconnecting player " + player.getUsername());
+    player.disconnect(Component.text("A proxy plugin caused an illegal protocol state. "
+        + "Contact your network administrator."));
   }
 }

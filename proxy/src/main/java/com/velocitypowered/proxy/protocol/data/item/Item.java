@@ -26,7 +26,6 @@ import lombok.RequiredArgsConstructor;
 
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -38,17 +37,11 @@ public class Item {
 
   @Getter
   private final String modernId;
-  private final Map<WorldVersion, Short> versionIds = new EnumMap<>(WorldVersion.class);
+  // Ids in items.json are already the ids of the supported version.
+  private final short id;
 
   @SuppressWarnings("unchecked")
   public static void init() {
-    LinkedTreeMap<String, LinkedTreeMap<String, String>> itemsMapping = VelocityServer.GENERAL_GSON.fromJson(
-        new InputStreamReader(
-            Objects.requireNonNull(Item.class.getClassLoader().getResourceAsStream("mapping/items_mapping.json")), StandardCharsets.UTF_8
-        ),
-        LinkedTreeMap.class
-    );
-
     LinkedTreeMap<String, String> modernItems = VelocityServer.GENERAL_GSON.fromJson(
         new InputStreamReader(
             Objects.requireNonNull(Item.class.getClassLoader().getResourceAsStream("mapping/items.json")), StandardCharsets.UTF_8
@@ -64,8 +57,7 @@ public class Item {
     );
 
     modernItems.forEach((modernId, modernProtocolId) -> {
-      Item simpleItem = new Item(modernId);
-      itemsMapping.get(modernProtocolId).forEach((key, value) -> simpleItem.versionIds.put(WorldVersion.parse(key), Short.parseShort(value)));
+      Item simpleItem = new Item(modernId, Short.parseShort(modernProtocolId));
       MODERN_ID_MAP.put(modernId, simpleItem);
 
       String remapped = modernIdRemap.get(modernId);
@@ -88,7 +80,7 @@ public class Item {
   }
 
   public short getId(WorldVersion version) {
-    return versionIds.get(version);
+    return id;
   }
 
   public boolean isSupportedOn(ProtocolVersion version) {
@@ -96,7 +88,7 @@ public class Item {
   }
 
   public boolean isSupportedOn(WorldVersion version) {
-    return versionIds.containsKey(version);
+    return version != null;
   }
 
 }

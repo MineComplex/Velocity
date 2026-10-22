@@ -36,7 +36,7 @@ public class ComponentsItemComponent extends ItemComponent<List<Component>> {
   public void write(ProtocolVersion version, ByteBuf buffer) {
     ProtocolUtils.writeVarInt(buffer, getValue().size());
     for (Component component : getValue()) {
-      new ComponentHolder(version, component).write(buffer);
+      new ComponentHolder(component).write(buffer);
     }
   }
 }

@@ -22,7 +22,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.internal.LazilyParsedNumber;
-import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
 import io.netty.buffer.ByteBuf;
 import net.kyori.adventure.nbt.BinaryTag;
@@ -55,35 +54,31 @@ public class ComponentHolder {
   private static final Logger logger = LogManager.getLogger(ComponentHolder.class);
   public static final int DEFAULT_MAX_STRING_SIZE = 262143;
 
-  private final ProtocolVersion version;
   private @MonotonicNonNull Component component;
   private @MonotonicNonNull String json;
   private @MonotonicNonNull BinaryTag binaryTag;
 
-  public ComponentHolder(ProtocolVersion version, Component component) {
-    this.version = version;
+  public ComponentHolder(Component component) {
     this.component = component;
   }
 
-  public ComponentHolder(ProtocolVersion version, String json) {
-    this.version = version;
+  public ComponentHolder(String json) {
     this.json = json;
   }
 
-  public ComponentHolder(ProtocolVersion version, BinaryTag binaryTag) {
-    this.version = version;
+  public ComponentHolder(BinaryTag binaryTag) {
     this.binaryTag = binaryTag;
   }
 
   public Component getComponent() {
     if (component == null) {
       if (json != null) {
-        component = ProtocolUtils.getJsonChatSerializer(version).deserialize(json);
+        component = ProtocolUtils.getJsonChatSerializer().deserialize(json);
       } else if (binaryTag != null) {
         // TODO: replace this with adventure-text-serializer-nbt
         try {
           json = deserialize(binaryTag).toString();
-          component = ProtocolUtils.getJsonChatSerializer(version).deserialize(json);
+          component = ProtocolUtils.getJsonChatSerializer().deserialize(json);
         } catch (Exception ex) {
           logger.error(
               "Error converting binary component to JSON component! "
@@ -97,7 +92,7 @@ public class ComponentHolder {
 
   public String getJson() {
     if (json == null) {
-      json = ProtocolUtils.getJsonChatSerializer(version).serialize(getComponent());
+      json = ProtocolUtils.getJsonChatSerializer().serialize(getComponent());
     }
     return json;
   }
@@ -105,7 +100,7 @@ public class ComponentHolder {
   public BinaryTag getBinaryTag() {
     if (binaryTag == null) {
       // TODO: replace this with adventure-text-serializer-nbt
-      binaryTag = serialize(ProtocolUtils.getJsonChatSerializer(version).serializeToTree(getComponent()));
+      binaryTag = serialize(ProtocolUtils.getJsonChatSerializer().serializeToTree(getComponent()));
     }
     return binaryTag;
   }
@@ -280,22 +275,25 @@ public class ComponentHolder {
     };
   }
 
-  public static ComponentHolder read(ByteBuf buf, ProtocolVersion version) {
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_20_3)) {
-      return new ComponentHolder(version,
-          ProtocolUtils.readBinaryTag(buf, version, BinaryTagIO.reader()));
-    } else if (version.noLessThan(ProtocolVersion.MINECRAFT_1_13)) {
-      return new ComponentHolder(version, ProtocolUtils.readString(buf, DEFAULT_MAX_STRING_SIZE));
-    } else {
-      return new ComponentHolder(version, ProtocolUtils.readString(buf));
-    }
+  public static ComponentHolder read(ByteBuf buf) {
+    return new ComponentHolder(ProtocolUtils.readBinaryTag(buf, BinaryTagIO.reader()));
+  }
+
+  /**
+   * Reads a component sent as a JSON string. The login phase still uses this format.
+   */
+  public static ComponentHolder readJson(ByteBuf buf) {
+    return new ComponentHolder(ProtocolUtils.readString(buf, DEFAULT_MAX_STRING_SIZE));
   }
 
   public void write(ByteBuf buf) {
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_20_3)) {
-      ProtocolUtils.writeBinaryTag(buf, version, getBinaryTag());
-    } else {
-      ProtocolUtils.writeString(buf, getJson());
-    }
+    ProtocolUtils.writeBinaryTag(buf, getBinaryTag());
+  }
+
+  /**
+   * Writes the component as a JSON string. The login phase still uses this format.
+   */
+  public void writeJson(ByteBuf buf) {
+    ProtocolUtils.writeString(buf, getJson());
   }
 }

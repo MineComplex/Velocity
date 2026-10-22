@@ -52,8 +52,7 @@ public class ServerChunkDataPacket implements MinecraftPacket {
   private int[] biomes;
   private int maxSections;
   private int nonNullSections;
-  private CompoundBinaryTag heightmap116;
-  private Map<Integer, long[]> heightmap1215;
+  private Map<Integer, long[]> heightmaps;
 
   public ServerChunkDataPacket(int sectionX, int sectionZ) {
     this.sectionX = sectionX;
@@ -80,10 +79,9 @@ public class ServerChunkDataPacket implements MinecraftPacket {
     this.nonNullSections = nonNullSections;
     this.mask = mask;
 
-    heightmap116 = createHeightMap();
-    heightmap1215 = new HashMap<>();
-    for (Map.Entry<String, ? extends BinaryTag> entry : heightmap116) {
-      heightmap1215.put(findHeightMapId(entry.getKey()), ((LongArrayBinaryTag) entry.getValue()).value());
+    heightmaps = new HashMap<>();
+    for (Map.Entry<String, ? extends BinaryTag> entry : createHeightMap()) {
+      heightmaps.put(findHeightMapId(entry.getKey()), ((LongArrayBinaryTag) entry.getValue()).value());
     }
 
     biomes = new int[1024];
@@ -113,79 +111,29 @@ public class ServerChunkDataPacket implements MinecraftPacket {
     buf.writeInt(sectionX);
     buf.writeInt(sectionZ);
 
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_17)) {
-      if (version.noGreaterThan(ProtocolVersion.MINECRAFT_1_17_1)) {
-        ProtocolUtils.writeVarInt(buf, 0); // mask
-      }
-    } else {
-      buf.writeBoolean(true); // full chunk
-      ProtocolUtils.writeVarInt(buf, 0);
+    // Heightmaps: List<EnumMap<Heightmap.Type, long[]>>
+    ProtocolUtils.writeVarInt(buf, 1); // List size
+    ProtocolUtils.writeVarInt(buf, 4); // Ordinal of MOTION_BLOCKING
+    // Write long array
+    ProtocolUtils.writeVarInt(buf, 37);
+    for (int i = 0; i < 37; i++) {
+      buf.writeLong(0);
     }
 
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_21_5)) {
-      // In 1.21.5. They changed to List<EnumMap<Heightmap.Type, long[]>>
-      ProtocolUtils.writeVarInt(buf, 1); // List size
-      ProtocolUtils.writeVarInt(buf, 4); // Ordinal of MOTION_BLOCKING
-      // Write long array
-      ProtocolUtils.writeVarInt(buf, 37);
-      for (int i = 0; i < 37; i++) {
-        buf.writeLong(0);
-      }
-    } else { // Nbt for older version
-      long[] motionBlockingData = new long[version.lessThan(ProtocolVersion.MINECRAFT_1_18) ? 36 : 37];
-      CompoundBinaryTag motionBlockingTag = CompoundBinaryTag.builder()
-          .put("MOTION_BLOCKING", LongArrayBinaryTag.longArrayBinaryTag(motionBlockingData))
-          .build();
-      CompoundBinaryTag rootTag = CompoundBinaryTag.builder()
-          .put("root", motionBlockingTag)
-          .build();
+    // nonEmptyBlockCount. short occupies 2 bytes.
+    // SingularPalette (byte) + id (varint). The long array length is no longer written.
+    byte[] sectionData = new byte[] {0, 0, 0, 0, 0, 1};
+    int count = 24;
+    ProtocolUtils.writeVarInt(buf, sectionData.length * count);
 
-      ProtocolUtils.writeBinaryTag(buf, version, rootTag);
-    }
-
-    if (version.noGreaterThan(ProtocolVersion.MINECRAFT_1_17_1)) {
-      ProtocolUtils.writeVarInt(buf, 1024);
-
-      for (int i = 0; i < 1024; i++) {
-        ProtocolUtils.writeVarInt(buf, 1);
-      }
-    }
-
-    if (version.lessThan(ProtocolVersion.MINECRAFT_1_18)) {
-      ProtocolUtils.writeVarInt(buf, 0);
-    } else {
-      // nonEmptyBlockCount. short occupies 2 bytes.
-      // SingularPalette (byte) + id (varint) + long array with size (older)
-      // Since 1.21.5. The length of the long array of PaletteStorage no longer depends on the VarInt in the packet
-      // SingularPalette doesn't need to read any additional long array.
-      // So we'll remove suffix 0 as array length here. The cost of writing a palette has been reduced from 3 to 2 bytes.
-      byte[] sectionData = version.lessThan(ProtocolVersion.MINECRAFT_1_21_5) ?
-          new byte[] {0, 0, 0, 0, 0, 0, 1, 0} :
-          new byte[] {0, 0, 0, 0, 0, 1};
-      int count = 24;
-      ProtocolUtils.writeVarInt(buf, sectionData.length * count);
-
-      for (int i = 0; i < count; i++) {
-        buf.writeBytes(sectionData);
-      }
+    for (int i = 0; i < count; i++) {
+      buf.writeBytes(sectionData);
     }
 
     ProtocolUtils.writeVarInt(buf, 0);
 
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_21_2)) {
-      for (int i = 0; i < 6; i++) {
-        ProtocolUtils.writeVarInt(buf, 0);
-      }
-    } else if (version.noLessThan(ProtocolVersion.MINECRAFT_1_18)) {
-      final byte[] lightData = new byte[] {1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 3, -1, -1, 0, 0};
-
-      buf.ensureWritable(lightData.length);
-
-      if (version.noLessThan(ProtocolVersion.MINECRAFT_1_20)) {
-        buf.writeBytes(lightData, 1, lightData.length - 1);
-      } else {
-        buf.writeBytes(lightData);
-      }
+    for (int i = 0; i < 6; i++) {
+      ProtocolUtils.writeVarInt(buf, 0);
     }
   }
 
@@ -195,47 +143,17 @@ public class ServerChunkDataPacket implements MinecraftPacket {
       encodeVoid(buf, direction, version);
       return;
     }
-    if (!chunk.fullChunk()) {
-      // 1.17 supports only full chunks.
-      Preconditions.checkState(version.lessThan(ProtocolVersion.MINECRAFT_1_17));
-    }
+    Preconditions.checkState(chunk.fullChunk(), "Only full chunks are supported");
 
     buf.writeInt(chunk.posX());
     buf.writeInt(chunk.posZ());
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_17)) {
-      // 1.17 mask.
-      if (version.noGreaterThan(ProtocolVersion.MINECRAFT_1_17_1)) {
-        long[] mask = create117Mask();
-        ProtocolUtils.writeVarInt(buf, mask.length);
-        for (long l : mask) {
-          buf.writeLong(l);
-        }
-      }
-    } else {
-      buf.writeBoolean(chunk.fullChunk());
 
-      // Mask.
-      ProtocolUtils.writeVarInt(buf, mask);
-    }
-
-    if (version.lessThan(ProtocolVersion.MINECRAFT_1_21_5)) {
-      ProtocolUtils.writeBinaryTag(buf, version, heightmap116);
-    } else {
-      ProtocolUtils.writeVarInt(buf, heightmap1215.size());
-      for (Map.Entry<Integer, long[]> entry : heightmap1215.entrySet()) {
-        ProtocolUtils.writeVarInt(buf, entry.getKey());
-        ProtocolUtils.writeVarInt(buf, entry.getValue().length);
-        for (long l : entry.getValue()) {
-          buf.writeLong(l);
-        }
-      }
-    }
-
-    // 1.16 - 1.17 biomes.
-    if (chunk.fullChunk() && version.noGreaterThan(ProtocolVersion.MINECRAFT_1_17_1)) {
-      ProtocolUtils.writeVarInt(buf, biomes.length);
-      for (int biome : biomes) {
-        ProtocolUtils.writeVarInt(buf, biome);
+    ProtocolUtils.writeVarInt(buf, heightmaps.size());
+    for (Map.Entry<Integer, long[]> entry : heightmaps.entrySet()) {
+      ProtocolUtils.writeVarInt(buf, entry.getKey());
+      ProtocolUtils.writeVarInt(buf, entry.getValue().length);
+      for (long l : entry.getValue()) {
+        buf.writeLong(l);
       }
     }
 
@@ -246,37 +164,24 @@ public class ServerChunkDataPacket implements MinecraftPacket {
       List<TileEntity.Entry> blockEntityEntries = chunk.tileEntityEntries();
       ProtocolUtils.writeVarInt(buf, blockEntityEntries.size());
       for (TileEntity.Entry blockEntityEntry : blockEntityEntries) {
-        CompoundBinaryTag blockEntityNbt = blockEntityEntry.getNbt();
-        if (version.noLessThan(ProtocolVersion.MINECRAFT_1_18)) {
-          buf.writeByte(((blockEntityEntry.getPosX() & 15) << 4) | (blockEntityEntry.getPosZ() & 15));
-          buf.writeShort(blockEntityEntry.getPosY());
-          ProtocolUtils.writeVarInt(buf, blockEntityEntry.getId(version));
-        } else {
-          blockEntityNbt.putString("id", blockEntityEntry.getTileEntity().getModernId());
-          blockEntityNbt.putInt("x", blockEntityEntry.getPosX());
-          blockEntityNbt.putInt("y", blockEntityEntry.getPosY());
-          blockEntityNbt.putInt("z", blockEntityEntry.getPosZ());
-        }
-
-        ProtocolUtils.writeBinaryTag(buf, version, blockEntityNbt);
+        buf.writeByte(((blockEntityEntry.getPosX() & 15) << 4) | (blockEntityEntry.getPosZ() & 15));
+        buf.writeShort(blockEntityEntry.getPosY());
+        ProtocolUtils.writeVarInt(buf, blockEntityEntry.getId(version));
+        ProtocolUtils.writeBinaryTag(buf, blockEntityEntry.getNbt());
       }
-      if (version.greaterThan(ProtocolVersion.MINECRAFT_1_17_1)) {
-        long[] mask = create117Mask();
-        if (version.lessThan(ProtocolVersion.MINECRAFT_1_20)) {
-          buf.writeBoolean(true); // Trust edges.
-        }
-        ProtocolUtils.writeBitSet(buf, version, mask); // Skylight mask.
-        ProtocolUtils.writeBitSet(buf, version, mask); // BlockLight mask.
-        ProtocolUtils.writeVarInt(buf, 0); // EmptySkylight mask.
-        ProtocolUtils.writeVarInt(buf, 0); // EmptyBlockLight mask.
-        ProtocolUtils.writeVarInt(buf, chunk.light().length);
-        for (LightSection section : chunk.light()) {
-          ProtocolUtils.writeByteArray(buf, section.getSkyLight().getData());
-        }
-        ProtocolUtils.writeVarInt(buf, chunk.light().length);
-        for (LightSection section : chunk.light()) {
-          ProtocolUtils.writeByteArray(buf, section.getBlockLight().getData());
-        }
+
+      long[] mask = createLightMask();
+      ProtocolUtils.writeBitSet(buf, mask); // Skylight mask.
+      ProtocolUtils.writeBitSet(buf, mask); // BlockLight mask.
+      ProtocolUtils.writeVarInt(buf, 0); // EmptySkylight mask.
+      ProtocolUtils.writeVarInt(buf, 0); // EmptyBlockLight mask.
+      ProtocolUtils.writeVarInt(buf, chunk.light().length);
+      for (LightSection section : chunk.light()) {
+        ProtocolUtils.writeByteArray(buf, section.getSkyLight().getData());
+      }
+      ProtocolUtils.writeVarInt(buf, chunk.light().length);
+      for (LightSection section : chunk.light()) {
+        ProtocolUtils.writeByteArray(buf, section.getBlockLight().getData());
       }
     } finally {
       data.release();
@@ -290,33 +195,22 @@ public class ServerChunkDataPacket implements MinecraftPacket {
         dataLength += networkSection.getDataLength(version);
       }
     }
-    if (version.compareTo(ProtocolVersion.MINECRAFT_1_18) >= 0) {
-      int emptySectionSize = version.noLessThan(ProtocolVersion.MINECRAFT_26_1) ? 8
-          : (version.noLessThan(ProtocolVersion.MINECRAFT_1_21_5) ? 6 : 8);
-      dataLength += (maxSections - nonNullSections) * emptySectionSize;
-    }
+    int emptySectionSize = 8;
+    dataLength += (maxSections - nonNullSections) * emptySectionSize;
 
     ByteBuf data = Unpooled.buffer(dataLength);
     for (int pass = 0; pass < 4; ++pass) {
       for (NetworkSection section : sections) {
         if (section != null) {
           section.writeData(data, pass, version);
-        } else if (pass == 0 && version.noLessThan(ProtocolVersion.MINECRAFT_1_18)) {
+        } else if (pass == 0) {
           data.writeShort(0); // Block count = 0.
-          if (version.noLessThan(ProtocolVersion.MINECRAFT_26_1)) {
-            data.writeShort(0); // Fluid count = 0.
-          }
+          data.writeShort(0); // Fluid count = 0.
           data.writeByte(0); // BlockStorage: 0 bit per entry = Single palette.
           ProtocolUtils.writeVarInt(data, 0); // Only air block in the palette.
-          if (version.lessThan(ProtocolVersion.MINECRAFT_1_21_5)) {
-            ProtocolUtils.writeVarInt(data, 0); // BlockStorage: 0 entries.
-          }
 
           data.writeByte(0); // BiomeStorage: 0 bit per entry = Single palette.
           ProtocolUtils.writeVarInt(data, Biome.PLAINS.getId()); // Only Plain biome in the palette.
-          if (version.lessThan(ProtocolVersion.MINECRAFT_1_21_5)) {
-            ProtocolUtils.writeVarInt(data, 0); // BiomeStorage: 0 entries.
-          }
         }
       }
     }
@@ -348,7 +242,7 @@ public class ServerChunkDataPacket implements MinecraftPacket {
         .build();
   }
 
-  private long[] create117Mask() {
+  private long[] createLightMask() {
     return BitSet.valueOf(new long[] {mask}).toLongArray();
   }
 

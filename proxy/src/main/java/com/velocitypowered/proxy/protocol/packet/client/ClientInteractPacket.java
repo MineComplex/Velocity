@@ -46,28 +46,13 @@ public class ClientInteractPacket implements MinecraftPacket {
 
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion protocolVersion) {
-    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_26_1)) {
-      this.entityId = ProtocolUtils.readVarInt(buf);
-      this.hand = ProtocolUtils.readVarInt(buf);
-      PackedVector target = PackedVector.read(buf);
-      this.targetX = (float) target.x();
-      this.targetY = (float) target.y();
-      this.targetZ = (float) target.z();
-      this.sneaking = buf.readBoolean();
-      return;
-    }
-
-    entityId = ProtocolUtils.readVarInt(buf);
-    type = ProtocolUtils.readVarInt(buf);
-    if (type == 2) {
-      targetX = buf.readFloat();
-      targetY = buf.readFloat();
-      targetZ = buf.readFloat();
-    }
-    if (type == 0 || type == 2) {
-      hand = ProtocolUtils.readVarInt(buf);
-    }
-    sneaking = buf.readBoolean();
+    this.entityId = ProtocolUtils.readVarInt(buf);
+    this.hand = ProtocolUtils.readVarInt(buf);
+    PackedVector target = PackedVector.read(buf);
+    this.targetX = (float) target.x();
+    this.targetY = (float) target.y();
+    this.targetZ = (float) target.z();
+    this.sneaking = buf.readBoolean();
   }
 
   @Override

@@ -92,16 +92,8 @@ public class PluginMessagePacket extends DeferredByteBufHolder implements Minecr
 
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
-    this.channel = ProtocolUtils.readString(buf);
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_13)) {
-      this.channel = transformLegacyToModernChannel(this.channel);
-    }
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_8)) {
-      this.replace(buf.readRetainedSlice(buf.readableBytes()));
-    } else {
-      this.replace(ProtocolUtils.readRetainedByteBufSlice17(buf));
-    }
-
+    this.channel = transformLegacyToModernChannel(ProtocolUtils.readString(buf));
+    this.replace(buf.readRetainedSlice(buf.readableBytes()));
   }
 
   @Override
@@ -115,17 +107,8 @@ public class PluginMessagePacket extends DeferredByteBufHolder implements Minecr
           + " freed too many times.");
     }
 
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_13)) {
-      ProtocolUtils.writeString(buf, transformLegacyToModernChannel(this.channel));
-    } else {
-      ProtocolUtils.writeString(buf, this.channel);
-    }
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_8)) {
-      buf.writeBytes(content());
-    } else {
-      ProtocolUtils.writeByteBuf17(content(), buf, true); // True for Forge support
-    }
-
+    ProtocolUtils.writeString(buf, transformLegacyToModernChannel(this.channel));
+    buf.writeBytes(content());
   }
 
   @Override

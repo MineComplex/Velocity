@@ -17,23 +17,15 @@
 
 package com.velocitypowered.proxy.protocol;
 
-import static com.google.common.collect.Iterables.getLast;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_11;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_12;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_12_1;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_12_2;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_13;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_14;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_14_2;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_15;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_16;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_16_2;
 import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_8;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_26_3;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.protocol.packet.HandshakePacket;
@@ -46,39 +38,42 @@ class PacketRegistryTest {
     StateRegistry.PacketRegistry registry = new StateRegistry.PacketRegistry(
         ProtocolUtils.Direction.CLIENTBOUND, StateRegistry.PLAY);
     registry.register(HandshakePacket.class, HandshakePacket::new,
-        new StateRegistry.PacketMapping(0x01, MINECRAFT_1_8, null, false),
-        new StateRegistry.PacketMapping(0x00, MINECRAFT_1_12, null, false),
-        new StateRegistry.PacketMapping(0x00, MINECRAFT_1_15, MINECRAFT_1_16, false));
+        new StateRegistry.PacketMapping(0x01, MINECRAFT_26_3, null, false));
     return registry;
+  }
+
+  @Test
+  void onlySupportedVersionsAreKnown() {
+    assertEquals(MINECRAFT_26_3, ProtocolVersion.MINIMUM_VERSION);
+    assertTrue(MINECRAFT_26_3.isSupported());
+    assertFalse(MINECRAFT_1_8.isSupported());
+    assertFalse(ProtocolVersion.SUPPORTED_VERSIONS.contains(MINECRAFT_1_8));
+    // Old versions are still recognised so the server list ping can answer them.
+    assertEquals(MINECRAFT_1_8, ProtocolVersion.getProtocolVersion(47));
   }
 
   @Test
   void packetRegistryWorks() {
     StateRegistry.PacketRegistry registry = setupRegistry();
-    MinecraftPacket packet = registry.getProtocolRegistry(MINECRAFT_1_12).createPacket(0);
+    MinecraftPacket packet = registry.getProtocolRegistry(MINECRAFT_26_3).createPacket(0x01);
     assertNotNull(packet, "Packet was not found in registry");
     assertEquals(HandshakePacket.class, packet.getClass(), "Registry returned wrong class");
 
-    assertEquals(0, registry.getProtocolRegistry(MINECRAFT_1_12).getPacketId(packet),
+    assertEquals(0x01, registry.getProtocolRegistry(MINECRAFT_26_3).getPacketId(packet),
         "Registry did not return the correct packet ID");
+    assertNull(registry.getProtocolRegistry(MINECRAFT_26_3).createPacket(0x00),
+        "Registry should return null");
   }
 
   @Test
-  void packetRegistryLinkingWorks() {
+  void unsupportedVersionsUseFallback() {
     StateRegistry.PacketRegistry registry = setupRegistry();
-    MinecraftPacket packet = registry.getProtocolRegistry(MINECRAFT_1_12_1).createPacket(0);
-    assertNotNull(packet, "Packet was not found in registry");
-    assertEquals(HandshakePacket.class, packet.getClass(), "Registry returned wrong class");
-    assertEquals(0, registry.getProtocolRegistry(MINECRAFT_1_12_1).getPacketId(packet),
-        "Registry did not return the correct packet ID");
-    assertEquals(0, registry.getProtocolRegistry(MINECRAFT_1_14_2).getPacketId(packet),
-        "Registry did not return the correct packet ID");
-    assertEquals(1, registry.getProtocolRegistry(MINECRAFT_1_11).getPacketId(packet),
-        "Registry did not return the correct packet ID");
-    assertNull(registry.getProtocolRegistry(MINECRAFT_1_14_2).createPacket(0x01),
-        "Registry should return a null");
-    assertNull(registry.getProtocolRegistry(MINECRAFT_1_16_2).createPacket(0),
-        "Registry should return null");
+    assertSame(registry.getProtocolRegistry(MINECRAFT_26_3),
+        registry.getProtocolRegistry(MINECRAFT_1_8));
+
+    registry.fallback = false;
+    assertThrows(IllegalArgumentException.class,
+        () -> registry.getProtocolRegistry(MINECRAFT_1_8));
   }
 
   @Test
@@ -93,24 +88,15 @@ class PacketRegistryTest {
   }
 
   @Test
-  void failOnWrongOrder() {
+  void failOnUnsupportedVersionMapping() {
     StateRegistry.PacketRegistry registry = new StateRegistry.PacketRegistry(
         ProtocolUtils.Direction.CLIENTBOUND, StateRegistry.PLAY);
     assertThrows(IllegalArgumentException.class,
         () -> registry.register(HandshakePacket.class, HandshakePacket::new,
-            new StateRegistry.PacketMapping(0x01, MINECRAFT_1_13, null, false),
             new StateRegistry.PacketMapping(0x00, MINECRAFT_1_8, null, false)));
     assertThrows(IllegalArgumentException.class,
         () -> registry.register(HandshakePacket.class, HandshakePacket::new,
-            new StateRegistry.PacketMapping(0x01, MINECRAFT_1_13, null, false),
-            new StateRegistry.PacketMapping(0x01, MINECRAFT_1_13, null, false)));
-    assertThrows(IllegalArgumentException.class,
-        () -> registry.register(HandshakePacket.class, HandshakePacket::new,
-            new StateRegistry.PacketMapping(0x01, MINECRAFT_1_13, MINECRAFT_1_8, false)));
-    assertThrows(IllegalArgumentException.class,
-        () -> registry.register(HandshakePacket.class, HandshakePacket::new,
-            new StateRegistry.PacketMapping(0x01, MINECRAFT_1_8, MINECRAFT_1_14, false),
-            new StateRegistry.PacketMapping(0x00, MINECRAFT_1_16, null, false)));
+            new StateRegistry.PacketMapping(0x00, MINECRAFT_26_3, MINECRAFT_1_8, false)));
   }
 
   @Test
@@ -118,42 +104,12 @@ class PacketRegistryTest {
     StateRegistry.PacketRegistry registry = new StateRegistry.PacketRegistry(
         ProtocolUtils.Direction.CLIENTBOUND, StateRegistry.PLAY);
     registry.register(HandshakePacket.class, HandshakePacket::new,
-        new StateRegistry.PacketMapping(0x00, MINECRAFT_1_8, null, false));
+        new StateRegistry.PacketMapping(0x00, MINECRAFT_26_3, null, false));
     assertThrows(IllegalArgumentException.class,
         () -> registry.register(HandshakePacket.class, HandshakePacket::new,
-            new StateRegistry.PacketMapping(0x01, MINECRAFT_1_12, null, false)));
+            new StateRegistry.PacketMapping(0x01, MINECRAFT_26_3, null, false)));
     assertThrows(IllegalArgumentException.class,
         () -> registry.register(StatusPingPacket.class, StatusPingPacket::new,
-            new StateRegistry.PacketMapping(0x00, MINECRAFT_1_13, null, false)));
-  }
-
-  @Test
-  void shouldNotFailWhenRegisterLatestProtocolVersion() {
-    StateRegistry.PacketRegistry registry = new StateRegistry.PacketRegistry(
-        ProtocolUtils.Direction.CLIENTBOUND, StateRegistry.PLAY);
-    assertDoesNotThrow(() -> registry.register(HandshakePacket.class, HandshakePacket::new,
-        new StateRegistry.PacketMapping(0x00, MINECRAFT_1_8, null, false),
-        new StateRegistry.PacketMapping(0x01, getLast(ProtocolVersion.SUPPORTED_VERSIONS),
-            null, false)));
-  }
-
-  @Test
-  void registrySuppliesCorrectPacketsByProtocol() {
-    StateRegistry.PacketRegistry registry = new StateRegistry.PacketRegistry(
-        ProtocolUtils.Direction.CLIENTBOUND, StateRegistry.PLAY);
-    registry.register(HandshakePacket.class, HandshakePacket::new,
-        new StateRegistry.PacketMapping(0x00, MINECRAFT_1_12, null, false),
-        new StateRegistry.PacketMapping(0x01, MINECRAFT_1_12_1, null, false),
-        new StateRegistry.PacketMapping(0x02, MINECRAFT_1_13, null, false));
-    assertEquals(HandshakePacket.class,
-        registry.getProtocolRegistry(MINECRAFT_1_12).createPacket(0x00).getClass());
-    assertEquals(HandshakePacket.class,
-        registry.getProtocolRegistry(MINECRAFT_1_12_1).createPacket(0x01).getClass());
-    assertEquals(HandshakePacket.class,
-        registry.getProtocolRegistry(MINECRAFT_1_12_2).createPacket(0x01).getClass());
-    assertEquals(HandshakePacket.class,
-        registry.getProtocolRegistry(MINECRAFT_1_13).createPacket(0x02).getClass());
-    assertEquals(HandshakePacket.class,
-        registry.getProtocolRegistry(MINECRAFT_1_14_2).createPacket(0x02).getClass());
+            new StateRegistry.PacketMapping(0x00, MINECRAFT_26_3, null, false)));
   }
 }

@@ -106,9 +106,7 @@ public class ClientConfigSessionHandler implements MinecraftSessionHandler {
   @Override
   public boolean handle(ResourcePackResponsePacket packet) {
     return player.resourcePackHandler().onResourcePackResponse(
-        new ResourcePackResponseBundle(packet.getId(),
-            packet.getHash(),
-            packet.getStatus())
+        new ResourcePackResponseBundle(packet.getId(), packet.getStatus())
     );
   }
 

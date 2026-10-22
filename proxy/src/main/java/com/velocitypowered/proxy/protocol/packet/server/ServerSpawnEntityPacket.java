@@ -55,23 +55,11 @@ public class ServerSpawnEntityPacket implements MinecraftPacket {
     byteBuf.writeDouble(y);
     byteBuf.writeDouble(z);
 
-    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_21_9)) {
-      PackedVector.write(byteBuf, velocityX, velocityY, velocityZ);
-    }
+    PackedVector.write(byteBuf, velocityX, velocityY, velocityZ);
     byteBuf.writeByte((int) (pitch * (256.0F / 360.0F)));
     byteBuf.writeByte((int) (yaw * (256.0F / 360.0F)));
-    if (protocolVersion.greaterThan(ProtocolVersion.MINECRAFT_1_18_2)) {
-      byteBuf.writeByte((int) (headYaw * (256.0F / 360.0F)));
-      ProtocolUtils.writeVarInt(byteBuf, data);
-    } else {
-      byteBuf.writeInt(data);
-    }
-
-    if (protocolVersion.lessThan(ProtocolVersion.MINECRAFT_1_21_9)) {
-      byteBuf.writeShort((int) (velocityX * 8000.0F));
-      byteBuf.writeShort((int) (velocityY * 8000.0F));
-      byteBuf.writeShort((int) (velocityZ * 8000.0F));
-    }
+    byteBuf.writeByte((int) (headYaw * (256.0F / 360.0F)));
+    ProtocolUtils.writeVarInt(byteBuf, data);
   }
 
   @Override

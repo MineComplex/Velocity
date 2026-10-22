@@ -126,11 +126,7 @@ public enum Biome {
           .putString("category", category)
           .put("effects", effects.encode());
 
-      if (version.lessThan(ProtocolVersion.MINECRAFT_1_19_4)) {
-        tagBuilder.putString("precipitation", hasPrecipitation ? "rain" : "none");
-      } else {
-        tagBuilder.putBoolean("has_precipitation", hasPrecipitation);
-      }
+      tagBuilder.putBoolean("has_precipitation", hasPrecipitation);
 
       return tagBuilder.build();
     }

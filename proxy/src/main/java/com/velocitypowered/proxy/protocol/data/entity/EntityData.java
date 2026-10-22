@@ -26,55 +26,22 @@ import net.kyori.adventure.nbt.IntBinaryTag;
 
 import java.util.Map;
 
-import static com.velocitypowered.api.network.ProtocolVersion.*;
-
 @UtilityClass
 public class EntityData {
 
   public int getFrameId(ProtocolVersion version) {
-    if (version.noGreaterThan(MINECRAFT_1_21_5)) {
-      return 70;
-    } else if (version.noGreaterThan(MINECRAFT_1_21_7)) {
-      return 71;
-    } else if (version.noGreaterThan(MINECRAFT_1_21_9)) {
-      return 72;
-    } else if (version.noGreaterThan(ProtocolVersion.MINECRAFT_26_2)) {
-      return 73;
-    } else {
-      return 74;
-    }
+    return 74;
   }
 
   public int getBoatId(ProtocolVersion version) {
-    if (version.noGreaterThan(MINECRAFT_1_21_5)) {
-      return 84;
-    } else if (version.noGreaterThan(MINECRAFT_1_21_7)) {
-      return 85;
-    } else if (version.noGreaterThan(MINECRAFT_1_21_9)) {
-      return 87;
-    } else if (version.noGreaterThan(MINECRAFT_26_2)) {
-      return 89;
-    }
     return 90;
   }
 
   public int getMinecartId(ProtocolVersion version) {
-    if (version.noGreaterThan(MINECRAFT_1_21_5)) {
-      return 81;
-    } else if (version.noGreaterThan(MINECRAFT_1_21_7)) {
-      return 82;
-    } else if (version.noGreaterThan(MINECRAFT_1_21_9)) {
-      return 84;
-    } else if (version.noGreaterThan(MINECRAFT_26_2)) {
-      return 85;
-    }
     return 86;
   }
 
   public byte getMetadataIndex(ProtocolVersion version) {
-    if (version.noGreaterThan(MINECRAFT_1_21_5)) {
-      return 8;
-    }
     return 9;
   }
 
@@ -82,7 +49,7 @@ public class EntityData {
     return new EntityMetadata(Map.of(
         getMetadataIndex(version), new EntityMetadata.SlotEntry(Item.fromModernId("minecraft:filled_map"), 1,
             CompoundBinaryTag.builder().put("map", IntBinaryTag.intBinaryTag(mapId)).build(),
-            new ItemComponentMap().add(MINECRAFT_1_20_5, "minecraft:map_id", mapId))
+            new ItemComponentMap().add(version, "minecraft:map_id", mapId))
     ));
   }
 

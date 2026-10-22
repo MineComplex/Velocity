@@ -20,7 +20,6 @@ package com.velocitypowered.proxy.connection.backend;
 import com.velocitypowered.api.event.player.CookieRequestEvent;
 import com.velocitypowered.api.event.player.ServerLoginPluginMessageEvent;
 import com.velocitypowered.api.event.player.configuration.PlayerEnteredConfigurationEvent;
-import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.config.PlayerInfoForwarding;
@@ -92,9 +91,7 @@ public class LoginSessionHandler implements MinecraftSessionHandler {
           PlayerDataForwarding.createForwardingData(
               configuration.getForwardingSecret(),
               serverConn.getPlayerRemoteAddressAsString(),
-              player.getProtocolVersion(),
               player.getGameProfile(),
-              player.getIdentifiedKey(),
               requestedForwardingVersion);
 
       LoginPluginResponsePacket response =
@@ -159,31 +156,26 @@ public class LoginSessionHandler implements MinecraftSessionHandler {
     // The player has been logged on to the backend server, but we're not done yet. There could be
     // other problems that could arise before we get a JoinGame packet from the server.
 
-    // Move into the PLAY phase.
+    // Move into the CONFIG phase.
     MinecraftConnection smc = serverConn.ensureConnected();
-    if (smc.getProtocolVersion().lessThan(ProtocolVersion.MINECRAFT_1_20_2)) {
-      smc.setActiveSessionHandler(
-          StateRegistry.PLAY, new TransitionSessionHandler(server, serverConn, resultFuture));
+    smc.write(new LoginAcknowledgedPacket());
+    smc.setActiveSessionHandler(
+        StateRegistry.CONFIG, new ConfigSessionHandler(server, serverConn, resultFuture));
+    ConnectedPlayer player = serverConn.getPlayer();
+    if (player.getClientSettingsPacket() != null) {
+      smc.write(player.getClientSettingsPacket());
+    }
+    if (player.getConnection().getActiveSessionHandler()
+        instanceof ClientPlaySessionHandler clientPlaySessionHandler) {
+      smc.setAutoReading(false);
+      clientPlaySessionHandler
+          .doSwitch()
+          .thenRunAsync(() -> smc.setAutoReading(true), smc.eventLoop());
     } else {
-      smc.write(new LoginAcknowledgedPacket());
-      smc.setActiveSessionHandler(
-          StateRegistry.CONFIG, new ConfigSessionHandler(server, serverConn, resultFuture));
-      ConnectedPlayer player = serverConn.getPlayer();
-      if (player.getClientSettingsPacket() != null) {
-        smc.write(player.getClientSettingsPacket());
-      }
-      if (player.getConnection().getActiveSessionHandler()
-          instanceof ClientPlaySessionHandler clientPlaySessionHandler) {
-        smc.setAutoReading(false);
-        clientPlaySessionHandler
-            .doSwitch()
-            .thenRunAsync(() -> smc.setAutoReading(true), smc.eventLoop());
-      } else {
-        // Initial login - the player is already in configuration state.
-        server
-            .getEventManager()
-            .fireAndForget(new PlayerEnteredConfigurationEvent(player, serverConn));
-      }
+      // Initial login - the player is already in configuration state.
+      server
+          .getEventManager()
+          .fireAndForget(new PlayerEnteredConfigurationEvent(player, serverConn));
     }
 
     return true;

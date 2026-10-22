@@ -216,7 +216,7 @@ public class MapPalette {
   @Getter
   @AllArgsConstructor
   public enum MapVersion {
-    MINECRAFT_1_17(EnumSet.range(ProtocolVersion.MINECRAFT_1_21_4, ProtocolVersion.MAXIMUM_VERSION));
+    MINECRAFT_1_17(EnumSet.range(ProtocolVersion.MINIMUM_VERSION, ProtocolVersion.MAXIMUM_VERSION));
 
     public static final MapVersion MAXIMUM_VERSION = MINECRAFT_1_17;
     private static final EnumMap<ProtocolVersion, MapVersion> VERSIONS_MAP = new EnumMap<>(ProtocolVersion.class);

@@ -176,7 +176,7 @@ public class UpsertPlayerInfoPacket implements MinecraftPacket {
     }),
     UPDATE_DISPLAY_NAME((version, buf, info) -> { // read
       if (buf.readBoolean()) {
-        info.displayName = ComponentHolder.read(buf, version);
+        info.displayName = ComponentHolder.read(buf);
       } else {
         info.displayName = null;
       }

@@ -48,18 +48,13 @@ public class LastSeenMessages {
     byte[] bytes = new byte[DIV_FLOOR];
     buf.readBytes(bytes);
     this.acknowledged = BitSet.valueOf(bytes);
-
-    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_21_5)) {
-      this.checksum = buf.readByte();
-    }
+    this.checksum = buf.readByte();
   }
 
   public void encode(ByteBuf buf, ProtocolVersion protocolVersion) {
     ProtocolUtils.writeVarInt(buf, offset);
     buf.writeBytes(Arrays.copyOf(acknowledged.toByteArray(), DIV_FLOOR));
-    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_21_5)) {
-      buf.writeByte(this.checksum);
-    }
+    buf.writeByte(this.checksum);
   }
 
   public int getOffset() {

@@ -204,7 +204,7 @@ public class BossBarPacket implements MinecraftPacket {
     this.action = ProtocolUtils.readVarInt(buf);
     switch (action) {
       case ADD -> {
-        this.name = ComponentHolder.read(buf, version);
+        this.name = ComponentHolder.read(buf);
         this.percent = buf.readFloat();
         this.color = ProtocolUtils.readVarInt(buf);
         this.overlay = ProtocolUtils.readVarInt(buf);
@@ -213,7 +213,7 @@ public class BossBarPacket implements MinecraftPacket {
       case REMOVE -> {
       }
       case UPDATE_PERCENT -> this.percent = buf.readFloat();
-      case UPDATE_NAME -> this.name = ComponentHolder.read(buf, version);
+      case UPDATE_NAME -> this.name = ComponentHolder.read(buf);
       case UPDATE_STYLE -> {
         this.color = ProtocolUtils.readVarInt(buf);
         this.overlay = ProtocolUtils.readVarInt(buf);

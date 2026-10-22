@@ -27,10 +27,6 @@ import lombok.Setter;
 import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_13;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_8;
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_9;
-
 /**
  * Represents a packet sent by the client when a tab-completion request is initiated.
  */
@@ -41,9 +37,6 @@ public class TabCompleteRequestPacket implements MinecraftPacket {
 
   private @Nullable String command;
   private int transactionId;
-  private boolean assumeCommand;
-  private boolean hasPosition;
-  private long position;
 
   /**
    * Gets the command string to be completed.
@@ -60,23 +53,8 @@ public class TabCompleteRequestPacket implements MinecraftPacket {
 
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
-    if (version.noLessThan(MINECRAFT_1_13)) {
-      this.transactionId = ProtocolUtils.readVarInt(buf);
-
-      // 1.13 only supports a max length of 256: https://bugs.mojang.com/browse/MC/issues/MC-132663
-      this.command = ProtocolUtils.readString(buf, version.equals(MINECRAFT_1_13) ? 256 : 32500);
-    } else {
-      this.command = ProtocolUtils.readString(buf, 32767);
-      if (version.noLessThan(MINECRAFT_1_9)) {
-        this.assumeCommand = buf.readBoolean();
-      }
-      if (version.noLessThan(MINECRAFT_1_8)) {
-        this.hasPosition = buf.readBoolean();
-        if (hasPosition) {
-          this.position = buf.readLong();
-        }
-      }
-    }
+    this.transactionId = ProtocolUtils.readVarInt(buf);
+    this.command = ProtocolUtils.readString(buf, 32500);
   }
 
   @Override
@@ -84,22 +62,8 @@ public class TabCompleteRequestPacket implements MinecraftPacket {
     if (command == null) {
       throw new IllegalStateException("Command is not specified");
     }
-
-    if (version.noLessThan(MINECRAFT_1_13)) {
-      ProtocolUtils.writeVarInt(buf, transactionId);
-      ProtocolUtils.writeString(buf, command);
-    } else {
-      ProtocolUtils.writeString(buf, command);
-      if (version.noLessThan(MINECRAFT_1_9)) {
-        buf.writeBoolean(assumeCommand);
-      }
-      if (version.noLessThan(MINECRAFT_1_8)) {
-        buf.writeBoolean(hasPosition);
-        if (hasPosition) {
-          buf.writeLong(position);
-        }
-      }
-    }
+    ProtocolUtils.writeVarInt(buf, transactionId);
+    ProtocolUtils.writeString(buf, command);
   }
 
   @Override

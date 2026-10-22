@@ -37,10 +37,7 @@ public class ServerRemoveEntitiesPacket implements MinecraftPacket {
 
   @Override
   public void encode(ByteBuf byteBuf, ProtocolUtils.Direction direction, ProtocolVersion protocolVersion) {
-    // No idea why Mojang decided that this is a good idea, but whatever
-    if (!protocolVersion.equals(ProtocolVersion.MINECRAFT_1_17)) {
-      ProtocolUtils.writeVarInt(byteBuf, 1); // size
-    }
+    ProtocolUtils.writeVarInt(byteBuf, 1); // size
 
     ProtocolUtils.writeVarInt(byteBuf, entityId);
   }

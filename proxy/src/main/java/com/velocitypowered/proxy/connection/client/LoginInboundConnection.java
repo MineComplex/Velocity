@@ -31,7 +31,6 @@ import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.kyori.adventure.text.Component;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import space.vectrix.flare.fastutil.Int2ObjectSyncMap;
 
 import java.net.InetSocketAddress;
@@ -40,6 +39,7 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Handles the actual login stage of a player logging in.
@@ -55,7 +55,6 @@ public class LoginInboundConnection implements LoginPhaseConnection, KeyIdentifi
   private final Queue<LoginPluginMessagePacket> loginMessagesToSend;
   private volatile Runnable onAllMessagesHandled;
   private volatile boolean loginEventFired;
-  private @MonotonicNonNull IdentifiedKey playerKey;
 
   LoginInboundConnection(
       InitialInboundConnection delegate) {
@@ -101,11 +100,6 @@ public class LoginInboundConnection implements LoginPhaseConnection, KeyIdentifi
     if (consumer == null) {
       throw new NullPointerException("consumer");
     }
-    if (delegate.getProtocolVersion().lessThan(ProtocolVersion.MINECRAFT_1_13)) {
-      throw new IllegalStateException("Login plugin messages can only be sent to clients running "
-          + "Minecraft 1.13 and above");
-    }
-
     final int id = SEQUENCE_UPDATER.incrementAndGet(this);
     this.outstandingResponses.put(id, consumer);
 
@@ -167,13 +161,10 @@ public class LoginInboundConnection implements LoginPhaseConnection, KeyIdentifi
     return delegate.getConnection();
   }
 
-  public void setPlayerKey(IdentifiedKey playerKey) {
-    this.playerKey = playerKey;
-  }
-
   @Override
-  public IdentifiedKey getIdentifiedKey() {
-    return playerKey;
+  public @Nullable IdentifiedKey getIdentifiedKey() {
+    // Supported clients no longer send a signing key during login.
+    return null;
   }
 
   @Override

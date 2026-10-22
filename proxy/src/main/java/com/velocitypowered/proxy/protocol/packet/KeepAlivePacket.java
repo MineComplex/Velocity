@@ -44,46 +44,22 @@ public class KeepAlivePacket implements MinecraftPacket {
 
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_12_2)) {
-      randomId = buf.readLong();
-    } else if (version.noLessThan(ProtocolVersion.MINECRAFT_1_8)) {
-      randomId = ProtocolUtils.readVarInt(buf);
-    } else {
-      randomId = buf.readInt();
-    }
+    randomId = buf.readLong();
   }
 
   @Override
   public void encode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_12_2)) {
-      buf.writeLong(randomId);
-    } else if (version.noLessThan(ProtocolVersion.MINECRAFT_1_8)) {
-      ProtocolUtils.writeVarInt(buf, (int) randomId);
-    } else {
-      buf.writeInt((int) randomId);
-    }
+    buf.writeLong(randomId);
   }
 
   @Override
   public int decodeExpectedMaxLength(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_12_2)) {
-      return Long.BYTES;
-    } else if (version.noLessThan(ProtocolVersion.MINECRAFT_1_8)) {
-      return 5;
-    } else {
-      return Integer.BYTES;
-    }
+    return Long.BYTES;
   }
 
   @Override
   public int decodeExpectedMinLength(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_12_2)) {
-      return Long.BYTES;
-    } else if (version.noLessThan(ProtocolVersion.MINECRAFT_1_8)) {
-      return 1;
-    } else {
-      return Integer.BYTES;
-    }
+    return Long.BYTES;
   }
 
   @Override

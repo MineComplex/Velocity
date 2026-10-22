@@ -38,7 +38,6 @@ import com.velocitypowered.proxy.protocol.packet.JoinGamePacket;
 import com.velocitypowered.proxy.protocol.packet.KeepAlivePacket;
 import com.velocitypowered.proxy.protocol.packet.LegacyHandshakePacket;
 import com.velocitypowered.proxy.protocol.packet.LegacyPingPacket;
-import com.velocitypowered.proxy.protocol.packet.LegacyPlayerListItemPacket;
 import com.velocitypowered.proxy.protocol.packet.LoginAcknowledgedPacket;
 import com.velocitypowered.proxy.protocol.packet.LoginPluginMessagePacket;
 import com.velocitypowered.proxy.protocol.packet.LoginPluginResponsePacket;
@@ -66,9 +65,6 @@ import com.velocitypowered.proxy.protocol.packet.UpsertPlayerInfoPacket;
 import com.velocitypowered.proxy.protocol.packet.chat.ChatAcknowledgementPacket;
 import com.velocitypowered.proxy.protocol.packet.chat.PlayerChatCompletionPacket;
 import com.velocitypowered.proxy.protocol.packet.chat.SystemChatPacket;
-import com.velocitypowered.proxy.protocol.packet.chat.keyed.KeyedPlayerChatPacket;
-import com.velocitypowered.proxy.protocol.packet.chat.keyed.KeyedPlayerCommandPacket;
-import com.velocitypowered.proxy.protocol.packet.chat.legacy.LegacyChatPacket;
 import com.velocitypowered.proxy.protocol.packet.chat.session.SessionPlayerChatPacket;
 import com.velocitypowered.proxy.protocol.packet.chat.session.SessionPlayerCommandPacket;
 import com.velocitypowered.proxy.protocol.packet.config.ActiveFeaturesPacket;
@@ -81,7 +77,6 @@ import com.velocitypowered.proxy.protocol.packet.config.KnownPacksPacket;
 import com.velocitypowered.proxy.protocol.packet.config.RegistrySyncPacket;
 import com.velocitypowered.proxy.protocol.packet.config.StartUpdatePacket;
 import com.velocitypowered.proxy.protocol.packet.config.TagsUpdatePacket;
-import com.velocitypowered.proxy.protocol.packet.title.LegacyTitlePacket;
 import com.velocitypowered.proxy.protocol.packet.title.TitleActionbarPacket;
 import com.velocitypowered.proxy.protocol.packet.title.TitleClearPacket;
 import com.velocitypowered.proxy.protocol.packet.title.TitleSubtitlePacket;
@@ -139,10 +134,6 @@ public interface MinecraftSessionHandler {
   }
 
   default boolean handle(BossBarPacket packet) {
-    return false;
-  }
-
-  default boolean handle(LegacyChatPacket packet) {
     return false;
   }
 
@@ -238,10 +229,6 @@ public interface MinecraftSessionHandler {
     return false;
   }
 
-  default boolean handle(LegacyTitlePacket packet) {
-    return false;
-  }
-
   default boolean handle(TitleTextPacket packet) {
     return false;
   }
@@ -262,10 +249,6 @@ public interface MinecraftSessionHandler {
     return false;
   }
 
-  default boolean handle(LegacyPlayerListItemPacket packet) {
-    return false;
-  }
-
   default boolean handle(ResourcePackRequestPacket packet) {
     return false;
   }
@@ -278,19 +261,11 @@ public interface MinecraftSessionHandler {
     return false;
   }
 
-  default boolean handle(KeyedPlayerChatPacket packet) {
-    return false;
-  }
-
   default boolean handle(SessionPlayerChatPacket packet) {
     return false;
   }
 
   default boolean handle(SystemChatPacket packet) {
-    return false;
-  }
-
-  default boolean handle(KeyedPlayerCommandPacket packet) {
     return false;
   }
 

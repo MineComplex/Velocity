@@ -46,18 +46,11 @@ import java.util.Objects;
 @UtilityClass
 public class ItemComponentManager {
 
-  private final Map<ProtocolVersion, Object2IntMap<String>> id = new HashMap<>();
+  // Ids in data_component_types.json are already the ids of the supported version.
+  private final Object2IntMap<String> id = new Object2IntOpenHashMap<>();
   private final Map<String, Function<ProtocolVersion, ItemComponent<?>>> factory = new HashMap<>();
 
   static {
-    LinkedTreeMap<String, LinkedTreeMap<String, String>> mapping = VelocityServer.GENERAL_GSON.fromJson(
-        new InputStreamReader(
-            Objects.requireNonNull(ItemComponentManager.class.getClassLoader().getResourceAsStream("mapping/data_component_types_mapping.json")),
-            StandardCharsets.UTF_8
-        ),
-        LinkedTreeMap.class
-    );
-
     LinkedTreeMap<String, String> components = VelocityServer.GENERAL_GSON.fromJson(
         new InputStreamReader(
             Objects.requireNonNull(ItemComponentManager.class.getClassLoader().getResourceAsStream("mapping/data_component_types.json")),
@@ -66,20 +59,7 @@ public class ItemComponentManager {
         LinkedTreeMap.class
     );
 
-    Map<String, ProtocolVersion> cache = new HashMap<>();
-    for (ProtocolVersion version : ProtocolVersion.values()) {
-      if (version.lessThan(ProtocolVersion.MINECRAFT_1_20_5)) {
-        continue;
-      }
-
-      cache.put(version.name().substring("MINECRAFT_".length()).replace('_', '.'), version);
-    }
-
-    components.forEach((name, id) -> {
-      mapping.get(id).forEach((version, protocolId) -> {
-        ItemComponentManager.id.computeIfAbsent(cache.get(version), key -> new Object2IntOpenHashMap<>()).put(name, Integer.parseInt(protocolId));
-      });
-    });
+    components.forEach((name, protocolId) -> ItemComponentManager.id.put(name, Integer.parseInt(protocolId)));
 
     // TODO: implement missing components:
     //  trim, intangible_projectile, food, suspicious_stew_effects, lock, tool,
@@ -142,15 +122,14 @@ public class ItemComponentManager {
   }
 
   public int getId(String name, ProtocolVersion version) {
-    Object2IntMap<String> ids = id.get(version);
-    if (ids == null) {
+    if (!version.isSupported()) {
       throw new IllegalArgumentException("unsupported version: " + version);
     }
 
-    if (!ids.containsKey(name)) {
+    if (!id.containsKey(name)) {
       throw new IllegalStateException("component not found: " + name);
     }
 
-    return ids.getInt(name);
+    return id.getInt(name);
   }
 }

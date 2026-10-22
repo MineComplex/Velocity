@@ -107,12 +107,8 @@ public class TagManager {
         }
         case "minecraft:banner_pattern":
         case "minecraft:damage_type": {
-          if (version.getMinSupportedVersion().noLessThan(ProtocolVersion.MINECRAFT_26_1)) {
-            defaultTagList.forEach((tagName, itemList) -> tagList.put(tagName, List.of()));
-            break;
-          } else {
-            return;
-          }
+          defaultTagList.forEach((tagName, itemList) -> tagList.put(tagName, List.of()));
+          break;
         }
         default: {
           defaultTagList.forEach((tagName, entryList) -> {

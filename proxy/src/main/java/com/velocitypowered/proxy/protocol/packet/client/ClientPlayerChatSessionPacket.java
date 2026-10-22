@@ -45,7 +45,7 @@ public class ClientPlayerChatSessionPacket implements MinecraftPacket {
   @Override
   public void decode(ByteBuf byteBuf, ProtocolUtils.Direction direction, ProtocolVersion protocolVersion) {
     holderId = ProtocolUtils.readUuid(byteBuf);
-    playerKey = ProtocolUtils.readPlayerKey(protocolVersion, byteBuf);
+    playerKey = ProtocolUtils.readPlayerKey(byteBuf);
   }
 
   @Override

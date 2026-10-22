@@ -58,7 +58,7 @@ public class ClientboundSoundEntityPacket implements MinecraftPacket {
     if (fixedRange != null)
       buf.writeFloat(fixedRange);
 
-    ProtocolUtils.writeSoundSource(buf, protocolVersion, sound.source());
+    ProtocolUtils.writeSoundSource(buf, sound.source());
 
     ProtocolUtils.writeVarInt(buf, emitterEntityId);
 

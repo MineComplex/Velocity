@@ -42,7 +42,7 @@ public class ArgumentIdentifier {
       VersionSet current = Preconditions.checkNotNull(versions[i]);
 
       Preconditions.checkArgument(
-          current.getVersion().noLessThan(ProtocolVersion.MINECRAFT_1_19),
+          current.getVersion().noLessThan(ProtocolVersion.MINIMUM_VERSION),
           "Version too old for ID index");
       Preconditions.checkArgument(previous == null || previous.greaterThan(current.getVersion()),
           "Invalid protocol version order");

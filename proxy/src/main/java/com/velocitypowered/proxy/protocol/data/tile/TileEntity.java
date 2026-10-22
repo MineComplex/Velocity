@@ -53,7 +53,12 @@ public class TileEntity {
 
     blockEntitiesMapping.forEach((modernId, protocols) -> {
       TileEntity TileEntity = new TileEntity(modernId);
-      protocols.forEach((key, value) -> TileEntity.versionIds.put(TileEntityVersion.parse(key), Short.parseShort(value)));
+      protocols.forEach((key, value) -> {
+        TileEntityVersion version = TileEntityVersion.parse(key);
+        if (version != null) {
+          TileEntity.versionIds.put(version, Short.parseShort(value));
+        }
+      });
       MODERN_ID_MAP.put(modernId, TileEntity);
     });
   }

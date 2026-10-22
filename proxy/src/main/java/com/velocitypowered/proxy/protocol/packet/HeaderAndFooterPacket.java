@@ -64,12 +64,12 @@ public class HeaderAndFooterPacket implements MinecraftPacket {
     return handler.handle(this);
   }
 
-  public static HeaderAndFooterPacket create(Component header, Component footer, ProtocolVersion protocolVersion) {
-    return new HeaderAndFooterPacket(new ComponentHolder(protocolVersion, header), new ComponentHolder(protocolVersion, footer));
+  public static HeaderAndFooterPacket create(Component header, Component footer) {
+    return new HeaderAndFooterPacket(new ComponentHolder(header), new ComponentHolder(footer));
   }
 
-  public static HeaderAndFooterPacket reset(ProtocolVersion version) {
-    ComponentHolder empty = new ComponentHolder(version, Component.empty());
+  public static HeaderAndFooterPacket reset() {
+    ComponentHolder empty = new ComponentHolder(Component.empty());
     return new HeaderAndFooterPacket(empty, empty);
   }
 }

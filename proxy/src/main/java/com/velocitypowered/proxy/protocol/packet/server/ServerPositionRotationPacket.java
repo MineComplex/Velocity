@@ -41,58 +41,29 @@ public class ServerPositionRotationPacket implements MinecraftPacket {
 
   @Override
   public void encode(ByteBuf bytebuf, ProtocolUtils.Direction direction, ProtocolVersion version) {
-    boolean v1_21_2 = version.noLessThan(ProtocolVersion.MINECRAFT_1_21_2);
-    if (v1_21_2) {
-      ProtocolUtils.writeVarInt(bytebuf, teleportId);
-    }
+    ProtocolUtils.writeVarInt(bytebuf, teleportId);
     bytebuf.writeDouble(x);
-    // Account for the minimum Y bounding box issue on 1.7.2-1.7.10
-    bytebuf.writeDouble(version.noLessThan(ProtocolVersion.MINECRAFT_1_8) ? y : y + 1.62f);
+    bytebuf.writeDouble(y);
     bytebuf.writeDouble(z);
-    if (v1_21_2) {
-      // Delta movement?
-      bytebuf.writeDouble(0);
-      bytebuf.writeDouble(0);
-      bytebuf.writeDouble(0);
-      bytebuf.writeFloat(yaw);
-      bytebuf.writeFloat(pitch);
-      bytebuf.writeInt(relativeMask);
-    } else {
-      bytebuf.writeFloat(yaw);
-      bytebuf.writeFloat(pitch);
-      bytebuf.writeByte(relativeMask);
-    }
-
-    if (version.greaterThan(ProtocolVersion.MINECRAFT_1_8)) {
-      if (!v1_21_2) {
-        ProtocolUtils.writeVarInt(bytebuf, teleportId);
-      }
-
-      if (version.noLessThan(ProtocolVersion.MINECRAFT_1_17)
-          && version.noGreaterThan(ProtocolVersion.MINECRAFT_1_19_3)) {
-        bytebuf.writeBoolean(dismountVehicle);
-      }
-    }
+    // Delta movement
+    bytebuf.writeDouble(0);
+    bytebuf.writeDouble(0);
+    bytebuf.writeDouble(0);
+    bytebuf.writeFloat(yaw);
+    bytebuf.writeFloat(pitch);
+    bytebuf.writeInt(relativeMask);
   }
 
   @Override
   public void decode(ByteBuf bytebuf, ProtocolUtils.Direction direction, ProtocolVersion version) {
     x = bytebuf.readDouble();
     y = bytebuf.readDouble();
-    if (version.lessThan(ProtocolVersion.MINECRAFT_1_8)) {
-      // 1.7.2-1.7.10 send the minimum bounding box Y coordinate
-      bytebuf.readDouble();
-    }
     z = bytebuf.readDouble();
     yaw = bytebuf.readFloat();
     pitch = bytebuf.readFloat();
-    if (version.greaterThan(ProtocolVersion.MINECRAFT_1_21_2)) {
-      short flag = bytebuf.readUnsignedByte();
-      onGround = (flag & 1) != 0;
-      horizontalCollision = (flag & 2) != 0;
-    } else {
-      onGround = bytebuf.readBoolean();
-    }
+    short flag = bytebuf.readUnsignedByte();
+    onGround = (flag & 1) != 0;
+    horizontalCollision = (flag & 2) != 0;
   }
 
   @Override
@@ -102,7 +73,7 @@ public class ServerPositionRotationPacket implements MinecraftPacket {
 
   @Override
   public int decodeExpectedMaxLength(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
-    return version.lessThan(ProtocolVersion.MINECRAFT_1_8) ? 41 : 33;
+    return 33;
   }
 
   @Override

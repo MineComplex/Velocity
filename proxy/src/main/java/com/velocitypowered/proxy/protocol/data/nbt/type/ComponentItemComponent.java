@@ -31,6 +31,6 @@ public class ComponentItemComponent extends ItemComponent<Component> {
 
   @Override
   public void write(ProtocolVersion version, ByteBuf buffer) {
-    new ComponentHolder(version, getValue()).write(buffer);
+    new ComponentHolder(getValue()).write(buffer);
   }
 }

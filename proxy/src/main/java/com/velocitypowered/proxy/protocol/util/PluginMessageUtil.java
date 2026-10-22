@@ -21,9 +21,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
-import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
-import com.velocitypowered.api.proxy.messages.LegacyChannelIdentifier;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import com.velocitypowered.api.util.ProxyVersion;
 import com.velocitypowered.proxy.connection.client.ConnectedPlayer;
@@ -64,8 +62,7 @@ public final class PluginMessageUtil {
    */
   public static boolean isMcBrand(PluginMessagePacket message) {
     checkNotNull(message, "message");
-    return message.getChannel().equals(BRAND_CHANNEL_LEGACY) || message.getChannel()
-        .equals(BRAND_CHANNEL);
+    return message.getChannel().equals(BRAND_CHANNEL);
   }
 
   /**
@@ -76,8 +73,7 @@ public final class PluginMessageUtil {
    */
   public static boolean isRegister(PluginMessagePacket message) {
     checkNotNull(message, "message");
-    return message.getChannel().equals(REGISTER_CHANNEL_LEGACY) || message.getChannel()
-        .equals(REGISTER_CHANNEL);
+    return message.getChannel().equals(REGISTER_CHANNEL);
   }
 
   /**
@@ -88,8 +84,7 @@ public final class PluginMessageUtil {
    */
   public static boolean isUnregister(PluginMessagePacket message) {
     checkNotNull(message, "message");
-    return message.getChannel().equals(UNREGISTER_CHANNEL_LEGACY) || message.getChannel()
-        .equals(UNREGISTER_CHANNEL);
+    return message.getChannel().equals(UNREGISTER_CHANNEL);
   }
 
   private static final QuietDecoderException ILLEGAL_CHANNEL = new QuietDecoderException("Illegal channel");
@@ -102,8 +97,7 @@ public final class PluginMessageUtil {
    * @return the channels, as an immutable list
    */
   public static List<ChannelIdentifier> getChannels(int existingChannels,
-                                                    PluginMessagePacket message,
-                                                    ProtocolVersion protocolVersion) {
+                                                    PluginMessagePacket message) {
     checkNotNull(message, "message");
     checkArgument(isRegister(message) || isUnregister(message), "Unknown channel type %s",
         message.getChannel());
@@ -120,11 +114,7 @@ public final class PluginMessageUtil {
     ImmutableList.Builder<ChannelIdentifier> channelIdentifiers = ImmutableList.builderWithExpectedSize(channels.length);
     try {
       for (String channel : channels) {
-        if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_13)) {
-          channelIdentifiers.add(MinecraftChannelIdentifier.from(channel));
-        } else {
-          channelIdentifiers.add(new LegacyChannelIdentifier(channel));
-        }
+        channelIdentifiers.add(MinecraftChannelIdentifier.from(channel));
       }
     } catch (IllegalArgumentException e) {
       if (MinecraftDecoder.DEBUG) {
@@ -139,19 +129,15 @@ public final class PluginMessageUtil {
   /**
    * Constructs a channel (un)register packet.
    *
-   * @param protocolVersion the client/server's protocol version
-   * @param channels        the channels to register
+   * @param channels the channels to register
    * @return the plugin message to send
    */
-  public static PluginMessagePacket constructChannelsPacket(ProtocolVersion protocolVersion,
-                                                            Collection<ChannelIdentifier> channels) {
+  public static PluginMessagePacket constructChannelsPacket(Collection<ChannelIdentifier> channels) {
     checkNotNull(channels, "channels");
     checkArgument(!channels.isEmpty(), "no channels specified");
-    String channelName = protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_13)
-        ? REGISTER_CHANNEL : REGISTER_CHANNEL_LEGACY;
     ByteBuf contents = Unpooled.buffer();
     contents.writeCharSequence(joinChannels(channels), StandardCharsets.UTF_8);
-    return new PluginMessagePacket(channelName, contents);
+    return new PluginMessagePacket(REGISTER_CHANNEL, contents);
   }
 
   private static String joinChannels(Collection<ChannelIdentifier> channels) {
@@ -177,8 +163,7 @@ public final class PluginMessageUtil {
    * @return the rewritten plugin message
    */
   public static PluginMessagePacket rewriteMinecraftBrand(PluginMessagePacket message,
-                                                          ProxyVersion version,
-                                                          ProtocolVersion protocolVersion) {
+                                                          ProxyVersion version) {
     checkNotNull(message, "message");
     checkNotNull(version, "version");
     checkArgument(isMcBrand(message), "message is not a brand plugin message");
@@ -187,20 +172,14 @@ public final class PluginMessageUtil {
     String rewrittenBrand = String.format("%s (%s)", currentBrand, version.getName());
 
     ByteBuf rewrittenBuf = Unpooled.buffer();
-    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_8)) {
-      ProtocolUtils.writeString(rewrittenBuf, rewrittenBrand);
-    } else {
-      rewrittenBuf.writeCharSequence(rewrittenBrand, StandardCharsets.UTF_8);
-    }
+    ProtocolUtils.writeString(rewrittenBuf, rewrittenBrand);
 
     return new PluginMessagePacket(message.getChannel(), rewrittenBuf);
   }
 
   /**
-   * Some clients (mostly poorly-implemented bots) do not send validly-formed brand messages. In
-   * order to accommodate their broken behavior, we'll first try to read in the 1.8 format, and if
-   * that fails, treat it as a 1.7-format message (which has no prefixed length). (The message
-   * Velocity sends will be in the correct format depending on the protocol.)
+   * Reads the client brand. Some clients (mostly poorly-implemented bots) do not send a length
+   * prefix, so if the normal read fails we fall back to reading the whole payload as the brand.
    *
    * @param content the brand packet
    * @return the client brand
@@ -209,7 +188,7 @@ public final class PluginMessageUtil {
     try {
       return ProtocolUtils.readString(content.slice());
     } catch (Exception e) {
-      return ProtocolUtils.readStringWithoutLength(content.slice());
+      return content.toString(StandardCharsets.UTF_8);
     }
   }
 

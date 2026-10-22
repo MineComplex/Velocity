@@ -32,8 +32,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_13;
-
 /**
  * Represents the packet used to send tab-completion suggestions to the client.
  */
@@ -49,42 +47,28 @@ public class TabCompleteResponsePacket implements MinecraftPacket {
 
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
-    if (version.noLessThan(MINECRAFT_1_13)) {
-      this.transactionId = ProtocolUtils.readVarInt(buf);
-      this.start = ProtocolUtils.readVarInt(buf);
-      this.length = ProtocolUtils.readVarInt(buf);
-      int offersAvailable = ProtocolUtils.readVarInt(buf);
-      for (int i = 0; i < offersAvailable; i++) {
-        String offer = ProtocolUtils.readString(buf);
-        ComponentHolder tooltip = buf.readBoolean() ? ComponentHolder.read(buf, version) : null;
-        offers.add(new Offer(offer, tooltip));
-      }
-    } else {
-      int offersAvailable = ProtocolUtils.readVarInt(buf);
-      for (int i = 0; i < offersAvailable; i++) {
-        offers.add(new Offer(ProtocolUtils.readString(buf), null));
-      }
+    this.transactionId = ProtocolUtils.readVarInt(buf);
+    this.start = ProtocolUtils.readVarInt(buf);
+    this.length = ProtocolUtils.readVarInt(buf);
+    int offersAvailable = ProtocolUtils.readVarInt(buf);
+    for (int i = 0; i < offersAvailable; i++) {
+      String offer = ProtocolUtils.readString(buf);
+      ComponentHolder tooltip = buf.readBoolean() ? ComponentHolder.read(buf) : null;
+      offers.add(new Offer(offer, tooltip));
     }
   }
 
   @Override
   public void encode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
-    if (version.noLessThan(MINECRAFT_1_13)) {
-      ProtocolUtils.writeVarInt(buf, this.transactionId);
-      ProtocolUtils.writeVarInt(buf, this.start);
-      ProtocolUtils.writeVarInt(buf, this.length);
-      ProtocolUtils.writeVarInt(buf, offers.size());
-      for (Offer offer : offers) {
-        ProtocolUtils.writeString(buf, offer.text);
-        buf.writeBoolean(offer.tooltip != null);
-        if (offer.tooltip != null) {
-          offer.tooltip.write(buf);
-        }
-      }
-    } else {
-      ProtocolUtils.writeVarInt(buf, offers.size());
-      for (Offer offer : offers) {
-        ProtocolUtils.writeString(buf, offer.text);
+    ProtocolUtils.writeVarInt(buf, this.transactionId);
+    ProtocolUtils.writeVarInt(buf, this.start);
+    ProtocolUtils.writeVarInt(buf, this.length);
+    ProtocolUtils.writeVarInt(buf, offers.size());
+    for (Offer offer : offers) {
+      ProtocolUtils.writeString(buf, offer.text);
+      buf.writeBoolean(offer.tooltip != null);
+      if (offer.tooltip != null) {
+        offer.tooltip.write(buf);
       }
     }
   }

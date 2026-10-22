@@ -17,7 +17,6 @@
 
 package com.velocitypowered.proxy.connection.backend;
 
-import static com.velocitypowered.proxy.connection.forge.legacy.LegacyForgeConstants.HANDSHAKE_HOSTNAME_TOKEN;
 import static com.velocitypowered.proxy.network.Connections.HANDLER;
 import static java.util.Objects.requireNonNull;
 
@@ -180,8 +179,6 @@ public class VelocityServerConnection implements MinecraftConnectionAssociation,
     } else if (forwardingMode == PlayerInfoForwarding.BUNGEEGUARD) {
       byte[] secret = server.getConfiguration().getForwardingSecret();
       handshake.setServerAddress(createBungeeGuardForwardingAddress(secret));
-    } else if (proxyPlayer.getConnection().getType() == ConnectionTypes.LEGACY_FORGE) {
-      handshake.setServerAddress(playerVhost + HANDSHAKE_HOSTNAME_TOKEN);
     } else if (proxyPlayer.getConnection().getType() instanceof ModernForgeConnectionType forgeConnection) {
       handshake.setServerAddress(playerVhost + forgeConnection.getModernToken());
     } else {
@@ -195,13 +192,7 @@ public class VelocityServerConnection implements MinecraftConnectionAssociation,
 
     mc.setProtocolVersion(protocolVersion);
     mc.setActiveSessionHandler(StateRegistry.LOGIN);
-    if (proxyPlayer.getIdentifiedKey() == null
-        && proxyPlayer.getProtocolVersion().noLessThan(ProtocolVersion.MINECRAFT_1_19_3)) {
-      mc.delayedWrite(new ServerLoginPacket(proxyPlayer.getUsername(), proxyPlayer.getUniqueId()));
-    } else {
-      mc.delayedWrite(new ServerLoginPacket(proxyPlayer.getUsername(),
-              proxyPlayer.getIdentifiedKey()));
-    }
+    mc.delayedWrite(new ServerLoginPacket(proxyPlayer.getUsername(), proxyPlayer.getUniqueId()));
     mc.flush();
   }
 

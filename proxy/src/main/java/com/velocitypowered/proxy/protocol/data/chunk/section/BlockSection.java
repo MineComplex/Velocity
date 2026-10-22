@@ -37,7 +37,7 @@ public class BlockSection {
   private long lastUpdate = System.nanoTime();
 
   public BlockSection() {
-    this(new BlockStorage(ProtocolVersion.MINECRAFT_1_21_4));
+    this(new BlockStorage(ProtocolVersion.MINIMUM_VERSION));
   }
 
   public void setBlockAt(int posX, int posY, int posZ, @Nullable Block block) {

@@ -71,7 +71,7 @@ public class ClientboundServerLinksPacket implements MinecraftPacket {
             if (buf.readBoolean()) {
                 return new ServerLink(ProtocolUtils.readVarInt(buf), null, ProtocolUtils.readString(buf));
             } else {
-                return new ServerLink(-1, ComponentHolder.read(buf, version), ProtocolUtils.readString(buf));
+                return new ServerLink(-1, ComponentHolder.read(buf), ProtocolUtils.readString(buf));
             }
         }
 

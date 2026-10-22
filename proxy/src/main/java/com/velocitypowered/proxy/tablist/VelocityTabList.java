@@ -19,7 +19,6 @@ package com.velocitypowered.proxy.tablist;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.player.ChatSession;
 import com.velocitypowered.api.proxy.player.TabListEntry;
@@ -107,8 +106,7 @@ public class VelocityTabList implements InternalTabList {
           playerInfoEntry.setDisplayName(entry.getDisplayNameComponent().isEmpty()
                   ?
                   null :
-                  new ComponentHolder(player.getProtocolVersion(),
-                          entry.getDisplayNameComponent().get())
+                  new ComponentHolder(entry.getDisplayNameComponent().get())
           );
         }
         if (!Objects.equals(previousEntry.getLatency(), entry.getLatency())) {
@@ -123,13 +121,11 @@ public class VelocityTabList implements InternalTabList {
           actions.add(UpsertPlayerInfoPacket.Action.UPDATE_LISTED);
           playerInfoEntry.setListed(entry.isListed());
         }
-        if (!Objects.equals(previousEntry.getListOrder(), entry.getListOrder())
-            && player.getProtocolVersion().noLessThan(ProtocolVersion.MINECRAFT_1_21_2)) {
+        if (!Objects.equals(previousEntry.getListOrder(), entry.getListOrder())) {
           actions.add(UpsertPlayerInfoPacket.Action.UPDATE_LIST_ORDER);
           playerInfoEntry.setListOrder(entry.getListOrder());
         }
-        if (!Objects.equals(previousEntry.isShowHat(), entry.isShowHat())
-                && player.getProtocolVersion().noLessThan(ProtocolVersion.MINECRAFT_1_21_4)) {
+        if (!Objects.equals(previousEntry.isShowHat(), entry.isShowHat())) {
           actions.add(UpsertPlayerInfoPacket.Action.UPDATE_HAT);
           playerInfoEntry.setShowHat(entry.isShowHat());
         }
@@ -151,8 +147,7 @@ public class VelocityTabList implements InternalTabList {
           playerInfoEntry.setDisplayName(entry.getDisplayNameComponent().isEmpty()
                   ?
                   null :
-                  new ComponentHolder(player.getProtocolVersion(),
-                          entry.getDisplayNameComponent().get())
+                  new ComponentHolder(entry.getDisplayNameComponent().get())
           );
         }
         if (entry.getChatSession() != null) {
@@ -167,12 +162,11 @@ public class VelocityTabList implements InternalTabList {
         }
         playerInfoEntry.setLatency(entry.getLatency());
         playerInfoEntry.setListed(entry.isListed());
-        if (entry.getListOrder() != 0
-            && player.getProtocolVersion().noLessThan(ProtocolVersion.MINECRAFT_1_21_2)) {
+        if (entry.getListOrder() != 0) {
           actions.add(UpsertPlayerInfoPacket.Action.UPDATE_LIST_ORDER);
           playerInfoEntry.setListOrder(entry.getListOrder());
         }
-        if (!entry.isShowHat() && player.getProtocolVersion().noLessThan(ProtocolVersion.MINECRAFT_1_21_4)) {
+        if (!entry.isShowHat()) {
           actions.add(UpsertPlayerInfoPacket.Action.UPDATE_HAT);
           playerInfoEntry.setShowHat(entry.isShowHat());
         }

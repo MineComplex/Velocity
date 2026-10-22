@@ -51,9 +51,7 @@ public class ClientVehicleMovePacket implements MinecraftPacket {
     z = byteBuf.readDouble();
     yaw = byteBuf.readFloat();
     pitch = byteBuf.readFloat();
-    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_21_4)) {
-      onGround = byteBuf.readBoolean();
-    }
+    onGround = byteBuf.readBoolean();
   }
 
   @Override

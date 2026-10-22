@@ -34,7 +34,7 @@ public class RemoteChatSession implements ChatSession {
 
   public RemoteChatSession(ProtocolVersion version, ByteBuf buf) {
     this.sessionId = ProtocolUtils.readUuid(buf);
-    this.identifiedKey = ProtocolUtils.readPlayerKey(version, buf);
+    this.identifiedKey = ProtocolUtils.readPlayerKey(buf);
   }
 
   public RemoteChatSession(@Nullable UUID sessionId, IdentifiedKey identifiedKey) {

@@ -41,7 +41,6 @@ import java.util.UUID;
 public class ResourcePackResponsePacket implements MinecraftPacket {
 
   private UUID id;
-  private String hash = "";
   private @MonotonicNonNull Status status;
 
   /**
@@ -59,44 +58,24 @@ public class ResourcePackResponsePacket implements MinecraftPacket {
 
   @Override
   public void decode(ByteBuf buf, Direction direction, ProtocolVersion protocolVersion) {
-    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_20_3)) {
-      this.id = ProtocolUtils.readUuid(buf);
-    }
-    if (protocolVersion.noGreaterThan(ProtocolVersion.MINECRAFT_1_9_4)) {
-      this.hash = ProtocolUtils.readString(buf);
-    }
+    this.id = ProtocolUtils.readUuid(buf);
     this.status = Status.values()[ProtocolUtils.readVarInt(buf)];
   }
 
   @Override
   public void encode(ByteBuf buf, Direction direction, ProtocolVersion protocolVersion) {
-    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_20_3)) {
-      ProtocolUtils.writeUuid(buf, id);
-    }
-    if (protocolVersion.noGreaterThan(ProtocolVersion.MINECRAFT_1_9_4)) {
-      ProtocolUtils.writeString(buf, hash);
-    }
+    ProtocolUtils.writeUuid(buf, id);
     ProtocolUtils.writeVarInt(buf, status.ordinal());
   }
 
   @Override
   public int decodeExpectedMaxLength(ByteBuf buf, Direction direction, ProtocolVersion version) {
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_20_3)) {
-      return Long.BYTES * 2 + 1;
-    } else if (version.noGreaterThan(ProtocolVersion.MINECRAFT_1_9_4)) {
-      return ProtocolUtils.DEFAULT_MAX_STRING_BYTES + 1;
-    }
-    return 1;
+    return Long.BYTES * 2 + 1;
   }
 
   @Override
   public int decodeExpectedMinLength(ByteBuf buf, Direction direction, ProtocolVersion version) {
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_20_3)) {
-      return Long.BYTES * 2 + 1;
-    } else if (version.noGreaterThan(ProtocolVersion.MINECRAFT_1_9_4)) {
-      return 2;
-    }
-    return 1;
+    return Long.BYTES * 2 + 1;
   }
 
   @Override

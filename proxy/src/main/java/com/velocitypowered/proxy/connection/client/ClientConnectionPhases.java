@@ -19,9 +19,6 @@ package com.velocitypowered.proxy.connection.client;
 
 /**
  * The vanilla {@link ClientConnectionPhase}s.
- *
- * <p>See {@link com.velocitypowered.proxy.connection.forge.legacy.LegacyForgeHandshakeClientPhase}
- * for Legacy Forge phases</p>
  */
 public final class ClientConnectionPhases {
 

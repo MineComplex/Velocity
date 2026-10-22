@@ -41,9 +41,8 @@ public abstract class GenericTitlePacket implements MinecraftPacket {
       this.action = action;
     }
 
-    public int getAction(ProtocolVersion version) {
-      return version.lessThan(ProtocolVersion.MINECRAFT_1_11)
-          ? action > 2 ? action - 1 : action : action;
+    public int getAction() {
+      return action;
     }
   }
 
@@ -87,24 +86,18 @@ public abstract class GenericTitlePacket implements MinecraftPacket {
   }
 
   /**
-   * Creates a version and type dependent TitlePacket.
+   * Creates a type dependent TitlePacket.
    *
-   * @param type    Action the packet should invoke
-   * @param version Protocol version of the target player
-   * @return GenericTitlePacket instance that follows the invoker type/version
+   * @param type Action the packet should invoke
+   * @return GenericTitlePacket instance that follows the invoker type
    */
-  public static GenericTitlePacket constructTitlePacket(ActionType type, ProtocolVersion version) {
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_17)) {
-      return switch (type) {
-        case SET_ACTION_BAR -> new TitleActionbarPacket();
-        case SET_SUBTITLE -> new TitleSubtitlePacket();
-        case SET_TIMES -> new TitleTimesPacket();
-        case SET_TITLE -> new TitleTextPacket();
-        case HIDE, RESET -> new TitleClearPacket(type);
-        default -> throw new IllegalArgumentException("Invalid ActionType");
-      };
-    } else {
-      return new LegacyTitlePacket(type);
-    }
+  public static GenericTitlePacket constructTitlePacket(ActionType type) {
+    return switch (type) {
+      case SET_ACTION_BAR -> new TitleActionbarPacket();
+      case SET_SUBTITLE -> new TitleSubtitlePacket();
+      case SET_TIMES -> new TitleTimesPacket();
+      case SET_TITLE -> new TitleTextPacket();
+      case HIDE, RESET -> new TitleClearPacket(type);
+    };
   }
 }

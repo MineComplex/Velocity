@@ -17,7 +17,6 @@
 
 package com.velocitypowered.proxy.tablist;
 
-import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.api.proxy.player.ChatSession;
 import com.velocitypowered.api.proxy.player.TabList;
 import com.velocitypowered.api.proxy.player.TabListEntry;
@@ -88,7 +87,7 @@ public class VelocityTabListEntry implements TabListEntry {
             displayName == null
                     ?
                     null :
-                    new ComponentHolder(this.tabList.getPlayer().getProtocolVersion(), displayName)
+                    new ComponentHolder(displayName)
     );
     this.tabList.emitActionRaw(UpsertPlayerInfoPacket.Action.UPDATE_DISPLAY_NAME, upsertEntry);
     return this;
@@ -164,11 +163,9 @@ public class VelocityTabListEntry implements TabListEntry {
   @Override
   public VelocityTabListEntry setListOrder(int listOrder) {
     this.listOrder = listOrder;
-    if (tabList.getPlayer().getProtocolVersion().noLessThan(ProtocolVersion.MINECRAFT_1_21_2)) {
-      UpsertPlayerInfoPacket.Entry upsertEntry = this.tabList.createRawEntry(this);
-      upsertEntry.setListOrder(listOrder);
-      tabList.emitActionRaw(UpsertPlayerInfoPacket.Action.UPDATE_LIST_ORDER, upsertEntry);
-    }
+    UpsertPlayerInfoPacket.Entry upsertEntry = this.tabList.createRawEntry(this);
+    upsertEntry.setListOrder(listOrder);
+    tabList.emitActionRaw(UpsertPlayerInfoPacket.Action.UPDATE_LIST_ORDER, upsertEntry);
     return this;
   }
 
@@ -184,11 +181,9 @@ public class VelocityTabListEntry implements TabListEntry {
   @Override
   public VelocityTabListEntry setShowHat(boolean showHat) {
     this.showHat = showHat;
-    if (tabList.getPlayer().getProtocolVersion().noLessThan(ProtocolVersion.MINECRAFT_1_21_4)) {
-      UpsertPlayerInfoPacket.Entry upsertEntry = this.tabList.createRawEntry(this);
-      upsertEntry.setShowHat(showHat);
-      tabList.emitActionRaw(UpsertPlayerInfoPacket.Action.UPDATE_HAT, upsertEntry);
-    }
+    UpsertPlayerInfoPacket.Entry upsertEntry = this.tabList.createRawEntry(this);
+    upsertEntry.setShowHat(showHat);
+    tabList.emitActionRaw(UpsertPlayerInfoPacket.Action.UPDATE_HAT, upsertEntry);
     return this;
   }
 

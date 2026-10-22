@@ -34,32 +34,16 @@ import org.jetbrains.annotations.NotNull;
 @AllArgsConstructor
 public class TransactionPacket implements MinecraftPacket {
 
-  private int windowId, transactionId;
-  private boolean accepted;
+  private int transactionId;
 
   @Override
   public void decode(ByteBuf byteBuf, ProtocolUtils.Direction direction, @NotNull ProtocolVersion protocolVersion) {
-    if (protocolVersion.lessThan(ProtocolVersion.MINECRAFT_1_17)) {
-      windowId = byteBuf.readByte();
-      transactionId = byteBuf.readShort();
-      accepted = byteBuf.readBoolean();
-    } else {
-      transactionId = byteBuf.readInt();
-      // Always set accepted to true since 1.17 or higher don't use
-      // transactions for inventory confirmation anymore.
-      accepted = true;
-    }
+    transactionId = byteBuf.readInt();
   }
 
   @Override
   public void encode(ByteBuf byteBuf, ProtocolUtils.Direction direction, @NotNull ProtocolVersion protocolVersion) {
-    if (protocolVersion.lessThan(ProtocolVersion.MINECRAFT_1_17)) {
-      byteBuf.writeByte(windowId);
-      byteBuf.writeShort((short) transactionId);
-      byteBuf.writeBoolean(accepted);
-    } else {
-      byteBuf.writeInt(transactionId);
-    }
+    byteBuf.writeInt(transactionId);
   }
 
   @Override

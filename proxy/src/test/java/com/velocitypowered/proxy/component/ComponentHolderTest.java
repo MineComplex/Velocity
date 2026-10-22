@@ -17,7 +17,6 @@
 
 package com.velocitypowered.proxy.component;
 
-import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.protocol.packet.chat.ComponentHolder;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -32,7 +31,7 @@ public class ComponentHolderTest {
   void testJsonToBinary() {
     Component component = MiniMessage.miniMessage().deserialize(
         "<#09add3>A <reset><reset>Velocity <#09add3>Server");
-    ComponentHolder holder = new ComponentHolder(ProtocolVersion.MINECRAFT_1_20_3, component);
+    ComponentHolder holder = new ComponentHolder(component);
     holder.getJson();
     holder.getBinaryTag();
   }

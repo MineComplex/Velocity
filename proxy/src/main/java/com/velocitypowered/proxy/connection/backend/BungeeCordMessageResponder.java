@@ -17,11 +17,9 @@
 
 package com.velocitypowered.proxy.connection.backend;
 
-import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
-import com.velocitypowered.api.proxy.messages.LegacyChannelIdentifier;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
@@ -57,8 +55,6 @@ public class BungeeCordMessageResponder {
 
   private static final MinecraftChannelIdentifier MODERN_CHANNEL = MinecraftChannelIdentifier
       .create("bungeecord", "main");
-  private static final LegacyChannelIdentifier LEGACY_CHANNEL =
-      new LegacyChannelIdentifier("BungeeCord");
 
   private final VelocityServer proxy;
   private final ConnectedPlayer player;
@@ -69,8 +65,7 @@ public class BungeeCordMessageResponder {
   }
 
   public static boolean isBungeeCordMessage(PluginMessagePacket message) {
-    return MODERN_CHANNEL.getId().equals(message.getChannel()) || LEGACY_CHANNEL.getId()
-        .equals(message.getChannel());
+    return MODERN_CHANNEL.getId().equals(message.getChannel());
   }
 
   private void processConnect(ByteBufDataInput in) {
@@ -285,7 +280,7 @@ public class BungeeCordMessageResponder {
       try {
         for (RegisteredServer rs : proxy.getAllServers()) {
           if (!rs.getServerInfo().equals(currentUserServer)) {
-            ((VelocityRegisteredServer) rs).sendPluginMessage(LEGACY_CHANNEL,
+            ((VelocityRegisteredServer) rs).sendPluginMessage(MODERN_CHANNEL,
                 toForward.retainedSlice());
           }
         }
@@ -295,7 +290,7 @@ public class BungeeCordMessageResponder {
     } else {
       Optional<RegisteredServer> server = proxy.getServer(target);
       if (server.isPresent()) {
-        ((VelocityRegisteredServer) server.get()).sendPluginMessage(LEGACY_CHANNEL, toForward);
+        ((VelocityRegisteredServer) server.get()).sendPluginMessage(MODERN_CHANNEL, toForward);
       } else {
         toForward.release();
       }
@@ -317,9 +312,8 @@ public class BungeeCordMessageResponder {
     });
   }
 
-  static ChannelIdentifier getBungeeCordChannel(ProtocolVersion version) {
-    return version.noLessThan(ProtocolVersion.MINECRAFT_1_13) ? MODERN_CHANNEL
-        : LEGACY_CHANNEL;
+  static ChannelIdentifier getBungeeCordChannel() {
+    return MODERN_CHANNEL;
   }
 
   // Note: this method will always release the buffer!
@@ -330,7 +324,7 @@ public class BungeeCordMessageResponder {
   // Note: this method will always release the buffer!
   private static void sendServerResponse(ConnectedPlayer player, ByteBuf buf) {
     MinecraftConnection serverConnection = player.ensureAndGetCurrentServer().ensureConnected();
-    ChannelIdentifier chan = getBungeeCordChannel(serverConnection.getProtocolVersion());
+    ChannelIdentifier chan = getBungeeCordChannel();
     PluginMessagePacket msg = new PluginMessagePacket(chan.getId(), buf);
     serverConnection.write(msg);
   }

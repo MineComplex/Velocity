@@ -49,8 +49,6 @@ class VelocityChannelRegistrarTest {
     // (legacy:velocitytest). Make sure they're what we expect.
     assertEquals(ImmutableSet.of(MODERN.getId(), SIMPLE_LEGACY_REMAPPED), registrar
         .getModernChannelIds().stream().map(ChannelIdentifier::getId).collect(Collectors.toSet()));
-    assertEquals(ImmutableSet.of(SIMPLE_LEGACY.getId(), MODERN.getId()), registrar
-        .getLegacyChannelIds().stream().map(ChannelIdentifier::getId).collect(Collectors.toSet()));
   }
 
   @Test
@@ -61,8 +59,6 @@ class VelocityChannelRegistrarTest {
     // This one, just one channel for the modern case.
     assertEquals(ImmutableSet.of(MODERN_SPECIAL_REMAP.getId()),
         registrar.getModernChannelIds().stream().map(ChannelIdentifier::getId).collect(Collectors.toSet()));
-    assertEquals(ImmutableSet.of(MODERN_SPECIAL_REMAP.getId(), SPECIAL_REMAP_LEGACY.getId()),
-        registrar.getLegacyChannelIds().stream().map(ChannelIdentifier::getId).collect(Collectors.toSet()));
   }
 
   @Test
@@ -73,7 +69,5 @@ class VelocityChannelRegistrarTest {
 
     assertEquals(ImmutableSet.of(MODERN.getId()),
         registrar.getModernChannelIds().stream().map(ChannelIdentifier::getId).collect(Collectors.toSet()));;
-    assertEquals(ImmutableSet.of(MODERN.getId()),
-        registrar.getLegacyChannelIds().stream().map(ChannelIdentifier::getId).collect(Collectors.toSet()));
   }
 }

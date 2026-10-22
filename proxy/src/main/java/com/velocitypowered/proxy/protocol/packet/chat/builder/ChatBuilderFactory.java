@@ -18,29 +18,17 @@
 package com.velocitypowered.proxy.protocol.packet.chat.builder;
 
 import com.velocitypowered.api.network.ProtocolVersion;
-import com.velocitypowered.proxy.protocol.packet.chat.keyed.KeyedChatBuilder;
-import com.velocitypowered.proxy.protocol.packet.chat.legacy.LegacyChatBuilder;
 import com.velocitypowered.proxy.protocol.packet.chat.session.SessionChatBuilder;
-
-import java.util.function.Function;
 
 public class ChatBuilderFactory {
 
   private final ProtocolVersion version;
-  private final Function<ProtocolVersion, ChatBuilderV2> builderFunction;
 
   public ChatBuilderFactory(ProtocolVersion version) {
     this.version = version;
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_19_3)) {
-      this.builderFunction = SessionChatBuilder::new;
-    } else if (version.noLessThan(ProtocolVersion.MINECRAFT_1_19)) {
-      this.builderFunction = KeyedChatBuilder::new;
-    } else {
-      this.builderFunction = LegacyChatBuilder::new;
-    }
   }
 
   public ChatBuilderV2 builder() {
-    return this.builderFunction.apply(this.version);
+    return new SessionChatBuilder(this.version);
   }
 }

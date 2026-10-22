@@ -69,12 +69,18 @@ public class DisconnectPacket implements MinecraftPacket {
 
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
-    reason = ComponentHolder.read(buf, state == StateRegistry.LOGIN ? ProtocolVersion.MINECRAFT_1_20_2 : version);
+    reason = state == StateRegistry.LOGIN ? ComponentHolder.readJson(buf) : ComponentHolder.read(buf);
   }
 
   @Override
   public void encode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
-    getReason().write(buf);
+    // The login phase still uses JSON. It is also how clients we don't support get told
+    // to update, so it has to stay readable by any version.
+    if (state == StateRegistry.LOGIN) {
+      getReason().writeJson(buf);
+    } else {
+      getReason().write(buf);
+    }
   }
 
   @Override
@@ -83,15 +89,14 @@ public class DisconnectPacket implements MinecraftPacket {
   }
 
   /**
-   * Creates a new {@code DisconnectPacket} with the specified reason and version.
+   * Creates a new {@code DisconnectPacket} with the specified reason.
    *
    * @param component the component explaining the disconnection reason
-   * @param version   the protocol version in use
    * @param state     the state in which the disconnection occurs
    * @return the created {@code DisconnectPacket}
    */
-  public static DisconnectPacket create(Component component, ProtocolVersion version, StateRegistry state) {
+  public static DisconnectPacket create(Component component, StateRegistry state) {
     Preconditions.checkNotNull(component, "component");
-    return new DisconnectPacket(state, new ComponentHolder(state == StateRegistry.LOGIN ? ProtocolVersion.MINECRAFT_1_20_2 : version, component));
+    return new DisconnectPacket(state, new ComponentHolder(component));
   }
 }

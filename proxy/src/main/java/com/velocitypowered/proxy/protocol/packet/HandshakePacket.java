@@ -28,8 +28,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import static com.velocitypowered.proxy.connection.forge.legacy.LegacyForgeConstants.HANDSHAKE_HOSTNAME_TOKEN;
-
 /**
  * Represents a handshake packet in Minecraft, which is used during the initial connection process.
  * This packet contains information such as the protocol version, server address, port, and the intent
@@ -41,9 +39,9 @@ import static com.velocitypowered.proxy.connection.forge.legacy.LegacyForgeConst
 @ToString
 public class HandshakePacket implements MinecraftPacket {
 
-  // This size was chosen to ensure Forge clients can still connect even with very long hostnames.
+  // This size was chosen to leave room for tokens appended to the hostname (Forge, for example).
   // While DNS technically allows any character to be used, in practice ASCII is used.
-  private static final int MAXIMUM_HOSTNAME_LENGTH = 255 + HANDSHAKE_HOSTNAME_TOKEN.length() + 1;
+  private static final int MAXIMUM_HOSTNAME_LENGTH = 255 + 6;
   private ProtocolVersion protocolVersion;
   private String serverAddress = "";
   private int port;

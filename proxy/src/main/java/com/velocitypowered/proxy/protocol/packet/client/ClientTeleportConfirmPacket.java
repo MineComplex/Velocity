@@ -45,13 +45,11 @@ public class ClientTeleportConfirmPacket implements MinecraftPacket {
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion protocolVersion) {
     teleportId = ProtocolUtils.readVarInt(buf);
-    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_26_3)) {
-      posX = buf.readDouble();
-      posY = buf.readDouble();
-      posZ = buf.readDouble();
-      yaw = buf.readFloat();
-      pitch = buf.readFloat();
-    }
+    posX = buf.readDouble();
+    posY = buf.readDouble();
+    posZ = buf.readDouble();
+    yaw = buf.readFloat();
+    pitch = buf.readFloat();
   }
 
   @Override
@@ -67,12 +65,12 @@ public class ClientTeleportConfirmPacket implements MinecraftPacket {
 
   @Override
   public int decodeExpectedMaxLength(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
-    return 5 + (version.noLessThan(ProtocolVersion.MINECRAFT_26_3) ? 32 : 0);
+    return 5 + 32;
   }
 
   @Override
   public int decodeExpectedMinLength(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
-    return 1 + (version.noLessThan(ProtocolVersion.MINECRAFT_26_3) ? 32 : 0);
+    return 1 + 32;
   }
 
 }

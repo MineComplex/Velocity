@@ -18,7 +18,6 @@
 package com.velocitypowered.proxy.util;
 
 import com.google.common.base.Preconditions;
-import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
 import com.velocitypowered.api.proxy.messages.ChannelRegistrar;
 import com.velocitypowered.api.proxy.messages.LegacyChannelIdentifier;
@@ -75,22 +74,9 @@ public class VelocityChannelRegistrar implements ChannelRegistrar {
   }
 
   /**
-   * Returns all legacy channel IDs.
+   * Returns all channel IDs to announce to clients and servers.
    *
-   * @return all legacy channel IDs
-   */
-  public Collection<ChannelIdentifier> getLegacyChannelIds() {
-    Collection<ChannelIdentifier> ids = new HashSet<>();
-    for (ChannelIdentifier value : identifierMap.values()) {
-      ids.add(new LegacyChannelIdentifier(value.getId()));
-    }
-    return ids;
-  }
-
-  /**
-   * Returns all channel IDs (as strings) for use with Minecraft 1.13 and above.
-   *
-   * @return the channel IDs for Minecraft 1.13 and above
+   * @return the channel IDs
    */
   public Collection<ChannelIdentifier> getModernChannelIds() {
     Collection<ChannelIdentifier> ids = new HashSet<>();
@@ -106,18 +92,5 @@ public class VelocityChannelRegistrar implements ChannelRegistrar {
 
   public @Nullable ChannelIdentifier getFromId(String id) {
     return identifierMap.get(id);
-  }
-
-  /**
-   * Returns all the channel names to register depending on the Minecraft protocol version.
-   *
-   * @param protocolVersion the protocol version in use
-   * @return the list of channels to register
-   */
-  public Collection<ChannelIdentifier> getChannelsForProtocol(ProtocolVersion protocolVersion) {
-    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_13)) {
-      return getModernChannelIds();
-    }
-    return getLegacyChannelIds();
   }
 }

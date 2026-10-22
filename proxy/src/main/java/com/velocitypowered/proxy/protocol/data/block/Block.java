@@ -22,7 +22,6 @@ import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.protocol.data.world.WorldVersion;
 import io.netty.util.collection.ShortObjectHashMap;
-import io.netty.util.collection.ShortObjectMap;
 import lombok.Getter;
 import lombok.ToString;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -30,8 +29,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
@@ -44,11 +41,9 @@ import java.util.Set;
 public class Block {
 
   public static final Block AIR = new Block(false, true, false, "minecraft:air", (short) 0, (short) 0);
-  private static final Map<ProtocolVersion, ShortObjectMap<Short>> MODERN_BLOCK_STATE_IDS_MAP = new EnumMap<>(ProtocolVersion.class);
   private static final ShortObjectHashMap<String> MODERN_BLOCK_STATE_PROTOCOL_ID_MAP = new ShortObjectHashMap<>();
   private static final Map<String, Map<Set<String>, Short>> MODERN_BLOCK_STATE_STRING_MAP = new HashMap<>();
   private static final Map<String, Short> MODERN_BLOCK_STRING_MAP = new HashMap<>();
-  private static final ShortObjectHashMap<Map<WorldVersion, Short>> LEGACY_BLOCK_IDS_MAP = new ShortObjectHashMap<>();
   private static final Map<String, Map<String, String>> DEFAULT_PROPERTIES_MAP = new HashMap<>();
   private static final Map<String, String> MODERN_ID_REMAP = new HashMap<>();
 
@@ -116,21 +111,8 @@ public class Block {
         LinkedTreeMap.class
     );
 
+    // Ids in blocks.json and blockstates.json are already the ids of the supported version.
     blocks.forEach((modernId, protocolId) -> MODERN_BLOCK_STRING_MAP.put(modernId, parseNumericId(protocolId)));
-
-    LinkedTreeMap<String, LinkedTreeMap<String, String>> blockVersionMapping = VelocityServer.GENERAL_GSON.fromJson(
-        new InputStreamReader(
-            Objects.requireNonNull(Block.class.getClassLoader().getResourceAsStream("mapping/blocks_mapping.json")),
-            StandardCharsets.UTF_8
-        ),
-        LinkedTreeMap.class
-    );
-
-    blockVersionMapping.forEach((protocolId, versionMap) -> {
-      EnumMap<WorldVersion, Short> deserializedVersionMap = new EnumMap<>(WorldVersion.class);
-      versionMap.forEach((version, id) -> deserializedVersionMap.put(WorldVersion.parse(version), parseNumericId(id)));
-      LEGACY_BLOCK_IDS_MAP.put(parseNumericId(protocolId), deserializedVersionMap);
-    });
 
     LinkedTreeMap<String, String> blockStates = VelocityServer.GENERAL_GSON.fromJson(
         new InputStreamReader(Objects.requireNonNull(Block.class.getClassLoader().getResourceAsStream("mapping/blockstates.json")),
@@ -150,20 +132,6 @@ public class Block {
       } else {
         stringIdArgs[1] = stringIdArgs[1].substring(0, stringIdArgs[1].length() - 1);
         MODERN_BLOCK_STATE_STRING_MAP.get(stringIdArgs[0]).put(new HashSet<>(Arrays.asList(stringIdArgs[1].split(","))), parseNumericId(value));
-      }
-    });
-
-    LinkedTreeMap<String, LinkedTreeMap<String, String>> modernMap = VelocityServer.GENERAL_GSON.fromJson(
-        new InputStreamReader(Objects.requireNonNull(Block.class.getClassLoader().getResourceAsStream("mapping/blockstates_mapping.json")),
-            StandardCharsets.UTF_8),
-        LinkedTreeMap.class
-    );
-
-    modernMap.forEach((modernId, versionMap) -> {
-      Short id = null;
-      for (ProtocolVersion version : EnumSet.range(ProtocolVersion.MINECRAFT_1_21_4, ProtocolVersion.MAXIMUM_VERSION)) {
-        id = parseNumericId(versionMap.getOrDefault(version.toString(), String.valueOf(id)));
-        Block.MODERN_BLOCK_STATE_IDS_MAP.computeIfAbsent(version, k -> new ShortObjectHashMap<>()).put(parseNumericId(modernId), id);
       }
     });
 
@@ -318,7 +286,7 @@ public class Block {
   }
 
   public short getBlockId(WorldVersion version) {
-    return LEGACY_BLOCK_IDS_MAP.get(blockId).get(version);
+    return blockId;
   }
 
   public short getBlockId(ProtocolVersion version) {
@@ -326,7 +294,7 @@ public class Block {
   }
 
   public boolean isSupportedOn(WorldVersion version) {
-    return LEGACY_BLOCK_IDS_MAP.get(blockId).containsKey(version);
+    return version != null;
   }
 
   public boolean isSupportedOn(ProtocolVersion version) {
@@ -334,7 +302,7 @@ public class Block {
   }
 
   public short getBlockStateId(ProtocolVersion version) {
-    return MODERN_BLOCK_STATE_IDS_MAP.get(version).getOrDefault(blockStateId, blockStateId);
+    return blockStateId;
   }
 
 }

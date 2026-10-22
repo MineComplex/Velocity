@@ -24,12 +24,10 @@ import com.velocitypowered.api.network.HandshakeIntent;
 import com.velocitypowered.api.network.ProtocolState;
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.VelocityServer;
-import com.velocitypowered.proxy.config.PlayerInfoForwarding;
 import com.velocitypowered.proxy.connection.ConnectionType;
 import com.velocitypowered.proxy.connection.ConnectionTypes;
 import com.velocitypowered.proxy.connection.MinecraftConnection;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
-import com.velocitypowered.proxy.connection.forge.legacy.LegacyForgeConstants;
 import com.velocitypowered.proxy.connection.forge.modern.ModernForgeConnectionType;
 import com.velocitypowered.proxy.connection.forge.modern.ModernForgeConstants;
 import com.velocitypowered.proxy.connection.util.VelocityInboundConnection;
@@ -147,17 +145,6 @@ public class HandshakeSessionHandler implements MinecraftSessionHandler {
 
     connection.setType(getHandshakeConnectionType(handshake));
 
-    // If the proxy is configured for modern forwarding, we must deny connections from 1.12.2
-    // and lower, otherwise IP information will never get forwarded.
-    if (server.getConfiguration().getPlayerInfoForwardingMode() == PlayerInfoForwarding.MODERN
-        && handshake.getProtocolVersion().lessThan(ProtocolVersion.MINECRAFT_1_13)) {
-      // Bump connection into correct protocol state so that we can send the disconnect packet.
-      connection.setState(StateRegistry.LOGIN);
-      ic.disconnectQuietly(
-          Component.translatable("velocity.error.modern-forwarding-needs-new-client"));
-      return;
-    }
-
     final LoginInboundConnection lic = new LoginInboundConnection(ic);
     server.getEventManager().fireAndForget(
             new ConnectionHandshakeEvent(lic, handshake.getIntent()));
@@ -166,23 +153,10 @@ public class HandshakeSessionHandler implements MinecraftSessionHandler {
   }
 
   private ConnectionType getHandshakeConnectionType(HandshakePacket handshake) {
-    if (handshake.getServerAddress().contains(ModernForgeConstants.MODERN_FORGE_TOKEN)
-            && handshake.getProtocolVersion().noLessThan(ProtocolVersion.MINECRAFT_1_20_2)) {
+    if (handshake.getServerAddress().contains(ModernForgeConstants.MODERN_FORGE_TOKEN)) {
       return new ModernForgeConnectionType(handshake.getServerAddress());
     }
-    // Determine if we're using Forge (1.8 to 1.12, may not be the case in 1.13).
-    if (handshake.getServerAddress().endsWith(LegacyForgeConstants.HANDSHAKE_HOSTNAME_TOKEN)
-        && handshake.getProtocolVersion().lessThan(ProtocolVersion.MINECRAFT_1_13)) {
-      return ConnectionTypes.LEGACY_FORGE;
-    } else if (handshake.getProtocolVersion().noGreaterThan(ProtocolVersion.MINECRAFT_1_7_6)) {
-      // 1.7 Forge will not notify us during handshake. UNDETERMINED will listen for incoming
-      // forge handshake attempts. Also sends a reset handshake packet on every transition.
-      return ConnectionTypes.UNDETERMINED_17;
-    } else {
-      // Note for future implementation: Forge 1.13+ identifies itself using a slightly different
-      // hostname token.
-      return ConnectionTypes.VANILLA;
-    }
+    return ConnectionTypes.VANILLA;
   }
 
   /**

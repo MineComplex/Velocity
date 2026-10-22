@@ -52,20 +52,8 @@ public class ServerInventorySetSlotPacket implements MinecraftPacket {
 
   @Override
   public void encode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion protocolVersion) {
-    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_20_5)) {
-      encodeModern(buf, protocolVersion);
-    } else {
-      encodeLegacy(buf, protocolVersion);
-    }
-  }
-
-  public void encodeModern(ByteBuf buf, ProtocolVersion protocolVersion) {
-    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_21_2)) {
-      ProtocolUtils.writeVarInt(buf, windowId);
-    } else {
-      buf.writeByte(windowId);
-    }
-    ProtocolUtils.writeVarInt(buf, 0);
+    ProtocolUtils.writeVarInt(buf, windowId);
+    ProtocolUtils.writeVarInt(buf, 0); // State Id.
     buf.writeShort(slot);
 
     int id = item.getId(protocolVersion);
@@ -80,31 +68,6 @@ public class ServerInventorySetSlotPacket implements MinecraftPacket {
       } else {
         ProtocolUtils.writeVarInt(buf, 0);
         ProtocolUtils.writeVarInt(buf, 0);
-      }
-    }
-  }
-
-  public void encodeLegacy(ByteBuf buf, ProtocolVersion protocolVersion) {
-    buf.writeByte(windowId);
-
-    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_17_1)) {
-      ProtocolUtils.writeVarInt(buf, 0); // State Id.
-    }
-
-    buf.writeShort(slot);
-    int id = item.getId(protocolVersion);
-    boolean present = id > 0;
-
-    buf.writeBoolean(present);
-
-    if (present) {
-      ProtocolUtils.writeVarInt(buf, id);
-      buf.writeByte(count);
-
-      if (nbt == null) {
-        buf.writeByte(0);
-      } else {
-        ProtocolUtils.writeBinaryTag(buf, protocolVersion, nbt);
       }
     }
   }

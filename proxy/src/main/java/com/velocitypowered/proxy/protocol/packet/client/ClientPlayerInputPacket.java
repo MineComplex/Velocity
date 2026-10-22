@@ -43,19 +43,9 @@ public class ClientPlayerInputPacket implements MinecraftPacket {
 
   @Override
   public void decode(ByteBuf byteBuf, ProtocolUtils.Direction direction, ProtocolVersion protocolVersion) {
-    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_21_2)) {
-      byte mask = byteBuf.readByte();
-      jump = (mask & 16) != 0;
-      sneak = (mask & 32) != 0;
-      return;
-    }
-
-    sideways = byteBuf.readFloat();
-    forward = byteBuf.readFloat();
-
-    byte flags = byteBuf.readByte();
-    jump = (flags & 0x01) != 0;
-    sneak = (flags & 0x02) != 0;
+    byte mask = byteBuf.readByte();
+    jump = (mask & 16) != 0;
+    sneak = (mask & 32) != 0;
   }
 
   @Override

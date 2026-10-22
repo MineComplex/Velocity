@@ -25,18 +25,12 @@ import com.velocitypowered.api.event.permission.PermissionsSetupEvent;
 import com.velocitypowered.api.event.player.CookieReceiveEvent;
 import com.velocitypowered.api.event.player.GameProfileRequestEvent;
 import com.velocitypowered.api.event.player.PlayerChooseInitialServerEvent;
-import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.api.permission.PermissionFunction;
-import com.velocitypowered.api.proxy.crypto.IdentifiedKey;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.util.GameProfile;
-import com.velocitypowered.api.util.UuidUtils;
 import com.velocitypowered.proxy.VelocityServer;
-import com.velocitypowered.proxy.config.PlayerInfoForwarding;
-import com.velocitypowered.proxy.config.VelocityConfiguration;
 import com.velocitypowered.proxy.connection.MinecraftConnection;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
-import com.velocitypowered.proxy.crypto.IdentifiedKeyImpl;
 import com.velocitypowered.proxy.protocol.StateRegistry;
 import com.velocitypowered.proxy.protocol.packet.LoginAcknowledgedPacket;
 import com.velocitypowered.proxy.protocol.packet.ServerLoginSuccessPacket;
@@ -49,12 +43,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-import static com.velocitypowered.api.network.ProtocolVersion.MINECRAFT_1_8;
 
 /**
  * A session handler that is activated to complete the login phase.
@@ -100,7 +91,7 @@ public class AuthSessionHandler implements MinecraftSessionHandler {
       // Initiate a regular connection and move over to it.
       ConnectedPlayer player = new ConnectedPlayer(server, profileEvent.getGameProfile(),
           mcConnection, inbound.getVirtualHost().orElse(null), inbound.getRawVirtualHost().orElse(null), onlineMode,
-          inbound.getHandshakeIntent(), inbound.getIdentifiedKey());
+          inbound.getHandshakeIntent());
       this.connectedPlayer = player;
       if (!server.canRegisterConnection(player)) {
         player.disconnect0(
@@ -138,40 +129,9 @@ public class AuthSessionHandler implements MinecraftSessionHandler {
 
   private void startLoginCompletion(ConnectedPlayer player) {
     int threshold = server.getConfiguration().getCompressionThreshold();
-    if (threshold >= 0 && mcConnection.getProtocolVersion().noLessThan(MINECRAFT_1_8)) {
+    if (threshold >= 0) {
       mcConnection.write(new SetCompressionPacket(threshold));
       mcConnection.setCompressionThreshold(threshold);
-    }
-    VelocityConfiguration configuration = server.getConfiguration();
-    UUID playerUniqueId = player.getUniqueId();
-    if (configuration.getPlayerInfoForwardingMode() == PlayerInfoForwarding.NONE) {
-      playerUniqueId = UuidUtils.generateOfflinePlayerUuid(player.getUsername());
-    }
-
-    if (player.getIdentifiedKey() != null) {
-      final IdentifiedKey playerKey = player.getIdentifiedKey();
-      if (playerKey.getSignatureHolder() == null) {
-        if (playerKey instanceof IdentifiedKeyImpl unlinkedKey) {
-          // Failsafe
-          if (!unlinkedKey.internalAddHolder(player.getUniqueId())) {
-            if (onlineMode) {
-              inbound.disconnect(
-                  Component.translatable("multiplayer.disconnect.invalid_public_key"));
-              return;
-            } else {
-              logger.warn("Key for player {} could not be verified!", player.getUsername());
-            }
-          }
-        } else {
-          logger.warn("A custom key type has been set for player " + player.getUsername());
-        }
-      } else {
-        if (!Objects.equals(playerKey.getSignatureHolder(), playerUniqueId)) {
-          logger.warn("UUID for Player {} mismatches! "
-              + "Chat/Commands signatures will not work correctly for this player!",
-                  player.getUsername());
-        }
-      }
     }
 
     completeLoginProtocolPhaseAndInitialize(player);
@@ -237,22 +197,10 @@ public class AuthSessionHandler implements MinecraftSessionHandler {
         success.setUsername(player.getUsername());
         success.setProperties(player.getGameProfileProperties());
         success.setUuid(player.getUniqueId());
-        if (inbound.getProtocolVersion().noLessThan(ProtocolVersion.MINECRAFT_26_2)) {
-          success.setSessionId(server.getSessionId());
-        }
+        success.setSessionId(server.getSessionId());
         mcConnection.write(success);
 
         loginState = State.SUCCESS_SENT;
-        if (inbound.getProtocolVersion().lessThan(ProtocolVersion.MINECRAFT_1_20_2)) {
-          loginState = State.ACKNOWLEDGED;
-          mcConnection.setActiveSessionHandler(StateRegistry.PLAY, new InitialConnectSessionHandler(player, server));
-          server.getEventManager().fire(new PostLoginEvent(player)).thenCompose((ignored) -> {
-            return connectToInitialServer(player);
-          }).exceptionally((ex) -> {
-            logger.error("Exception while connecting {} to initial server", player, ex);
-            return null;
-          });
-        }
       }
     }, mcConnection.eventLoop()).exceptionally((ex) -> {
       logger.error("Exception while completing login initialisation phase for {}", player, ex);

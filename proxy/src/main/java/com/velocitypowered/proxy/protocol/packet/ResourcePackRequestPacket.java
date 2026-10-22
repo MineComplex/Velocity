@@ -50,52 +50,44 @@ import java.util.regex.Pattern;
 @AllArgsConstructor
 public class ResourcePackRequestPacket implements MinecraftPacket {
 
-  private @MonotonicNonNull UUID id; // 1.20.3+
+  private @MonotonicNonNull UUID id;
   private @MonotonicNonNull String url;
   private @MonotonicNonNull String hash;
-  private boolean isRequired; // 1.17+
-  private @Nullable ComponentHolder prompt; // 1.17+
+  private boolean isRequired;
+  private @Nullable ComponentHolder prompt;
 
-  private static final Pattern PLAUSIBLE_SHA1_HASH = Pattern.compile("^[a-z0-9]{40}$"); // 1.20.2+
+  private static final Pattern PLAUSIBLE_SHA1_HASH = Pattern.compile("^[a-z0-9]{40}$");
 
   @Override
   public void decode(ByteBuf buf, Direction direction, ProtocolVersion protocolVersion) {
-    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_20_3)) {
-      this.id = ProtocolUtils.readUuid(buf);
-    }
+    this.id = ProtocolUtils.readUuid(buf);
     this.url = ProtocolUtils.readString(buf);
     this.hash = ProtocolUtils.readString(buf);
-    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_17)) {
-      this.isRequired = buf.readBoolean();
-      if (buf.readBoolean()) {
-        this.prompt = ComponentHolder.read(buf, protocolVersion);
-      } else {
-        this.prompt = null;
-      }
+    this.isRequired = buf.readBoolean();
+    if (buf.readBoolean()) {
+      this.prompt = ComponentHolder.read(buf);
+    } else {
+      this.prompt = null;
     }
   }
 
   @Override
   public void encode(ByteBuf buf, Direction direction, ProtocolVersion protocolVersion) {
-    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_20_3)) {
-      if (id == null) {
-        throw new IllegalStateException("Resource pack id not set yet!");
-      }
-      ProtocolUtils.writeUuid(buf, id);
+    if (id == null) {
+      throw new IllegalStateException("Resource pack id not set yet!");
     }
+    ProtocolUtils.writeUuid(buf, id);
     if (url == null || hash == null) {
       throw new IllegalStateException("Packet not fully filled in yet!");
     }
     ProtocolUtils.writeString(buf, url);
     ProtocolUtils.writeString(buf, hash);
-    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_17)) {
-      buf.writeBoolean(isRequired);
-      if (prompt != null) {
-        buf.writeBoolean(true);
-        prompt.write(buf);
-      } else {
-        buf.writeBoolean(false);
-      }
+    buf.writeBoolean(isRequired);
+    if (prompt != null) {
+      buf.writeBoolean(true);
+      prompt.write(buf);
+    } else {
+      buf.writeBoolean(false);
     }
   }
 

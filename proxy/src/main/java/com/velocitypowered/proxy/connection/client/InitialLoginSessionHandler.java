@@ -19,24 +19,19 @@ package com.velocitypowered.proxy.connection.client;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.primitives.Longs;
 import com.velocitypowered.api.event.connection.PreLoginEvent;
 import com.velocitypowered.api.event.connection.PreLoginEvent.PreLoginComponentResult;
-import com.velocitypowered.api.network.ProtocolVersion;
-import com.velocitypowered.api.proxy.crypto.IdentifiedKey;
 import com.velocitypowered.api.util.GameProfile;
 import com.velocitypowered.api.util.UuidUtils;
 import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.connection.MinecraftConnection;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
-import com.velocitypowered.proxy.crypto.IdentifiedKeyImpl;
 import com.velocitypowered.proxy.protocol.StateRegistry;
 import com.velocitypowered.proxy.protocol.netty.MinecraftDecoder;
 import com.velocitypowered.proxy.protocol.packet.EncryptionRequestPacket;
 import com.velocitypowered.proxy.protocol.packet.EncryptionResponsePacket;
 import com.velocitypowered.proxy.protocol.packet.LoginPluginResponsePacket;
 import com.velocitypowered.proxy.protocol.packet.ServerLoginPacket;
-import com.velocitypowered.proxy.util.VelocityProperties;
 import io.netty.buffer.ByteBuf;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -80,48 +75,18 @@ public class InitialLoginSessionHandler implements MinecraftSessionHandler {
   private @MonotonicNonNull ServerLoginPacket login;
   private byte[] verify = EMPTY_BYTE_ARRAY;
   private LoginState currentState = LoginState.LOGIN_PACKET_EXPECTED;
-  private final boolean forceKeyAuthentication;
 
   InitialLoginSessionHandler(VelocityServer server, MinecraftConnection mcConnection,
                              LoginInboundConnection inbound) {
     this.server = Preconditions.checkNotNull(server, "server");
     this.mcConnection = Preconditions.checkNotNull(mcConnection, "mcConnection");
     this.inbound = Preconditions.checkNotNull(inbound, "inbound");
-    this.forceKeyAuthentication = VelocityProperties.readBoolean(
-        "auth.forceSecureProfiles", server.getConfiguration().isForceKeyAuthentication());
   }
 
   @Override
   public boolean handle(ServerLoginPacket packet) {
     assertState(LoginState.LOGIN_PACKET_EXPECTED);
     this.currentState = LoginState.LOGIN_PACKET_RECEIVED;
-    IdentifiedKey playerKey = packet.getPlayerKey();
-    if (playerKey != null) {
-      if (playerKey.hasExpired()) {
-        inbound.disconnect(
-            Component.translatable("multiplayer.disconnect.invalid_public_key_signature"));
-        return true;
-      }
-
-      boolean isKeyValid;
-      if (playerKey.getKeyRevision() == IdentifiedKey.Revision.LINKED_V2
-          && playerKey instanceof final IdentifiedKeyImpl keyImpl) {
-        isKeyValid = keyImpl.internalAddHolder(packet.getHolderUuid());
-      } else {
-        isKeyValid = playerKey.isSignatureValid();
-      }
-
-      if (!isKeyValid) {
-        inbound.disconnect(Component.translatable("multiplayer.disconnect.invalid_public_key"));
-        return true;
-      }
-    } else if (mcConnection.getProtocolVersion().noLessThan(ProtocolVersion.MINECRAFT_1_19)
-        && forceKeyAuthentication
-        && mcConnection.getProtocolVersion().lessThan(ProtocolVersion.MINECRAFT_1_19_3)) {
-      inbound.disconnect(Component.translatable("multiplayer.disconnect.missing_public_key"));
-      return true;
-    }
-    inbound.setPlayerKey(playerKey);
     this.login = packet;
 
     final PreLoginEvent event = new PreLoginEvent(inbound, login.getUsername(), login.getHolderUuid());
@@ -194,17 +159,9 @@ public class InitialLoginSessionHandler implements MinecraftSessionHandler {
 
     try {
       KeyPair serverKeyPair = server.getServerKeyPair();
-      if (inbound.getIdentifiedKey() != null) {
-        IdentifiedKey playerKey = inbound.getIdentifiedKey();
-        if (!playerKey.verifyDataSignature(packet.getVerifyToken(), verify,
-            Longs.toByteArray(packet.getSalt()))) {
-          throw new IllegalStateException("Invalid client public signature.");
-        }
-      } else {
-        byte[] decryptedVerifyToken = decryptRsa(serverKeyPair, packet.getVerifyToken());
-        if (!MessageDigest.isEqual(verify, decryptedVerifyToken)) {
-          throw new IllegalStateException("Unable to successfully decrypt the verification token.");
-        }
+      byte[] decryptedVerifyToken = decryptRsa(serverKeyPair, packet.getVerifyToken());
+      if (!MessageDigest.isEqual(verify, decryptedVerifyToken)) {
+        throw new IllegalStateException("Unable to successfully decrypt the verification token.");
       }
 
       byte[] decryptedSharedSecret = decryptRsa(serverKeyPair, packet.getSharedSecret());
@@ -245,15 +202,6 @@ public class InitialLoginSessionHandler implements MinecraftSessionHandler {
             if (response.statusCode() == 200) {
               final GameProfile profile = GENERAL_GSON.fromJson(response.body(),
                   GameProfile.class);
-              // Not so fast, now we verify the public key for 1.19.1+
-              if (inbound.getIdentifiedKey() != null
-                  && inbound.getIdentifiedKey().getKeyRevision() == IdentifiedKey.Revision.LINKED_V2
-                  && inbound.getIdentifiedKey() instanceof final IdentifiedKeyImpl key) {
-                if (!key.internalAddHolder(profile.getId())) {
-                  inbound.disconnect(
-                      Component.translatable("multiplayer.disconnect.invalid_public_key"));
-                }
-              }
               // All went well, initialize the session.
               mcConnection.setActiveSessionHandler(StateRegistry.LOGIN,
                   new AuthSessionHandler(server, inbound, profile, true, serverId));

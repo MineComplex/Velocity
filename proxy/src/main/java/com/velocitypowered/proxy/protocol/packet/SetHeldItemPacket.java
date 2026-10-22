@@ -38,11 +38,7 @@ public class SetHeldItemPacket implements MinecraftPacket {
 
   @Override
   public void encode(@NotNull ByteBuf bytebuf, ProtocolUtils.Direction direction, @NotNull ProtocolVersion protocolVersion) {
-    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_21_4)) {
-      ProtocolUtils.writeVarInt(bytebuf, slot);
-    } else {
-      bytebuf.writeByte(slot);
-    }
+    ProtocolUtils.writeVarInt(bytebuf, slot);
   }
 
   @Override

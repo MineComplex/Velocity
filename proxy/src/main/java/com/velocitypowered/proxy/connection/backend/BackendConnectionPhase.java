@@ -18,14 +18,10 @@
 package com.velocitypowered.proxy.connection.backend;
 
 import com.velocitypowered.proxy.connection.client.ConnectedPlayer;
-import com.velocitypowered.proxy.connection.forge.legacy.LegacyForgeHandshakeBackendPhase;
 import com.velocitypowered.proxy.protocol.packet.PluginMessagePacket;
 
 /**
  * Provides connection phase specific actions.
- *
- * <p>Note that Forge phases are found in the enum
- * {@link LegacyForgeHandshakeBackendPhase}.</p>
  */
 public interface BackendConnectionPhase {
 

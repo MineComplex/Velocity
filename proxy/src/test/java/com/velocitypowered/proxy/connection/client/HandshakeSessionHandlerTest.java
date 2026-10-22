@@ -18,12 +18,13 @@
 package com.velocitypowered.proxy.connection.client;
 
 import static com.velocitypowered.proxy.connection.client.HandshakeSessionHandler.cleanVhost;
-import static com.velocitypowered.proxy.connection.forge.legacy.LegacyForgeConstants.HANDSHAKE_HOSTNAME_TOKEN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
 class HandshakeSessionHandlerTest {
+
+  private static final String HANDSHAKE_HOSTNAME_TOKEN = "\0FML\0";
 
   @Test
   void cleanVhostHandlesGoodHostname() {

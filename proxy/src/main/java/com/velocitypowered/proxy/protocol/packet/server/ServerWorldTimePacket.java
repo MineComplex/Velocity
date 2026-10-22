@@ -44,18 +44,10 @@ public class ServerWorldTimePacket implements MinecraftPacket {
   @Override
   public void encode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion protocolVersion) {
     buf.writeLong(worldAge);
-    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_26_1)) {
-      ProtocolUtils.writeVarInt(buf, 1); // map size
-      ProtocolUtils.writeVarInt(buf, 0); // overworld
-      buf.writeLong(timeOfDay);
-      buf.writeBoolean(false); // no ticking
-    } else {
-      buf.writeLong(timeOfDay);
-
-      if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_21_2)) {
-        buf.writeBoolean(false); // no ticking
-      }
-    }
+    ProtocolUtils.writeVarInt(buf, 1); // map size
+    ProtocolUtils.writeVarInt(buf, 0); // overworld
+    buf.writeLong(timeOfDay);
+    buf.writeBoolean(false); // no ticking
   }
 
   @Override

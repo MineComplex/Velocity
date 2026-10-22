@@ -73,7 +73,6 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import org.apache.logging.log4j.LogManager;
@@ -283,22 +282,8 @@ public class MinecraftConnection extends ChannelInboundHandlerAdapter {
    */
   public void closeWith(Object msg) {
     if (channel.isActive()) {
-      boolean is17 = this.getProtocolVersion().lessThan(ProtocolVersion.MINECRAFT_1_8)
-          && this.getProtocolVersion().noLessThan(ProtocolVersion.MINECRAFT_1_7_2);
-      if (is17 && this.getState() != StateRegistry.STATUS) {
-        channel.eventLoop().execute(() -> {
-          // 1.7.x versions have a race condition with switching protocol states, so just explicitly
-          // close the connection after a short while.
-          this.setAutoReading(false);
-          channel.eventLoop().schedule(() -> {
-            knownDisconnect = true;
-            channel.writeAndFlush(msg).addListener(ChannelFutureListener.CLOSE);
-          }, 250, TimeUnit.MILLISECONDS);
-        });
-      } else {
-        knownDisconnect = true;
-        channel.writeAndFlush(msg).addListener(ChannelFutureListener.CLOSE);
-      }
+      knownDisconnect = true;
+      channel.writeAndFlush(msg).addListener(ChannelFutureListener.CLOSE);
     }
   }
 

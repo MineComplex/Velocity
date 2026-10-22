@@ -43,24 +43,19 @@ public class NetworkSection {
   private int fluidCount = -1;
 
   public int getDataLength(ProtocolVersion version) {
-    int dataLength = ensureStorageCreated(version).getDataLength(version) + 2;
-    if (version.compareTo(ProtocolVersion.MINECRAFT_26_1) >= 0) {
-      dataLength += 2; // Fluid count short.
-    }
-    if (version.greaterThan(ProtocolVersion.MINECRAFT_1_17_1)) {
-      dataLength += ensure118BiomeCreated(version).getDataLength(version);
-    }
-    return dataLength;
+    return ensureStorageCreated(version).getDataLength(version)
+        + 2 // Block count short.
+        + 2 // Fluid count short.
+        + ensureBiomeCreated(version).getDataLength(version);
   }
 
   public void writeData(ByteBuf buf, int pass, ProtocolVersion version) {
     if (pass == 0) {
       BlockTypeStorage storage = ensureStorageCreated(version);
-      write114Data(buf, storage, version, pass);
-
-      if (version.greaterThan(ProtocolVersion.MINECRAFT_1_17_1)) {
-        write118Biomes(buf, version);
-      }
+      buf.writeShort(blockCount);
+      buf.writeShort(fluidCount);
+      storage.write(buf, version, pass);
+      ensureBiomeCreated(version).write(buf, version);
     }
   }
 
@@ -78,19 +73,7 @@ public class NetworkSection {
     return storage;
   }
 
-  private void write114Data(ByteBuf buf, BlockTypeStorage storage, ProtocolVersion version, int pass) {
-    buf.writeShort(blockCount);
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_26_1)) {
-      buf.writeShort(fluidCount);
-    }
-    storage.write(buf, version, pass);
-  }
-
-  private void write118Biomes(ByteBuf buf, ProtocolVersion version) {
-    ensure118BiomeCreated(version).write(buf, version);
-  }
-
-  private BiomeStorage ensure118BiomeCreated(ProtocolVersion version) {
+  private BiomeStorage ensureBiomeCreated(ProtocolVersion version) {
     BiomeStorage storage = biomeStorages.get(version);
     if (storage == null) {
       synchronized (biomeStorages) {

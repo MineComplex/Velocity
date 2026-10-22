@@ -42,18 +42,8 @@ public class ServerMapDataPacket implements MinecraftPacket {
   public void encode(@NotNull ByteBuf byteBuf, @NotNull ProtocolUtils.Direction direction, @NotNull ProtocolVersion protocolVersion) {
     ProtocolUtils.writeVarInt(byteBuf, mapId); // item damage
     byteBuf.writeByte(scaling);
-
-    if (protocolVersion.lessThan(ProtocolVersion.MINECRAFT_1_17)) {
-      byteBuf.writeBoolean(false); // no icon
-    }
-
     byteBuf.writeBoolean(locked);
-
-    if (protocolVersion.noLessThan(ProtocolVersion.MINECRAFT_1_17)) {
-      byteBuf.writeBoolean(false); // no icon
-    } else {
-      ProtocolUtils.writeVarInt(byteBuf, 0); // no icon
-    }
+    byteBuf.writeBoolean(false); // no icon
 
     byteBuf.writeByte(128); // rows
     byteBuf.writeByte(128); // columns

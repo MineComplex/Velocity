@@ -49,7 +49,7 @@ public class ClientboundStopSoundPacket implements MinecraftPacket {
     int flagsBitmask = buf.readByte();
 
     if ((flagsBitmask & 1) != 0) {
-      source = ProtocolUtils.readSoundSource(buf, protocolVersion);
+      source = ProtocolUtils.readSoundSource(buf);
     } else {
       source = null;
     }
@@ -75,7 +75,7 @@ public class ClientboundStopSoundPacket implements MinecraftPacket {
     buf.writeByte(flagsBitmask);
 
     if (source != null) {
-      ProtocolUtils.writeSoundSource(buf, protocolVersion, source);
+      ProtocolUtils.writeSoundSource(buf, source);
     }
 
     if (soundName != null) {
