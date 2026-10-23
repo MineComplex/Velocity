@@ -34,21 +34,12 @@ public interface ProxyConfig {
   int getShowMaxPlayers();
 
   /**
-   * Get whether the proxy is online mode. This determines if players are authenticated with Mojang.
-   * servers.
+   * Get whether the proxy is online mode. Players are always authenticated, by the
+   * {@link com.velocitypowered.api.proxy.auth.AuthHandler} set by a plugin.
    *
    * @return online mode enabled
    */
   boolean isOnlineMode();
-
-  /**
-   * If client's ISP/AS sent from this proxy is different from the one from Mojang's
-   * authentication server, the player is kicked. This disallows some VPN and proxy
-   * connections but is a weak form of protection.
-   *
-   * @return whether to prevent client proxy connections by checking the IP with Mojang servers
-   */
-  boolean shouldPreventClientProxyConnections();
 
   /**
    * Get a Map of all servers registered in <code>velocity.toml</code>. This method does
@@ -65,13 +56,6 @@ public interface ProxyConfig {
    * @return connection order list
    */
   List<String> getAttemptConnectionOrder();
-
-  /**
-   * Get forced servers mapped to a given virtual host.
-   *
-   * @return list of server names
-   */
-  Map<String, List<String>> getForcedHosts();
 
   /**
    * Get the minimum compression threshold for packets.

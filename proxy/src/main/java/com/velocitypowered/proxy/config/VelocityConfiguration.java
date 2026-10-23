@@ -37,8 +37,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -46,7 +44,6 @@ import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
@@ -64,10 +61,6 @@ public class VelocityConfiguration implements ProxyConfig {
   private String motd = "<aqua>A Velocity Server";
   @Expose
   private int showMaxPlayers = 500;
-  @Expose
-  private String authServer = "";
-  @Expose
-  private boolean preventClientProxyConnections = false;
   private byte[] forwardingSecret = generateRandomString(12).getBytes(StandardCharsets.UTF_8);
   @Expose
   private boolean announceForge = false;
@@ -76,7 +69,6 @@ public class VelocityConfiguration implements ProxyConfig {
   @Expose
   private boolean samplePlayersInPing = false;
   private final Servers servers;
-  private final ForcedHosts forcedHosts;
   @Expose
   private final Advanced advanced;
   @Expose
@@ -86,31 +78,25 @@ public class VelocityConfiguration implements ProxyConfig {
   @Expose
   private PacketLimiterConfig packetLimiterConfig = PacketLimiterConfig.DEFAULT;
 
-  private VelocityConfiguration(Servers servers, ForcedHosts forcedHosts, Advanced advanced) {
+  private VelocityConfiguration(Servers servers, Advanced advanced) {
     this.servers = servers;
-    this.forcedHosts = forcedHosts;
     this.advanced = advanced;
   }
 
-  private VelocityConfiguration(String bind, String motd, int showMaxPlayers, String authServer,
-                                boolean preventClientProxyConnections, boolean announceForge,
-                                byte[] forwardingSecret,
+  private VelocityConfiguration(String bind, String motd, int showMaxPlayers,
+                                boolean announceForge, byte[] forwardingSecret,
                                 boolean onlineModeKickExistingPlayers,
                                 boolean samplePlayersInPing, boolean enablePlayerAddressLogging, Servers servers,
-                                ForcedHosts forcedHosts, Advanced advanced,
-                                PacketLimiterConfig packetLimiterConfig) {
+                                Advanced advanced, PacketLimiterConfig packetLimiterConfig) {
     this.bind = bind;
     this.motd = motd;
     this.showMaxPlayers = showMaxPlayers;
-    this.authServer = authServer;
-    this.preventClientProxyConnections = preventClientProxyConnections;
     this.announceForge = announceForge;
     this.forwardingSecret = forwardingSecret;
     this.onlineModeKickExistingPlayers = onlineModeKickExistingPlayers;
     this.samplePlayersInPing = samplePlayersInPing;
     this.enablePlayerAddressLogging = enablePlayerAddressLogging;
     this.servers = servers;
-    this.forcedHosts = forcedHosts;
     this.advanced = advanced;
     this.packetLimiterConfig = packetLimiterConfig;
   }
@@ -135,22 +121,6 @@ public class VelocityConfiguration implements ProxyConfig {
       }
     }
 
-    // Players are authenticated only by the Minecomplex launcher backend (no Mojang, no offline mode)
-    URI authUri = null;
-    try {
-      authUri = authServer.isBlank() ? null : new URI(authServer);
-    } catch (URISyntaxException ignored) {
-      // Reported below
-    }
-    if (authUri == null || authUri.getHost() == null
-        || !("https".equals(authUri.getScheme()) || "http".equals(authUri.getScheme()))) {
-      logger.error("'auth-server' must be the http(s) URL of the launcher backend Yggdrasil API, "
-          + "for example https://api.minecomplex.ru/api/yggdrasil");
-      valid = false;
-    } else if ("http".equals(authUri.getScheme()) && !isLoopback(authUri.getHost())) {
-      logger.warn("'auth-server' uses plain HTTP. Use HTTPS outside of local development.");
-    }
-
     if (forwardingSecret == null || forwardingSecret.length == 0) {
       logger.error("You don't have a forwarding secret set. This is required for security.");
       valid = false;
@@ -173,21 +143,6 @@ public class VelocityConfiguration implements ProxyConfig {
       if (!servers.getServers().containsKey(s)) {
         logger.error("Fallback server " + s + " is not registered in your configuration!");
         valid = false;
-      }
-    }
-
-    for (Map.Entry<String, List<String>> entry : forcedHosts.getForcedHosts().entrySet()) {
-      if (entry.getValue().isEmpty()) {
-        logger.error("Forced host '{}' does not contain any servers", entry.getKey());
-        valid = false;
-        continue;
-      }
-
-      for (String server : entry.getValue()) {
-        if (!servers.getServers().containsKey(server)) {
-          logger.error("Server '{}' for forced host '{}' does not exist", server, entry.getKey());
-          valid = false;
-        }
       }
     }
 
@@ -258,29 +213,11 @@ public class VelocityConfiguration implements ProxyConfig {
   }
 
   /**
-   * Players are always authenticated, by the launcher backend.
+   * Players are always authenticated, by the token of their client.
    */
   @Override
   public boolean isOnlineMode() {
     return true;
-  }
-
-  /**
-   * Base URL of the launcher backend Yggdrasil API, without a trailing slash.
-   *
-   * @return the base URL, e.g. {@code https://api.minecomplex.ru/api/yggdrasil}
-   */
-  public String getAuthServer() {
-    return authServer.endsWith("/") ? authServer.substring(0, authServer.length() - 1) : authServer;
-  }
-
-  private static boolean isLoopback(String host) {
-    return host.equals("localhost") || host.equals("127.0.0.1") || host.equals("[::1]");
-  }
-
-  @Override
-  public boolean shouldPreventClientProxyConnections() {
-    return preventClientProxyConnections;
   }
 
   public byte[] getForwardingSecret() {
@@ -295,11 +232,6 @@ public class VelocityConfiguration implements ProxyConfig {
   @Override
   public List<String> getAttemptConnectionOrder() {
     return servers.getAttemptConnectionOrder();
-  }
-
-  @Override
-  public Map<String, List<String>> getForcedHosts() {
-    return forcedHosts.getForcedHosts();
   }
 
   @Override
@@ -416,11 +348,9 @@ public class VelocityConfiguration implements ProxyConfig {
         .add("bind", bind)
         .add("motd", motd)
         .add("showMaxPlayers", showMaxPlayers)
-        .add("authServer", authServer)
         .add("forwardingSecret", forwardingSecret)
         .add("announceForge", announceForge)
         .add("servers", servers)
-        .add("forcedHosts", forcedHosts)
         .add("advanced", advanced)
         .add("favicon", favicon)
         .add("enablePlayerAddressLogging", enablePlayerAddressLogging)
@@ -485,17 +415,12 @@ public class VelocityConfiguration implements ProxyConfig {
 
       // Read the rest of the config
       final CommentedConfig serversConfig = config.get("servers");
-      final CommentedConfig forcedHostsConfig = config.get("forced-hosts");
       final CommentedConfig advancedConfig = config.get("advanced");
       final boolean samplePlayersInPing = config.getOrElse("sample-players-in-ping", false);
 
       final String bind = config.getOrElse("bind", "0.0.0.0:25565");
       final int maxPlayers = config.getIntOrElse("show-max-players", 500);
-      final String authServer = System.getenv().getOrDefault("VELOCITY_AUTH_SERVER",
-          config.getOrElse("auth-server", "")).trim();
       final boolean announceForge = config.getOrElse("announce-forge", true);
-      final boolean preventClientProxyConnections = config.getOrElse(
-          "prevent-client-proxy-connections", false);
       final boolean kickExisting = config.getOrElse("kick-existing-players", false);
       final boolean enablePlayerAddressLogging = config.getOrElse(
           "enable-player-address-logging", true);
@@ -509,15 +434,12 @@ public class VelocityConfiguration implements ProxyConfig {
           bind,
           motd,
           maxPlayers,
-          authServer,
-          preventClientProxyConnections,
           announceForge,
           forwardingSecret,
           kickExisting,
           samplePlayersInPing,
           enablePlayerAddressLogging,
           new Servers(serversConfig),
-          new ForcedHosts(forcedHostsConfig),
           new Advanced(advancedConfig),
           packetLimiterConfig
       );
@@ -612,56 +534,6 @@ public class VelocityConfiguration implements ProxyConfig {
       return "Servers{"
           + "servers=" + servers
           + ", attemptConnectionOrder=" + attemptConnectionOrder
-          + '}';
-    }
-  }
-
-  private static class ForcedHosts {
-
-    private Map<String, List<String>> forcedHosts = ImmutableMap.of(
-        "lobby.example.com", ImmutableList.of("lobby"),
-        "factions.example.com", ImmutableList.of("factions"),
-        "minigames.example.com", ImmutableList.of("minigames")
-    );
-
-    private ForcedHosts() {
-    }
-
-    private ForcedHosts(CommentedConfig config) {
-      if (config != null) {
-        Map<String, List<String>> forcedHosts = new HashMap<>();
-        for (UnmodifiableConfig.Entry entry : config.entrySet()) {
-          if (entry.getValue() instanceof String) {
-            forcedHosts.put(entry.getKey().toLowerCase(Locale.ROOT),
-                ImmutableList.of(entry.getValue()));
-          } else if (entry.getValue() instanceof List) {
-            forcedHosts.put(entry.getKey().toLowerCase(Locale.ROOT),
-                ImmutableList.copyOf((List<String>) entry.getValue()));
-          } else {
-            throw new IllegalStateException(
-                "Invalid value of type " + entry.getValue().getClass() + " in forced hosts!");
-          }
-        }
-        this.forcedHosts = ImmutableMap.copyOf(forcedHosts);
-      }
-    }
-
-    private ForcedHosts(Map<String, List<String>> forcedHosts) {
-      this.forcedHosts = forcedHosts;
-    }
-
-    private Map<String, List<String>> getForcedHosts() {
-      return forcedHosts;
-    }
-
-    private void setForcedHosts(Map<String, List<String>> forcedHosts) {
-      this.forcedHosts = forcedHosts;
-    }
-
-    @Override
-    public String toString() {
-      return "ForcedHosts{"
-          + "forcedHosts=" + forcedHosts
           + '}';
     }
   }

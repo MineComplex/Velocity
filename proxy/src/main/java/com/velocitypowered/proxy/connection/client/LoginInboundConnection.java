@@ -137,6 +137,8 @@ public class LoginInboundConnection implements LoginPhaseConnection, KeyIdentifi
       } finally {
         final Runnable onAllMessagesHandled = this.onAllMessagesHandled;
         if (this.outstandingResponses.isEmpty() && onAllMessagesHandled != null) {
+          // Runs once: later messages (the token request) must not restart the login
+          this.onAllMessagesHandled = null;
           onAllMessagesHandled.run();
         }
       }
@@ -145,8 +147,8 @@ public class LoginInboundConnection implements LoginPhaseConnection, KeyIdentifi
 
   void loginEventFired(final Runnable onAllMessagesHandled) {
     this.loginEventFired = true;
-    this.onAllMessagesHandled = onAllMessagesHandled;
     if (!this.loginMessagesToSend.isEmpty()) {
+      this.onAllMessagesHandled = onAllMessagesHandled;
       LoginPluginMessagePacket message;
       while ((message = this.loginMessagesToSend.poll()) != null) {
         this.delegate.getConnection().delayedWrite(message);

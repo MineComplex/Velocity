@@ -9,16 +9,9 @@ motd = "<#09add3>A Velocity Server"
 # on the number of players online.)
 show-max-players = 500
 
-# Players are authenticated only by the Minecomplex launcher backend: the launcher client
-# joins through it and the proxy checks the join here. There is no Mojang authentication
-# and no offline mode. Base URL of the backend Yggdrasil API (the VELOCITY_AUTH_SERVER
-# environment variable overrides it).
-auth-server = "https://api.minecomplex.ru/api/yggdrasil"
-
-# If the IP of the player seen by this proxy is different from the one which joined through
-# the launcher backend, the player is kicked. This disallows some VPN and proxy
-# connections but is a weak form of protection.
-prevent-client-proxy-connections = false
+# Players are authenticated by the token of their client, checked by the auth handler of a
+# plugin (the Network plugin checks the launcher token). There is no Mojang authentication
+# and no offline mode: without an auth handler nobody can join.
 
 # File containing the shared secret for Velocity modern forwarding.
 # The file is expected to be UTF-8 encoded and not empty.
@@ -62,18 +55,6 @@ minigames = "127.0.0.1:30068"
 # In what order we should try servers when a player logs in or is kicked from a server.
 try = [
     "lobby"
-]
-
-[forced-hosts]
-# Configure your forced hosts here.
-"lobby.example.com" = [
-    "lobby"
-]
-"factions.example.com" = [
-    "factions"
-]
-"minigames.example.com" = [
-    "minigames"
 ]
 
 [advanced]
@@ -147,16 +128,3 @@ tab-complete-rate-limit = 10
 # How many tab completions are allowed to be sent after the rate limit is hit before the player is kicked?
 # Setting this to 0 or lower will disable this feature.
 kick-after-rate-limited-tab-completes = 0
-
-[query]
-# Whether to enable responding to GameSpy 4 query responses or not.
-enabled = false
-
-# If query is enabled, on what port should the query protocol listen on?
-port = 25565
-
-# This is the map name that is reported to the query services.
-map = "Velocity"
-
-# Whether plugins should be shown in query response by default or not
-show-plugins = false

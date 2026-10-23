@@ -11,6 +11,7 @@ import com.velocitypowered.api.command.CommandManager;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.event.EventManager;
 import com.velocitypowered.api.plugin.PluginManager;
+import com.velocitypowered.api.proxy.auth.AuthHandler;
 import com.velocitypowered.api.proxy.config.ProxyConfig;
 import com.velocitypowered.api.proxy.messages.ChannelRegistrar;
 import com.velocitypowered.api.proxy.player.ResourcePackInfo;
@@ -24,6 +25,7 @@ import java.util.Optional;
 import java.util.UUID;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Provides an interface to a Minecraft server proxy.
@@ -51,7 +53,6 @@ public interface ProxyServer extends Audience {
 
   /**
    * Closes all listening endpoints for this server.
-   * This includes the main minecraft listener and query channel.
    */
   void closeListeners();
 
@@ -230,4 +231,18 @@ public interface ProxyServer extends Audience {
    * @return a ResourcePackInfo builder
    */
   ResourcePackInfo.Builder createResourcePackBuilder(String url);
+
+  /**
+   * Sets the handler which authenticates players logging into the proxy.
+   *
+   * @param handler the handler, or {@code null} to let nobody join
+   */
+  void setAuthHandler(@Nullable AuthHandler handler);
+
+  /**
+   * Returns the handler which authenticates players logging into the proxy.
+   *
+   * @return the handler, empty if none is set
+   */
+  Optional<AuthHandler> getAuthHandler();
 }

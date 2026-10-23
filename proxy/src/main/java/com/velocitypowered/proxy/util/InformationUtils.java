@@ -18,7 +18,6 @@
 package com.velocitypowered.proxy.util;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -39,7 +38,6 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Helper class for {@code /velocity dump}.
@@ -116,26 +114,6 @@ public enum InformationUtils {
     envInfo.add("listener", listenerInfo);
 
     return envInfo;
-  }
-
-  /**
-   * Creates a {@link JsonObject} containing information about the forced hosts of the
-   * {@link ProxyConfig} instance.
-   *
-   * @return {@link JsonArray} containing forced hosts
-   */
-  public static JsonObject collectForcedHosts(ProxyConfig config) {
-    JsonObject forcedHosts = new JsonObject();
-    Map<String, List<String>> allForcedHosts = ImmutableMap.copyOf(
-        config.getForcedHosts());
-    for (Map.Entry<String, List<String>> entry : allForcedHosts.entrySet()) {
-      JsonArray host = new JsonArray();
-      for (int i = 0; i < entry.getValue().size(); i++) {
-        host.add(entry.getValue().get(i));
-      }
-      forcedHosts.add(entry.getKey(), host);
-    }
-    return forcedHosts;
   }
 
   /**

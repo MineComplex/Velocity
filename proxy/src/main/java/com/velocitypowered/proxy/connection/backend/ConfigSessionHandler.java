@@ -79,8 +79,6 @@ public class ConfigSessionHandler implements MinecraftSessionHandler {
   private final VelocityServerConnection serverConn;
   private final CompletableFuture<Impl> resultFuture;
 
-  private State state;
-
   /**
    * Creates the new transition handler.
    *
@@ -93,7 +91,6 @@ public class ConfigSessionHandler implements MinecraftSessionHandler {
     this.server = server;
     this.serverConn = serverConn;
     this.resultFuture = resultFuture;
-    this.state = State.START;
   }
 
   @Override
@@ -388,10 +385,4 @@ public class ConfigSessionHandler implements MinecraftSessionHandler {
     resultFuture.completeExceptionally(cause);
   }
 
-  /**
-   * Represents the state of the configuration stage.
-   */
-  public enum State {
-    START, NEGOTIATING, PLUGIN_MESSAGE_INTERRUPT, RESOURCE_PACK_INTERRUPT, COMPLETE
-  }
 }

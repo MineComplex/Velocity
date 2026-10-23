@@ -290,8 +290,6 @@ public final class VelocityCommand {
       final JsonObject proxyConfig = InformationUtils.collectProxyConfig(server.getConfiguration());
       proxyConfig.add("servers", servers);
       proxyConfig.add("connectOrder", connectOrder);
-      proxyConfig.add("forcedHosts",
-          InformationUtils.collectForcedHosts(server.getConfiguration()));
 
       final JsonObject dump = new JsonObject();
       dump.add("versionInfo", InformationUtils.collectProxyInfo(server.getVersion()));
