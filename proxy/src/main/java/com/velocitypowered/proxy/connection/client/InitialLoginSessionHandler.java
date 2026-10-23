@@ -18,11 +18,9 @@
 package com.velocitypowered.proxy.connection.client;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.velocitypowered.api.event.connection.PreLoginEvent;
 import com.velocitypowered.api.event.connection.PreLoginEvent.PreLoginComponentResult;
 import com.velocitypowered.api.util.GameProfile;
-import com.velocitypowered.api.util.UuidUtils;
 import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.connection.MinecraftConnection;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
@@ -38,6 +36,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -58,16 +57,24 @@ import static com.velocitypowered.proxy.crypto.EncryptionUtils.decryptRsa;
 import static com.velocitypowered.proxy.crypto.EncryptionUtils.generateServerId;
 
 /**
- * Handles authenticating the player to Mojang's servers.
+ * Handles authenticating the player through the Minecomplex launcher backend.
+ *
+ * <p>Every player must be authenticated: the launcher client redeems its launch ticket for a
+ * game token and joins through the backend, the proxy confirms the join with {@code hasJoined}.
+ * There is no Mojang authentication and no offline mode, so only the launcher client can join.
  */
 public class InitialLoginSessionHandler implements MinecraftSessionHandler {
 
   private static final Logger logger = LogManager.getLogger(InitialLoginSessionHandler.class);
   private static final SecureRandom SECURE_RANDOM = new SecureRandom();
-  private static final String MOJANG_HASJOINED_URL =
-      System.getProperty("mojang.sessionserver",
-              "https://sessionserver.mojang.com/session/minecraft/hasJoined")
-          .concat("?username=%s&serverId=%s");
+  private static final String HASJOINED_PATH =
+      "/sessionserver/session/minecraft/hasJoined?username=%s&serverId=%s";
+  private static final Component LAUNCHER_ONLY = Component.text(
+      "Вход на сервер возможен только через лаунчер Minecomplex.\n"
+          + "Если вы уже играете через лаунчер, перезапустите игру из лаунчера.",
+      NamedTextColor.RED);
+  private static final Component AUTH_UNAVAILABLE = Component.text(
+      "Сервер авторизации временно недоступен, попробуйте позже.", NamedTextColor.RED);
 
   private final VelocityServer server;
   public MinecraftConnection mcConnection;
@@ -111,23 +118,14 @@ public class InitialLoginSessionHandler implements MinecraftSessionHandler {
         }
 
         mcConnection.eventLoop().execute(() -> {
-          if (!result.isForceOfflineMode()
-              && (server.getConfiguration().isOnlineMode() || result.isOnlineModeAllowed())) {
-            // Request encryption.
-            EncryptionRequestPacket request = generateEncryptionRequest();
-            this.verify = Arrays.copyOf(request.getVerifyToken(), 4);
-            mcConnection.write(request);
-            this.currentState = LoginState.ENCRYPTION_REQUEST_SENT;
-          } else {
-            // Vortex start - Ability to change player's UUID for connecting username
-            GameProfile profile = new GameProfile(
-                event.getUniqueId() != null ? event.getUniqueId() : UuidUtils.generateOfflinePlayerUuid(login.getUsername()),
-                login.getUsername(),
-                ImmutableList.of());
-            // Vortex end
-            mcConnection.setActiveSessionHandler(StateRegistry.LOGIN,
-                new AuthSessionHandler(server, inbound, profile, false, null));
+          // Always authenticated by the launcher backend, a forced offline mode is ignored
+          if (result.isForceOfflineMode()) {
+            logger.debug("Ignoring forced offline mode for {}", login.getUsername());
           }
+          EncryptionRequestPacket request = generateEncryptionRequest();
+          this.verify = Arrays.copyOf(request.getVerifyToken(), 4);
+          mcConnection.write(request);
+          this.currentState = LoginState.ENCRYPTION_REQUEST_SENT;
         });
       });
     }, mcConnection.eventLoop()).exceptionally((ex) -> {
@@ -172,7 +170,7 @@ public class InitialLoginSessionHandler implements MinecraftSessionHandler {
 
       String serverId = generateServerId(decryptedSharedSecret, serverKeyPair.getPublic());
       String playerIp = ((InetSocketAddress) mcConnection.getRemoteAddress()).getHostString();
-      String url = String.format(MOJANG_HASJOINED_URL,
+      String url = server.getConfiguration().getAuthServer() + String.format(HASJOINED_PATH,
           urlFormParameterEscaper().escape(login.getUsername()), serverId);
 
       if (server.getConfiguration().shouldPreventClientProxyConnections()) {
@@ -194,27 +192,37 @@ public class InitialLoginSessionHandler implements MinecraftSessionHandler {
             }
 
             if (throwable != null) {
-              logger.error("Unable to authenticate player", throwable);
-              inbound.disconnect(Component.translatable("multiplayer.disconnect.authservers_down"));
+              logger.error("Unable to authenticate player through the launcher backend", throwable);
+              inbound.disconnect(AUTH_UNAVAILABLE);
               return;
             }
 
             if (response.statusCode() == 200) {
-              final GameProfile profile = GENERAL_GSON.fromJson(response.body(),
-                  GameProfile.class);
+              final GameProfile profile = parseProfile(response.body());
+              if (profile == null
+                  || !profile.getName().equalsIgnoreCase(login.getUsername())) {
+                logger.error("The launcher backend returned an invalid profile for {} ({})",
+                    login.getUsername(), playerIp);
+                inbound.disconnect(AUTH_UNAVAILABLE);
+                return;
+              }
               // All went well, initialize the session.
               mcConnection.setActiveSessionHandler(StateRegistry.LOGIN,
                   new AuthSessionHandler(server, inbound, profile, true, serverId));
             } else if (response.statusCode() == 204) {
-              // Apparently an offline-mode user logged onto this online-mode proxy.
-              inbound.disconnect(
-                  Component.translatable("velocity.error.online-mode-only", NamedTextColor.RED));
+              // Not joined through the launcher backend: not the launcher client, or another
+              // account / an expired game session
+              inbound.disconnect(LAUNCHER_ONLY);
             } else {
-              // Something else went wrong
-              logger.error(
-                  "Got an unexpected error code {} whilst contacting Mojang to log in {} ({})",
-                  response.statusCode(), login.getUsername(), playerIp);
-              inbound.disconnect(Component.translatable("multiplayer.disconnect.authservers_down"));
+              if (response.statusCode() == 403) {
+                logger.error("The launcher backend refused hasJoined from this proxy, add its IP "
+                    + "to MINECOMPLEX_YGGDRASIL_ALLOWED_SERVER_IPS of the backend");
+              } else {
+                logger.error(
+                    "Got an unexpected status {} from the launcher backend to log in {} ({})",
+                    response.statusCode(), login.getUsername(), playerIp);
+              }
+              inbound.disconnect(AUTH_UNAVAILABLE);
             }
           }, mcConnection.eventLoop())
           .whenComplete((ignored, throwable) -> {
@@ -225,6 +233,16 @@ public class InitialLoginSessionHandler implements MinecraftSessionHandler {
       mcConnection.close(true);
     }
     return true;
+  }
+
+  private static @Nullable GameProfile parseProfile(String body) {
+    try {
+      GameProfile profile = GENERAL_GSON.fromJson(body, GameProfile.class);
+      return profile != null && profile.getId() != null && profile.getName() != null
+          && !profile.getName().isEmpty() ? profile : null;
+    } catch (RuntimeException e) {
+      return null;
+    }
   }
 
   private EncryptionRequestPacket generateEncryptionRequest() {

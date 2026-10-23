@@ -9,11 +9,14 @@ motd = "<#09add3>A Velocity Server"
 # on the number of players online.)
 show-max-players = 500
 
-# Should we authenticate players with Mojang? By default, this is on.
-online-mode = true
+# Players are authenticated only by the Minecomplex launcher backend: the launcher client
+# joins through it and the proxy checks the join here. There is no Mojang authentication
+# and no offline mode. Base URL of the backend Yggdrasil API (the VELOCITY_AUTH_SERVER
+# environment variable overrides it).
+auth-server = "https://api.minecomplex.ru/api/yggdrasil"
 
-# If client's ISP/AS sent from this proxy is different from the one from Mojang's
-# authentication server, the player is kicked. This disallows some VPN and proxy
+# If the IP of the player seen by this proxy is different from the one which joined through
+# the launcher backend, the player is kicked. This disallows some VPN and proxy
 # connections but is a weak form of protection.
 prevent-client-proxy-connections = false
 
@@ -25,7 +28,7 @@ forwarding-secret-file = "forwarding.secret"
 # suggest turning this on.
 announce-forge = false
 
-# If enabled (default is false) and the proxy is in online mode, Velocity will kick
+# If enabled (default is false), Velocity will kick
 # any existing player who is online if a duplicate connection attempt is made.
 kick-existing-players = false
 

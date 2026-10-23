@@ -37,6 +37,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -63,7 +65,7 @@ public class VelocityConfiguration implements ProxyConfig {
   @Expose
   private int showMaxPlayers = 500;
   @Expose
-  private boolean onlineMode = true;
+  private String authServer = "";
   @Expose
   private boolean preventClientProxyConnections = false;
   private byte[] forwardingSecret = generateRandomString(12).getBytes(StandardCharsets.UTF_8);
@@ -90,7 +92,7 @@ public class VelocityConfiguration implements ProxyConfig {
     this.advanced = advanced;
   }
 
-  private VelocityConfiguration(String bind, String motd, int showMaxPlayers, boolean onlineMode,
+  private VelocityConfiguration(String bind, String motd, int showMaxPlayers, String authServer,
                                 boolean preventClientProxyConnections, boolean announceForge,
                                 byte[] forwardingSecret,
                                 boolean onlineModeKickExistingPlayers,
@@ -100,7 +102,7 @@ public class VelocityConfiguration implements ProxyConfig {
     this.bind = bind;
     this.motd = motd;
     this.showMaxPlayers = showMaxPlayers;
-    this.onlineMode = onlineMode;
+    this.authServer = authServer;
     this.preventClientProxyConnections = preventClientProxyConnections;
     this.announceForge = announceForge;
     this.forwardingSecret = forwardingSecret;
@@ -133,9 +135,20 @@ public class VelocityConfiguration implements ProxyConfig {
       }
     }
 
-    if (!onlineMode) {
-      logger.warn("The proxy is running in offline mode! This is a security risk and you will NOT "
-          + "receive any support!");
+    // Players are authenticated only by the Minecomplex launcher backend (no Mojang, no offline mode)
+    URI authUri = null;
+    try {
+      authUri = authServer.isBlank() ? null : new URI(authServer);
+    } catch (URISyntaxException ignored) {
+      // Reported below
+    }
+    if (authUri == null || authUri.getHost() == null
+        || !("https".equals(authUri.getScheme()) || "http".equals(authUri.getScheme()))) {
+      logger.error("'auth-server' must be the http(s) URL of the launcher backend Yggdrasil API, "
+          + "for example https://api.minecomplex.ru/api/yggdrasil");
+      valid = false;
+    } else if ("http".equals(authUri.getScheme()) && !isLoopback(authUri.getHost())) {
+      logger.warn("'auth-server' uses plain HTTP. Use HTTPS outside of local development.");
     }
 
     if (forwardingSecret == null || forwardingSecret.length == 0) {
@@ -244,9 +257,25 @@ public class VelocityConfiguration implements ProxyConfig {
     return showMaxPlayers;
   }
 
+  /**
+   * Players are always authenticated, by the launcher backend.
+   */
   @Override
   public boolean isOnlineMode() {
-    return onlineMode;
+    return true;
+  }
+
+  /**
+   * Base URL of the launcher backend Yggdrasil API, without a trailing slash.
+   *
+   * @return the base URL, e.g. {@code https://api.minecomplex.ru/api/yggdrasil}
+   */
+  public String getAuthServer() {
+    return authServer.endsWith("/") ? authServer.substring(0, authServer.length() - 1) : authServer;
+  }
+
+  private static boolean isLoopback(String host) {
+    return host.equals("localhost") || host.equals("127.0.0.1") || host.equals("[::1]");
   }
 
   @Override
@@ -387,7 +416,7 @@ public class VelocityConfiguration implements ProxyConfig {
         .add("bind", bind)
         .add("motd", motd)
         .add("showMaxPlayers", showMaxPlayers)
-        .add("onlineMode", onlineMode)
+        .add("authServer", authServer)
         .add("forwardingSecret", forwardingSecret)
         .add("announceForge", announceForge)
         .add("servers", servers)
@@ -462,7 +491,8 @@ public class VelocityConfiguration implements ProxyConfig {
 
       final String bind = config.getOrElse("bind", "0.0.0.0:25565");
       final int maxPlayers = config.getIntOrElse("show-max-players", 500);
-      final boolean onlineMode = config.getOrElse("online-mode", true);
+      final String authServer = System.getenv().getOrDefault("VELOCITY_AUTH_SERVER",
+          config.getOrElse("auth-server", "")).trim();
       final boolean announceForge = config.getOrElse("announce-forge", true);
       final boolean preventClientProxyConnections = config.getOrElse(
           "prevent-client-proxy-connections", false);
@@ -479,7 +509,7 @@ public class VelocityConfiguration implements ProxyConfig {
           bind,
           motd,
           maxPlayers,
-          onlineMode,
+          authServer,
           preventClientProxyConnections,
           announceForge,
           forwardingSecret,
