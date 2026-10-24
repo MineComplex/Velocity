@@ -17,8 +17,10 @@
 
 package com.velocitypowered.proxy.connection.player.resourcepack.handler;
 
+import com.velocitypowered.api.event.player.PlayerResourcePackStatusEvent;
 import com.velocitypowered.api.proxy.player.ResourcePackInfo;
 import com.velocitypowered.proxy.VelocityServer;
+import com.velocitypowered.proxy.connection.MinecraftConnection;
 import com.velocitypowered.proxy.connection.backend.VelocityServerConnection;
 import com.velocitypowered.proxy.connection.client.ConnectedPlayer;
 import com.velocitypowered.proxy.connection.player.resourcepack.ResourcePackResponseBundle;
@@ -162,6 +164,60 @@ public abstract sealed class ResourcePackHandler permits ModernResourcePackHandl
    * @param hash the resource pack hash
    */
   public abstract boolean hasPackAppliedByHash(final byte[] hash);
+
+  /**
+   * Check if the player has declined a pack of a backend server.
+   *
+   * @param hash the resource pack hash
+   */
+  public abstract boolean hasPackDeclinedByHash(final byte[] hash);
+
+  /**
+   * Removes the packs of backend servers from the client and forgets the declined ones.
+   */
+  public abstract void removeServerPacks();
+
+  /**
+   * Answers the backend for a pack with the hash of a pack the player has already applied or
+   * declined, the client does not get the request again.
+   *
+   * @param id the id of the request of the backend
+   * @param hash the resource pack hash
+   * @param backend the connection to the backend
+   * @return whether the pack is known and the backend is answered
+   */
+  public boolean answerKnownPack(final @Nullable UUID id, final byte[] hash,
+                                 final @Nullable MinecraftConnection backend) {
+    final PlayerResourcePackStatusEvent.Status status;
+    if (hasPackAppliedByHash(hash)) {
+      status = PlayerResourcePackStatusEvent.Status.SUCCESSFUL;
+    } else if (hasPackDeclinedByHash(hash)) {
+      status = PlayerResourcePackStatusEvent.Status.DECLINED;
+    } else {
+      return false;
+    }
+
+    if (backend != null) {
+      if (status == PlayerResourcePackStatusEvent.Status.SUCCESSFUL) {
+        // For conformity to normal state flow expectations
+        backend.write(new ResourcePackResponsePacket(id, PlayerResourcePackStatusEvent.Status.ACCEPTED));
+        backend.write(new ResourcePackResponsePacket(id, PlayerResourcePackStatusEvent.Status.DOWNLOADED));
+      }
+      backend.write(new ResourcePackResponsePacket(id, status));
+    }
+    return true;
+  }
+
+  /**
+   * Queues a pack of a backend server. Packs of servers stay on the client while the player
+   * switches servers, a new pack replaces them.
+   */
+  public void queueServerPack(final @NotNull ResourcePackInfo info) {
+    if (info.getHash() != null) {
+      removeServerPacks();
+    }
+    queueResourcePack(info);
+  }
 
   @SuppressWarnings("checkstyle:MissingJavadocMethod")
   public void checkAlreadyAppliedPack(final byte[] hash) {

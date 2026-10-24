@@ -72,7 +72,7 @@ public class InitialLoginSessionHandler implements MinecraftSessionHandler {
       "Сервер авторизации временно недоступен, попробуйте позже.", NamedTextColor.RED);
 
   private final VelocityServer server;
-  public MinecraftConnection mcConnection;
+  private final MinecraftConnection mcConnection;
   private final LoginInboundConnection inbound;
   private @MonotonicNonNull ServerLoginPacket login;
   private byte[] verify = EMPTY_BYTE_ARRAY;

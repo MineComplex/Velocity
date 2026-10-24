@@ -55,13 +55,13 @@ public class AuthSessionHandler implements MinecraftSessionHandler {
   private static final Logger logger = LogManager.getLogger(AuthSessionHandler.class);
 
   private final VelocityServer server;
-  public MinecraftConnection mcConnection;
+  private final MinecraftConnection mcConnection;
   private final LoginInboundConnection inbound;
   private GameProfile profile;
   private @MonotonicNonNull ConnectedPlayer connectedPlayer;
   private final boolean onlineMode;
   private State loginState = State.START; // 1.20.2+
-  public final String serverIdHash;
+  private final String serverIdHash;
 
   AuthSessionHandler(VelocityServer server, LoginInboundConnection inbound,
       GameProfile profile, boolean onlineMode, String serverIdHash) {
@@ -205,7 +205,7 @@ public class AuthSessionHandler implements MinecraftSessionHandler {
     });
   }
 
-  public CompletableFuture<Void> connectToInitialServer(ConnectedPlayer player) {
+  private CompletableFuture<Void> connectToInitialServer(ConnectedPlayer player) {
     Optional<RegisteredServer> initialFromConfig = player.getNextServerToTry();
     PlayerChooseInitialServerEvent event =
         new PlayerChooseInitialServerEvent(player, initialFromConfig.orElse(null));

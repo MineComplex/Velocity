@@ -60,10 +60,6 @@ import com.velocitypowered.proxy.plugin.loader.VelocityPluginContainer;
 import com.velocitypowered.proxy.plugin.loader.VelocityPluginDescription;
 import com.velocitypowered.proxy.plugin.virtual.VelocityVirtualPlugin;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
-import com.velocitypowered.proxy.protocol.data.block.Block;
-import com.velocitypowered.proxy.protocol.data.item.Item;
-import com.velocitypowered.proxy.protocol.data.tag.TagManager;
-import com.velocitypowered.proxy.protocol.data.tile.TileEntity;
 import com.velocitypowered.proxy.protocol.util.FaviconSerializer;
 import com.velocitypowered.proxy.protocol.util.GameProfileSerializer;
 import com.velocitypowered.proxy.scheduler.VelocityScheduler;
@@ -106,7 +102,6 @@ import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import lombok.Getter;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.ForwardingAudience;
 import net.kyori.adventure.key.Key;
@@ -158,8 +153,6 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
       .create();
   private static final int PRE_SHUTDOWN_TIMEOUT =
             Integer.getInteger("velocity.pre-shutdown-timeout", 10);
-  @Getter
-  public static VelocityServer instance;
   private final ConnectionManager cm;
   private final ProxyOptions options;
   private @MonotonicNonNull VelocityConfiguration configuration;
@@ -248,15 +241,9 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
   @EnsuresNonNull({"serverKeyPair", "servers", "pluginManager", "eventManager", "scheduler",
       "console", "cm", "configuration"})
   void start() {
-    instance = this;
     logger.info("Booting up {} {}...", getVersion().getName(), getVersion().getVersion());
     console.setupStreams();
     pluginManager.registerPlugin(this.createVirtualPlugin());
-
-    Block.init();
-    TileEntity.init();
-    Item.init();
-    TagManager.init();
 
     // Yes, you're reading that correctly. We're generating a 1024-bit RSA keypair. Sounds
     // dangerous, right? We're well within the realm of factoring such a key...

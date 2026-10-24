@@ -102,7 +102,7 @@ public class ClientPlaySessionHandler implements MinecraftSessionHandler {
   private static final Logger logger = LogManager.getLogger(ClientPlaySessionHandler.class);
 
   private final ConnectedPlayer player;
-  public boolean spawned = false;
+  private boolean spawned = false;
   private final Queue<PluginMessagePacket> loginPluginMessages = new ConcurrentLinkedQueue<>();
   private final AtomicLong loginPluginMessagesBytes = new AtomicLong();
   private final AtomicInteger loginPluginMessagesCount = new AtomicInteger();

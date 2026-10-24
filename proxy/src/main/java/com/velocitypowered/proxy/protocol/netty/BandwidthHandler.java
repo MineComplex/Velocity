@@ -22,32 +22,48 @@ import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
-import ru.minecomplex.network.filter.FilterStatistics;
+import java.util.concurrent.atomic.LongAdder;
 
+/**
+ * Counts the bytes of the connections of players since the start of the proxy.
+ */
 @ChannelHandler.Sharable
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class BandwidthHandler extends ChannelDuplexHandler {
-  public static final ChannelHandler INSTANCE = new BandwidthHandler();
+
+  public static final BandwidthHandler INSTANCE = new BandwidthHandler();
+
+  private static final LongAdder INCOMING = new LongAdder();
+  private static final LongAdder OUTGOING = new LongAdder();
+
+  private BandwidthHandler() {
+  }
+
+  /**
+   * Bytes received from players.
+   */
+  public static long getIncomingBytes() {
+    return INCOMING.sum();
+  }
+
+  /**
+   * Bytes sent to players.
+   */
+  public static long getOutgoingBytes() {
+    return OUTGOING.sum();
+  }
 
   @Override
-  public void channelRead(final ChannelHandlerContext ctx, final @NotNull Object msg) {
-    if (msg instanceof ByteBuf) {
-      // Increment the incoming traffic by the number of readable bytes
-      final int readableBytes = ((ByteBuf) msg).readableBytes();
-      FilterStatistics.perSecondIncomingTraffic += readableBytes;
+  public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
+    if (msg instanceof ByteBuf buf) {
+      INCOMING.add(buf.readableBytes());
     }
     ctx.fireChannelRead(msg);
   }
 
   @Override
-  public void write(final ChannelHandlerContext ctx, final Object msg, final ChannelPromise promise) throws Exception {
-    if (msg instanceof ByteBuf) {
-      // Increment the outgoing traffic by the number of readable bytes
-      final int readableBytes = ((ByteBuf) msg).readableBytes();
-      FilterStatistics.perSecondOutgoingTraffic += readableBytes;
+  public void write(final ChannelHandlerContext ctx, final Object msg, final ChannelPromise promise) {
+    if (msg instanceof ByteBuf buf) {
+      OUTGOING.add(buf.readableBytes());
     }
     ctx.write(msg, promise);
   }

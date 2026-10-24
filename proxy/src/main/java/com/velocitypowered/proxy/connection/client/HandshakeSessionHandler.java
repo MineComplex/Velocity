@@ -45,10 +45,10 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import ru.minecomplex.network.filter.FilterStatistics;
 
 /**
  * The initial handler used when a connection is established to the proxy. This will either
@@ -56,6 +56,12 @@ import ru.minecomplex.network.filter.FilterStatistics;
  * handshake packet is received.
  */
 public class HandshakeSessionHandler implements MinecraftSessionHandler {
+
+  private static final Component UNSUPPORTED_CLIENT = Component.text()
+      .append(Component.text("[✘] ", TextColor.color(0xFF3333)))
+      .append(Component.text("Вход на сервер возможен только через лаунчер MineComplex. "
+          + "Запустите игру из лаунчера.", NamedTextColor.RED))
+      .build();
 
   private static final Logger LOGGER = LogManager.getLogger(HandshakeSessionHandler.class);
   private static final long LOGIN_TIMEOUT_MILLIS =
@@ -126,15 +132,12 @@ public class HandshakeSessionHandler implements MinecraftSessionHandler {
   }
 
   private void handleLogin(HandshakePacket handshake, InitialInboundConnection ic) {
-    FilterStatistics.countLogin();
-
     if (!handshake.getProtocolVersion().isSupported()) {
       // Bump connection into correct protocol state so that we can send the disconnect packet.
       connection.setState(StateRegistry.LOGIN);
-      ic.disconnectQuietly(Component.translatable(
-          "multiplayer.disconnect.outdated_client",
-          Component.text(ProtocolVersion.SUPPORTED_VERSION_STRING)
-      ));
+      // The launcher always starts the supported version, another one is not from the launcher.
+      // The same reason as of a login without the token of the launcher
+      ic.disconnectQuietly(UNSUPPORTED_CLIENT);
       return;
     }
 

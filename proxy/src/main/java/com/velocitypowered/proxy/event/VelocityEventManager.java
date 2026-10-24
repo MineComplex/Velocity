@@ -96,7 +96,7 @@ public class VelocityEventManager implements EventManager {
 
   private final PluginManager pluginManager;
 
-  public final ListMultimap<Class<?>, HandlerRegistration> handlersByType =
+  private final ListMultimap<Class<?>, HandlerRegistration> handlersByType =
       ArrayListMultimap.create();
   private final LoadingCache<Class<?>, HandlersCache> handlersCache =
       Caffeine.newBuilder().build(this::bakeHandlers);
@@ -135,9 +135,9 @@ public class VelocityEventManager implements EventManager {
   /**
    * Represents the registration of a single {@link EventHandler}.
    */
-  public static final class HandlerRegistration {
+  static final class HandlerRegistration {
 
-    public final PluginContainer plugin;
+    final PluginContainer plugin;
     final short order;
     final Class<?> eventType;
     final EventHandler<Object> handler;
@@ -545,7 +545,7 @@ public class VelocityEventManager implements EventManager {
     }
   }
 
-  public static  <E> void fire(final @Nullable CompletableFuture<E> future, final E event,
+  private static <E> void fire(final @Nullable CompletableFuture<E> future, final E event,
                                final int offset, final boolean currentlyAsync, final HandlerRegistration[] registrations) {
     for (int i = offset; i < registrations.length; i++) {
       final HandlerRegistration registration = registrations[i];
@@ -593,12 +593,12 @@ public class VelocityEventManager implements EventManager {
     }
   }
 
-  public static final class ContinuationTask<E> implements Continuation, Runnable {
+  private static final class ContinuationTask<E> implements Continuation, Runnable {
 
     private final EventTask task;
     private final int index;
     private final HandlerRegistration[] registrations;
-    public final @Nullable CompletableFuture<E> future;
+    private final @Nullable CompletableFuture<E> future;
     private final boolean currentlyAsync;
     private final E event;
     private final Thread firedOnThread;
@@ -611,7 +611,7 @@ public class VelocityEventManager implements EventManager {
     @SuppressWarnings({"UnusedVariable", "FieldMayBeFinal"})
     private volatile boolean resumed = false;
 
-    public ContinuationTask(
+    private ContinuationTask(
         final EventTask task,
         final HandlerRegistration[] registrations,
         final @Nullable CompletableFuture<E> future,

@@ -24,11 +24,14 @@ import com.velocitypowered.api.proxy.player.ResourcePackInfo;
 import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.connection.client.ConnectedPlayer;
 import com.velocitypowered.proxy.connection.player.resourcepack.ResourcePackResponseBundle;
+import io.netty.buffer.ByteBufUtil;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import net.kyori.adventure.resource.ResourcePackRequest;
@@ -44,6 +47,8 @@ public final class ModernResourcePackHandler extends ResourcePackHandler {
       Multimaps.newListMultimap(new ConcurrentHashMap<>(), LinkedList::new);
   private final Map<UUID, ResourcePackInfo> pendingResourcePacks = new ConcurrentHashMap<>();
   private final Map<UUID, ResourcePackInfo> appliedResourcePacks = new ConcurrentHashMap<>();
+  // Hex hashes of packs of backend servers the player has declined
+  private final Set<String> declinedServerPacks = ConcurrentHashMap.newKeySet();
 
   ModernResourcePackHandler(final ConnectedPlayer player, final VelocityServer server) {
     super(player, server);
@@ -80,6 +85,7 @@ public final class ModernResourcePackHandler extends ResourcePackHandler {
     this.outstandingResourcePacks.clear();
     this.pendingResourcePacks.clear();
     this.appliedResourcePacks.clear();
+    this.declinedServerPacks.clear();
   }
 
   @Override
@@ -167,6 +173,10 @@ public final class ModernResourcePackHandler extends ResourcePackHandler {
       case DISCARDED, DECLINED, FAILED_RELOAD, FAILED_DOWNLOAD, INVALID_URL -> {
         pendingResourcePacks.remove(uuid);
         appliedResourcePacks.remove(uuid);
+        if (bundle.status() == PlayerResourcePackStatusEvent.Status.DECLINED && isServerPack(queued)
+            && queued.getHash() != null) {
+          declinedServerPacks.add(ByteBufUtil.hexDump(queued.getHash()));
+        }
       }
       // The other cases in which no action is taken are documented in the javadocs.
       default -> {
@@ -191,5 +201,28 @@ public final class ModernResourcePackHandler extends ResourcePackHandler {
       }
     }
     return false;
+  }
+
+  @Override
+  public boolean hasPackDeclinedByHash(final byte[] hash) {
+    return hash != null && declinedServerPacks.contains(ByteBufUtil.hexDump(hash));
+  }
+
+  @Override
+  public void removeServerPacks() {
+    declinedServerPacks.clear();
+    final List<UUID> serverPacks = new ArrayList<>();
+    for (final Map.Entry<UUID, ResourcePackInfo> pack : appliedResourcePacks.entrySet()) {
+      if (isServerPack(pack.getValue())) {
+        serverPacks.add(pack.getKey());
+      }
+    }
+    for (final UUID id : serverPacks) {
+      player.removeResourcePacks(id);
+    }
+  }
+
+  private static boolean isServerPack(final @Nullable ResourcePackInfo pack) {
+    return pack != null && pack.getOriginalOrigin() == ResourcePackInfo.Origin.DOWNSTREAM_SERVER;
   }
 }

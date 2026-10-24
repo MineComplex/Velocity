@@ -26,7 +26,6 @@ import com.velocitypowered.api.event.connection.PreTransferEvent;
 import com.velocitypowered.api.event.player.CookieRequestEvent;
 import com.velocitypowered.api.event.player.CookieStoreEvent;
 import com.velocitypowered.api.event.player.PlayerResourcePackStatusEvent;
-import com.velocitypowered.api.event.player.ServerResourcePackRemoveEvent;
 import com.velocitypowered.api.event.player.ServerResourcePackSendEvent;
 import com.velocitypowered.api.event.proxy.ProxyPingEvent;
 import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
@@ -90,7 +89,7 @@ public class BackendPlaySessionHandler implements MinecraftSessionHandler {
   private static final int LARGE_PACKET_THRESHOLD = 1024 * 128;
 
   private final VelocityServer server;
-  public final VelocityServerConnection serverConn;
+  private final VelocityServerConnection serverConn;
   private final ClientPlaySessionHandler playerSessionHandler;
   private final MinecraftConnection playerConnection;
   private boolean exceptionTriggered = false;
@@ -200,22 +199,15 @@ public class BackendPlaySessionHandler implements MinecraftSessionHandler {
               .setOriginalOrigin(ResourcePackInfo.Origin.DOWNSTREAM_SERVER);
           modifiedPack = true;
         }
-        if (serverConn.getPlayer().resourcePackHandler().hasPackAppliedByHash(toSend.getHash())) {
-          // Do not apply a resource pack that has already been applied
-          if (serverConn.getConnection() != null) {
-            serverConn.getConnection().write(new ResourcePackResponsePacket(
-                    packet.getId(), PlayerResourcePackStatusEvent.Status.ACCEPTED));
-            serverConn.getConnection().write(new ResourcePackResponsePacket(
-                packet.getId(), PlayerResourcePackStatusEvent.Status.DOWNLOADED));
-            serverConn.getConnection().write(new ResourcePackResponsePacket(
-                packet.getId(), PlayerResourcePackStatusEvent.Status.SUCCESSFUL));
-          }
+        final ResourcePackHandler packs = serverConn.getPlayer().resourcePackHandler();
+        // A pack already applied or declined by the player is not sent to it again
+        if (packs.answerKnownPack(packet.getId(), toSend.getHash(), serverConn.getConnection())) {
           if (modifiedPack) {
             logger.warn("A plugin has tried to modify a ResourcePack provided by the backend server "
-                    + "with a ResourcePack already applied, the applying of the resource pack will be skipped.");
+                    + "with a ResourcePack already applied or declined, the applying of the resource pack will be skipped.");
           }
         } else {
-          serverConn.getPlayer().resourcePackHandler().queueResourcePack(toSend);
+          packs.queueServerPack(toSend);
         }
       } else if (serverConn.getConnection() != null) {
         serverConn.getConnection().write(new ResourcePackResponsePacket(
@@ -237,26 +229,8 @@ public class BackendPlaySessionHandler implements MinecraftSessionHandler {
 
   @Override
   public boolean handle(RemoveResourcePackPacket packet) {
-    final ServerResourcePackRemoveEvent event = new ServerResourcePackRemoveEvent(
-            packet.getId(), this.serverConn);
-    server.getEventManager().fire(event).thenAcceptAsync(serverResourcePackRemoveEvent -> {
-      if (playerConnection.isClosed()) {
-        return;
-      }
-      if (serverResourcePackRemoveEvent.getResult().isAllowed()) {
-        final ConnectedPlayer player = serverConn.getPlayer();
-        final ResourcePackHandler handler = player.resourcePackHandler();
-        if (packet.getId() != null) {
-          handler.remove(packet.getId());
-        } else {
-          handler.clearAppliedResourcePacks();
-        }
-        playerConnection.write(packet);
-      }
-    }, playerConnection.eventLoop()).exceptionally((ex) -> {
-      logger.error("Exception while handling resource pack remove for {}", playerConnection, ex);
-      return null;
-    });
+    // Packs of servers stay on the client while the player switches servers, the pack of the next
+    // server replaces them (see ResourcePackHandler#queueServerPack)
     return true;
   }
 

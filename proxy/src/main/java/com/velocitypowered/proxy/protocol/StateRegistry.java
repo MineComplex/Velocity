@@ -54,13 +54,11 @@ import com.velocitypowered.proxy.protocol.packet.ServerboundCookieResponsePacket
 import com.velocitypowered.proxy.protocol.packet.ServerboundCustomClickActionPacket;
 import com.velocitypowered.proxy.protocol.packet.ServerboundPlayerLoadedPacket;
 import com.velocitypowered.proxy.protocol.packet.SetCompressionPacket;
-import com.velocitypowered.proxy.protocol.packet.SetHeldItemPacket;
 import com.velocitypowered.proxy.protocol.packet.StatusPingPacket;
 import com.velocitypowered.proxy.protocol.packet.StatusRequestPacket;
 import com.velocitypowered.proxy.protocol.packet.StatusResponsePacket;
 import com.velocitypowered.proxy.protocol.packet.TabCompleteRequestPacket;
 import com.velocitypowered.proxy.protocol.packet.TabCompleteResponsePacket;
-import com.velocitypowered.proxy.protocol.packet.TransactionPacket;
 import com.velocitypowered.proxy.protocol.packet.TransferPacket;
 import com.velocitypowered.proxy.protocol.packet.UpsertPlayerInfoPacket;
 import com.velocitypowered.proxy.protocol.packet.chat.ChatAcknowledgementPacket;
@@ -69,18 +67,7 @@ import com.velocitypowered.proxy.protocol.packet.chat.SystemChatPacket;
 import com.velocitypowered.proxy.protocol.packet.chat.session.SessionPlayerChatPacket;
 import com.velocitypowered.proxy.protocol.packet.chat.session.SessionPlayerCommandPacket;
 import com.velocitypowered.proxy.protocol.packet.chat.session.UnsignedPlayerCommandPacket;
-import com.velocitypowered.proxy.protocol.packet.client.ClientAnimationPacket;
-import com.velocitypowered.proxy.protocol.packet.client.ClientInteractPacket;
-import com.velocitypowered.proxy.protocol.packet.client.ClientMoveOnGroundOnlyPacket;
-import com.velocitypowered.proxy.protocol.packet.client.ClientMovePacket;
-import com.velocitypowered.proxy.protocol.packet.client.ClientMovePositionOnlyPacket;
-import com.velocitypowered.proxy.protocol.packet.client.ClientMoveRotationOnlyPacket;
-import com.velocitypowered.proxy.protocol.packet.client.ClientPaddleBoatPacket;
 import com.velocitypowered.proxy.protocol.packet.client.ClientPlayerChatSessionPacket;
-import com.velocitypowered.proxy.protocol.packet.client.ClientPlayerInputPacket;
-import com.velocitypowered.proxy.protocol.packet.client.ClientTeleportConfirmPacket;
-import com.velocitypowered.proxy.protocol.packet.client.ClientTickEndPacket;
-import com.velocitypowered.proxy.protocol.packet.client.ClientVehicleMovePacket;
 import com.velocitypowered.proxy.protocol.packet.config.ActiveFeaturesPacket;
 import com.velocitypowered.proxy.protocol.packet.config.ClientboundCustomReportDetailsPacket;
 import com.velocitypowered.proxy.protocol.packet.config.ClientboundServerLinksPacket;
@@ -91,30 +78,11 @@ import com.velocitypowered.proxy.protocol.packet.config.KnownPacksPacket;
 import com.velocitypowered.proxy.protocol.packet.config.RegistrySyncPacket;
 import com.velocitypowered.proxy.protocol.packet.config.StartUpdatePacket;
 import com.velocitypowered.proxy.protocol.packet.config.TagsUpdatePacket;
-import com.velocitypowered.proxy.protocol.packet.server.ServerChunkDataPacket;
-import com.velocitypowered.proxy.protocol.packet.server.ServerDefaultSpawnPositionPacket;
-import com.velocitypowered.proxy.protocol.packet.server.ServerEntityAnimationPacket;
-import com.velocitypowered.proxy.protocol.packet.server.ServerEntityMetadataPacket;
-import com.velocitypowered.proxy.protocol.packet.server.ServerExperiencePacket;
-import com.velocitypowered.proxy.protocol.packet.server.ServerGameStatePacket;
-import com.velocitypowered.proxy.protocol.packet.server.ServerInventorySetSlotPacket;
-import com.velocitypowered.proxy.protocol.packet.server.ServerMapDataPacket;
-import com.velocitypowered.proxy.protocol.packet.server.ServerPlayerAbilitiesPacket;
-import com.velocitypowered.proxy.protocol.packet.server.ServerPositionRotationPacket;
-import com.velocitypowered.proxy.protocol.packet.server.ServerRemoveEntitiesPacket;
-import com.velocitypowered.proxy.protocol.packet.server.ServerSetPassengersPacket;
-import com.velocitypowered.proxy.protocol.packet.server.ServerSpawnEntityPacket;
-import com.velocitypowered.proxy.protocol.packet.server.ServerTagsPacket;
-import com.velocitypowered.proxy.protocol.packet.server.ServerUpdateSectionBlocksPacket;
-import com.velocitypowered.proxy.protocol.packet.server.ServerViewPositionPacket;
-import com.velocitypowered.proxy.protocol.packet.server.ServerWorldTimePacket;
 import com.velocitypowered.proxy.protocol.packet.title.TitleActionbarPacket;
 import com.velocitypowered.proxy.protocol.packet.title.TitleClearPacket;
 import com.velocitypowered.proxy.protocol.packet.title.TitleSubtitlePacket;
 import com.velocitypowered.proxy.protocol.packet.title.TitleTextPacket;
 import com.velocitypowered.proxy.protocol.packet.title.TitleTimesPacket;
-import com.velocitypowered.proxy.util.collect.OverlayIntObjectMap;
-import com.velocitypowered.proxy.util.collect.OverlayObject2IntMap;
 import io.netty.util.collection.IntObjectHashMap;
 import io.netty.util.collection.IntObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -441,154 +409,13 @@ public enum StateRegistry {
           ClientboundCookieRequestPacket.class, ClientboundCookieRequestPacket::new,
           map(0x05, false));
     }
-  },
-  LIMBO {
-    {
-      overlayPlayRegistry(this, false);
-      overlayPlayRegistry(this, true);
-
-      // minecraft:move_player_status_only
-      serverbound.register(ClientMoveOnGroundOnlyPacket.class, ClientMoveOnGroundOnlyPacket::new,
-          map(0x21, false));
-      // minecraft:move_player_pos
-      serverbound.register(ClientMovePositionOnlyPacket.class, ClientMovePositionOnlyPacket::new,
-          map(0x1E, false));
-      // minecraft:move_player_rot
-      serverbound.register(ClientMoveRotationOnlyPacket.class, ClientMoveRotationOnlyPacket::new,
-          map(0x20, false));
-      // minecraft:move_player_pos_rot
-      serverbound.register(ClientMovePacket.class, ClientMovePacket::new,
-          map(0x1F, false));
-      // minecraft:accept_teleportation
-      serverbound.register(ClientTeleportConfirmPacket.class, ClientTeleportConfirmPacket::new,
-          map(0x00, false));
-
-      // minecraft:update_tags
-      clientbound.register(ServerTagsPacket.class, ServerTagsPacket::new,
-          map(0x89, true));
-      // minecraft:player_position
-      clientbound.register(ServerPositionRotationPacket.class, ServerPositionRotationPacket::new,
-          map(0x49, true));
-      // minecraft:player_abilities
-      clientbound.register(ServerPlayerAbilitiesPacket.class, ServerPlayerAbilitiesPacket::new,
-          map(0x41, true));
-      // minecraft:level_chunk_with_light
-      clientbound.register(ServerChunkDataPacket.class, ServerChunkDataPacket::new,
-          map(0x2E, true));
-      // minecraft:section_blocks_update
-      clientbound.register(ServerUpdateSectionBlocksPacket.class, ServerUpdateSectionBlocksPacket::new,
-          map(0x56, true));
-      // minecraft:set_default_spawn_position
-      clientbound.register(ServerDefaultSpawnPositionPacket.class, ServerDefaultSpawnPositionPacket::new,
-          map(0x63, true));
-      // minecraft:set_experience
-      clientbound.register(ServerExperiencePacket.class, ServerExperiencePacket::new,
-          map(0x69, true));
-      // minecraft:map_item_data
-      clientbound.register(ServerMapDataPacket.class, ServerMapDataPacket::new,
-          map(0x34, true));
-      // minecraft:game_event
-      clientbound.register(ServerGameStatePacket.class, ServerGameStatePacket::new,
-          map(0x27, true));
-      // minecraft:set_chunk_cache_center
-      clientbound.register(
-          ServerViewPositionPacket.class, null,
-          map(0x60, true));
-      // minecraft:set_time
-      clientbound.register(ServerWorldTimePacket.class, ServerWorldTimePacket::new,
-          map(0x73, true));
-    }
-  },
-  FILTER {
-    {
-      overlayLimboRegistry(this, false);
-      overlayLimboRegistry(this, true);
-
-      // minecraft:client_tick_end
-      serverbound.register(ClientTickEndPacket.class, ClientTickEndPacket::new,
-          map(0x0D, false));
-      // minecraft:set_carried_item
-      serverbound.register(SetHeldItemPacket.class, SetHeldItemPacket::new,
-          map(0x36, false));
-      // minecraft:paddle_boat
-      serverbound.register(ClientPaddleBoatPacket.class, ClientPaddleBoatPacket::new,
-          map(0x23, false));
-      // minecraft:player_input
-      serverbound.register(ClientPlayerInputPacket.class, ClientPlayerInputPacket::new,
-          map(0x2B, false));
-      // minecraft:move_vehicle
-      serverbound.register(ClientVehicleMovePacket.class, ClientVehicleMovePacket::new,
-          map(0x22, false));
-      // minecraft:pong
-      serverbound.register(TransactionPacket.class, TransactionPacket::new,
-          map(0x2D, false));
-      // minecraft:swing
-      serverbound.register(ClientAnimationPacket.class, ClientAnimationPacket::new,
-          map(0x2E, false));
-      // minecraft:interact
-      serverbound.register(ClientInteractPacket.class, ClientInteractPacket::new,
-          map(0x1A, false));
-
-      // minecraft:set_entity_data
-      clientbound.register(ServerEntityMetadataPacket.class, null,
-          map(0x65, true));
-      // minecraft:ping
-      clientbound.register(TransactionPacket.class, TransactionPacket::new,
-          map(0x3E, true));
-      // minecraft:remove_entities
-      clientbound.register(ServerRemoveEntitiesPacket.class, ServerRemoveEntitiesPacket::new,
-          map(0x4E, true));
-      // minecraft:set_passengers
-      clientbound.register(ServerSetPassengersPacket.class, ServerSetPassengersPacket::new,
-          map(0x6D, true));
-      clientbound.register(ServerSpawnEntityPacket.class, ServerSpawnEntityPacket::new,
-          map(0x01, true));
-      // minecraft:container_set_slot
-      clientbound.register(ServerInventorySetSlotPacket.class, ServerInventorySetSlotPacket::new,
-          map(0x14, true));
-      // minecraft:set_held_slot
-      clientbound.register(SetHeldItemPacket.class, SetHeldItemPacket::new,
-          map(0x6B, true));
-      clientbound.register(ServerEntityAnimationPacket.class, ServerEntityAnimationPacket::new,
-          map(0x02, true));
-    }
   };
-
-  public static void overlayPlayRegistry(StateRegistry stateRegistry, boolean clientbound) {
-    overlayRegistry(stateRegistry, PLAY, clientbound);
-  }
-
-  public static void overlayLimboRegistry(StateRegistry stateRegistry, boolean clientbound) {
-    overlayRegistry(stateRegistry, LIMBO, clientbound);
-  }
-
-  public static void overlayRegistry(StateRegistry stateRegistry, StateRegistry other, boolean clientbound) {
-    StateRegistry.PacketRegistry playRegistry = clientbound ? other.clientbound : other.serverbound;
-    StateRegistry.PacketRegistry registry = new PacketRegistry(playRegistry.direction, stateRegistry);
-
-    PacketRegistry.ProtocolRegistry playProtoRegistry = playRegistry.protocolRegistry;
-    PacketRegistry.ProtocolRegistry protoRegistry = registry.protocolRegistry;
-    protoRegistry.packetIdToSupplier = new OverlayIntObjectMap<>(playProtoRegistry.packetIdToSupplier,
-        new IntObjectHashMap<>(16, 0.5F));
-    Object2IntMap<Class<? extends MinecraftPacket>> packetClassToId = new Object2IntOpenHashMap<>(16, 0.5F);
-    packetClassToId.defaultReturnValue(playProtoRegistry.packetClassToId.defaultReturnValue());
-    protoRegistry.packetClassToId = new OverlayObject2IntMap<>(playProtoRegistry.packetClassToId, packetClassToId);
-
-    registry.fallback = false;
-
-    if (clientbound) {
-      stateRegistry.clientbound = registry;
-    } else {
-      stateRegistry.serverbound = registry;
-    }
-  }
-
 
   public static final int STATUS_ID = 1;
   public static final int LOGIN_ID = 2;
   public static final int TRANSFER_ID = 3;
-  public PacketRegistry clientbound = new PacketRegistry(CLIENTBOUND, this);
-  public PacketRegistry serverbound = new PacketRegistry(SERVERBOUND, this);
+  protected final PacketRegistry clientbound = new PacketRegistry(CLIENTBOUND, this);
+  protected final PacketRegistry serverbound = new PacketRegistry(SERVERBOUND, this);
 
   public StateRegistry.PacketRegistry.ProtocolRegistry getProtocolRegistry(Direction direction,
                                                                            ProtocolVersion version) {
@@ -615,10 +442,10 @@ public enum StateRegistry {
    */
   public static class PacketRegistry {
 
-    public Direction direction;
+    private final Direction direction;
     private final StateRegistry registry;
     private final ProtocolRegistry protocolRegistry = new ProtocolRegistry(MINECRAFT_26_3);
-    public boolean fallback = true;
+    boolean fallback = true;
 
     PacketRegistry(Direction direction, StateRegistry registry) {
       this.direction = direction;
@@ -662,10 +489,10 @@ public enum StateRegistry {
      */
     public class ProtocolRegistry {
 
-      public ProtocolVersion version;
-      public IntObjectMap<Supplier<? extends MinecraftPacket>> packetIdToSupplier =
+      public final ProtocolVersion version;
+      final IntObjectMap<Supplier<? extends MinecraftPacket>> packetIdToSupplier =
           new IntObjectHashMap<>(16, 0.5f);
-      public Object2IntMap<Class<? extends MinecraftPacket>> packetClassToId =
+      final Object2IntMap<Class<? extends MinecraftPacket>> packetClassToId =
           new Object2IntOpenHashMap<>(16, 0.5f);
 
       /**

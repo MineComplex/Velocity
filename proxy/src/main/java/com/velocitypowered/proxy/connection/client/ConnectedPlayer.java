@@ -138,7 +138,7 @@ public class ConnectedPlayer implements MinecraftConnectionAssociation, Player, 
   private static final int MAX_CHAT_MESSAGE_LENGTH = 256;
   private static final PlainTextComponentSerializer PASS_THRU_TRANSLATE =
       PlainTextComponentSerializer.builder().flattener(TranslatableMapper.FLATTENER).build();
-  public static final PermissionProvider DEFAULT_PERMISSIONS = s -> PermissionFunction.ALWAYS_UNDEFINED;
+  static final PermissionProvider DEFAULT_PERMISSIONS = s -> PermissionFunction.ALWAYS_UNDEFINED;
 
   private static final ComponentLogger logger = ComponentLogger.logger(ConnectedPlayer.class);
 
@@ -158,7 +158,7 @@ public class ConnectedPlayer implements MinecraftConnectionAssociation, Player, 
   private final @Nullable InetSocketAddress virtualHost;
   private final @Nullable String rawVirtualHost;
   private final HandshakeIntent handshakeIntent;
-  public GameProfile profile;
+  private GameProfile profile;
   private PermissionFunction permissionFunction;
   private int tryIndex = 0;
   private long ping = -1;
@@ -183,7 +183,7 @@ public class ConnectedPlayer implements MinecraftConnectionAssociation, Player, 
   private final ChatBuilderFactory chatBuilderFactory;
   private final BossBarManager bossBarManager;
 
-  public ConnectedPlayer(VelocityServer server, GameProfile profile, MinecraftConnection connection,
+  ConnectedPlayer(VelocityServer server, GameProfile profile, MinecraftConnection connection,
                   @Nullable InetSocketAddress virtualHost, @Nullable String rawVirtualHost, boolean onlineMode,
                   HandshakeIntent handshakeIntent) {
     this.server = server;
@@ -361,7 +361,7 @@ public class ConnectedPlayer implements MinecraftConnectionAssociation, Player, 
     return Optional.ofNullable(rawVirtualHost);
   }
 
-  public void setPermissionFunction(PermissionFunction permissionFunction) {
+  void setPermissionFunction(PermissionFunction permissionFunction) {
     this.permissionFunction = permissionFunction;
   }
 
@@ -785,7 +785,7 @@ public class ConnectedPlayer implements MinecraftConnectionAssociation, Player, 
     }
   }
 
-  public void teardown() {
+  void teardown() {
     if (connectionInFlight != null) {
       connectionInFlight.disconnect();
     }
@@ -873,7 +873,7 @@ public class ConnectedPlayer implements MinecraftConnectionAssociation, Player, 
     return clientBrand;
   }
 
-  public void setClientBrand(final @Nullable String clientBrand) {
+  void setClientBrand(final @Nullable String clientBrand) {
     this.clientBrand = clientBrand;
   }
 

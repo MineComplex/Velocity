@@ -46,7 +46,6 @@ import io.netty.buffer.Unpooled;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import lombok.Setter;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -63,7 +62,6 @@ public class ClientConfigSessionHandler implements MinecraftSessionHandler {
   private static final Logger logger = LogManager.getLogger(ClientConfigSessionHandler.class);
   private final VelocityServer server;
   private final ConnectedPlayer player;
-  @Setter
   private String brandChannel = null;
 
   private CompletableFuture<?> configurationFuture;

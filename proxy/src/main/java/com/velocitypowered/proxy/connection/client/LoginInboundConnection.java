@@ -49,7 +49,7 @@ public class LoginInboundConnection implements LoginPhaseConnection, KeyIdentifi
   private static final AtomicIntegerFieldUpdater<LoginInboundConnection> SEQUENCE_UPDATER =
       AtomicIntegerFieldUpdater.newUpdater(LoginInboundConnection.class, "sequenceCounter");
 
-  public InitialInboundConnection delegate;
+  private final InitialInboundConnection delegate;
   private final Int2ObjectMap<MessageConsumer> outstandingResponses;
   private volatile int sequenceCounter;
   private final Queue<LoginPluginMessagePacket> loginMessagesToSend;
