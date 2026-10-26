@@ -50,6 +50,11 @@ dependencies {
     api("org.mongodb:mongodb-driver-sync")
     api("org.apache.commons:commons-lang3")
     api("net.md-5:bungeecord-chat")
+    // gRPC for the connection of the plugins to the core
+    api("io.grpc:grpc-netty-shaded")
+    api("io.grpc:grpc-protobuf")
+    api("io.grpc:grpc-stub")
+    api("com.google.protobuf:protobuf-java")
 
     compileOnly(libs.auto.service.annotations)
     annotationProcessor(libs.auto.service)

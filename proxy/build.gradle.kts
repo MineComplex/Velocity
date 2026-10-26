@@ -36,6 +36,12 @@ tasks {
 
         transform(Log4j2PluginsCacheFileTransformer::class.java)
 
+        // gRPC finds its transport, name resolvers and balancers through service files spread over several jars
+        filesMatching("META-INF/services/**") {
+            duplicatesStrategy = DuplicatesStrategy.INCLUDE
+        }
+        mergeServiceFiles()
+
         // Exclude Checker Framework annotations
         exclude("org/checkerframework/checker/**")
 
